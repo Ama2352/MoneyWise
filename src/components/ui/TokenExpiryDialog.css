@@ -1,0 +1,81 @@
+/* Token Expiry Dialog Styles */
+
+.token-expiry-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.token-expiry-dialog {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.token-expiry-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.token-expiry-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+  margin: 0 0 0.75rem 0;
+}
+
+.token-expiry-message {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.token-expiry-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.token-expiry-button {
+  flex: 1;
+  min-width: 120px;
+}
+
+@media (max-width: 480px) {
+  .token-expiry-dialog {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .token-expiry-actions {
+    flex-direction: column;
+  }
+
+  .token-expiry-button {
+    width: 100%;
+  }
+}

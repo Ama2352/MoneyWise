@@ -1,0 +1,22 @@
+/* Card Component Styles */
+
+.card {
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #f9fafb;
+    font-weight: 600;
+    font-size: 16px;
+    color: #111827;
+}
+
+.card-content {
+    padding: 20px;
+}

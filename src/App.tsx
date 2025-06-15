@@ -1,35 +1,121 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+import { useToastContext } from './contexts'; // Renamed to avoid confusion with hook
+import { useAuth } from './contexts';
+import { LoginPage, RegisterPage, DashboardPage } from './pages';
+import { Loading, ToastContainer, TokenExpiryDialog } from './components/ui';
+import { ToastProvider, AuthProvider } from './contexts';
+import { ROUTES } from './constants';
+import { STORAGE_KEYS } from './constants';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+function AppContent() {
+  const {
+    isAuthenticated,
+    isLoading,
+    tokenExpired,
+    refreshToken,
+    clearTokenExpired,
+    logout,
+  } = useAuth();
+  const { toasts, removeToast } = useToastContext();
 
+  const handleStayLoggedIn = async () => {
+    const result = await refreshToken();
+    if (result.success && result.token) {
+      // Store new token
+      localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, result.token);
+      clearTokenExpired();
+      // No reload needed - AuthContext will handle the state update
+    } else {
+      // Refresh failed, logout
+      logout(false);
+    }
+  };
+
+  const handleTokenExpiryLogout = () => {
+    logout(true);
+    clearTokenExpired();
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Routes>
+        {/* Public Routes - redirect to dashboard if authenticated */}
+        <Route
+          path={ROUTES.LOGIN}
+          element={
+            !isAuthenticated ? (
+              <LoginPage />
+            ) : (
+              <Navigate to={ROUTES.DASHBOARD} replace />
+            )
+          }
+        />
+        <Route
+          path={ROUTES.REGISTER}
+          element={
+            !isAuthenticated ? (
+              <RegisterPage />
+            ) : (
+              <Navigate to={ROUTES.DASHBOARD} replace />
+            )
+          }
+        />
+
+        {/* Protected Routes - redirect to login if not authenticated */}
+        <Route
+          path={ROUTES.DASHBOARD}
+          element={
+            isAuthenticated ? (
+              <DashboardPage />
+            ) : (
+              <Navigate to={ROUTES.LOGIN} replace />
+            )
+          }
+        />
+
+        {/* Default Route */}
+        <Route
+          path={ROUTES.HOME}
+          element={
+            <Navigate
+              to={isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN}
+              replace
+            />
+          }
+        />
+      </Routes>
+
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+      <TokenExpiryDialog
+        isOpen={tokenExpired}
+        onStayLoggedIn={handleStayLoggedIn}
+        onLogout={handleTokenExpiryLogout}
+      />
     </>
-  )
+  );
 }
 
-export default App
+function App() {
+  return (
+    <div className="app">
+      <ToastProvider>
+        <AuthProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </AuthProvider>
+      </ToastProvider>
+    </div>
+  );
+}
+
+export default App;

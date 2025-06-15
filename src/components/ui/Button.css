@@ -1,0 +1,60 @@
+/* Button Component Styles */
+
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(23, 126, 137, 0.5);
+}
+
+/* Primary Button */
+.btn-primary {
+    background-color: var(--primary-500);
+    color: white;
+}
+
+.btn-primary:hover:not(.btn-disabled) {
+    background-color: var(--primary-600);
+}
+
+/* Secondary Button */
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover:not(.btn-disabled) {
+    background-color: #4b5563;
+}
+
+/* Danger Button */
+.btn-danger {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover:not(.btn-disabled) {
+    background-color: #dc2626;
+}
+
+/* Disabled State */
+.btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-disabled:hover {
+    transform: none;
+}
