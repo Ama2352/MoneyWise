@@ -9,6 +9,7 @@ import { useAuthContext } from './contexts';
 import { LoginPage, RegisterPage, DashboardPage } from './pages';
 import { Loading, ToastContainer, TokenExpiryDialog } from './components/ui';
 import { ToastProvider, AuthProvider, LanguageProvider } from './contexts';
+import { CurrencyExample } from './components/examples/CurrencyExample';
 import { ROUTES } from './constants';
 import { STORAGE_KEYS } from './constants';
 import './App.css';
@@ -68,8 +69,7 @@ function AppContent() {
               <Navigate to={ROUTES.DASHBOARD} replace />
             )
           }
-        />
-
+        />{' '}
         {/* Protected Routes - redirect to login if not authenticated */}
         <Route
           path={ROUTES.DASHBOARD}
@@ -81,7 +81,17 @@ function AppContent() {
             )
           }
         />
-
+        {/* Development Routes */}
+        <Route
+          path="/currency-test"
+          element={
+            isAuthenticated ? (
+              <CurrencyExample />
+            ) : (
+              <Navigate to={ROUTES.LOGIN} replace />
+            )
+          }
+        />
         {/* Default Route */}
         <Route
           path={ROUTES.HOME}

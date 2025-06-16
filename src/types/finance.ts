@@ -2,6 +2,8 @@
  * Money Management related type definitions
  */
 
+export type TransactionType = 'income' | 'expense';
+
 export interface Transaction {
   id: number;
   amount: number;

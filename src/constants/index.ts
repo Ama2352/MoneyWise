@@ -2,7 +2,12 @@
  * Application constants
  */
 
-import type { Language, LanguageOption } from '../types';
+import type {
+  Language,
+  LanguageOption,
+  CurrencyCode,
+  CurrencyInfo,
+} from '../types';
 
 export const APP_NAME = 'MoneyWise';
 export const APP_VERSION = '1.0.0';
@@ -65,14 +70,33 @@ export const CATEGORY_COLORS = [
   '#85C1E9',
 ] as const;
 
-// Currency options
-export const CURRENCIES = [
-  { value: 'USD', label: 'US Dollar ($)' },
-  { value: 'EUR', label: 'Euro (€)' },
-  { value: 'GBP', label: 'British Pound (£)' },
-  { value: 'JPY', label: 'Japanese Yen (¥)' },
-  { value: 'CAD', label: 'Canadian Dollar (C$)' },
-] as const;
+// Currency related constants
+export const CURRENCIES = {
+  USD: 'usd' as const,
+  VND: 'vnd' as const,
+} as const;
+
+export const CURRENCY_INFO: Record<CurrencyCode, CurrencyInfo> = {
+  usd: {
+    code: 'usd',
+    name: 'US Dollar',
+    symbol: '$',
+    locale: 'en-US',
+  },
+  vnd: {
+    code: 'vnd',
+    name: 'Vietnamese Dong',
+    symbol: '₫',
+    locale: 'vi-VN',
+  },
+} as const;
+
+export const EXCHANGE_API = {
+  PRIMARY_BASE_URL:
+    'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1',
+  FALLBACK_BASE_URL: 'https://latest.currency-api.pages.dev/v1',
+  CACHE_DURATION: 3600000, // 1 hour in milliseconds
+} as const;
 
 // Language settings
 export const LANGUAGES: LanguageOption[] = [

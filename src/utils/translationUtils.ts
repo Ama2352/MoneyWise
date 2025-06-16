@@ -91,19 +91,3 @@ export const formatDateForLocale = (
 
   return dateObj.toLocaleDateString(locale, { ...defaultOptions, ...options });
 };
-
-/**
- * Currency formatting helper that respects locale
- */
-export const formatCurrencyForLocale = (
-  amount: number,
-  language: 'en' | 'vi',
-  currency: string = 'USD'
-): string => {
-  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
-
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: currency,
-  }).format(amount);
-};
