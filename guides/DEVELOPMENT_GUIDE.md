@@ -570,7 +570,7 @@ export { transactionApi } from './transactionApi';
 // 1. Imports (external first, then internal)
 import React, { useState, useEffect } from 'react';
 import { SomeExternalLib } from 'external-lib';
-import { useAuth } from '../contexts';
+import { useAuthContext } from '../contexts';
 import { Button } from '../components/ui';
 import type { User } from '../types';
 import './ComponentName.css';
@@ -590,7 +590,7 @@ export const ComponentName: React.FC<ComponentProps> = ({
 }) => {
   // 4. Hooks (state first, then effects)
   const [isEditing, setIsEditing] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthContext();
 
   useEffect(() => {
     // Side effects
@@ -817,156 +817,96 @@ export const useFeature = (initialLoad = true): UseFeatureReturn => {
 
 The MoneyWise application supports multiple languages (English and Vietnamese) through a robust i18n system.
 
-### Using Translations in Components
+> 📚 **For complete documentation**, see [INTERNATIONALIZATION_GUIDE.md](./INTERNATIONALIZATION_GUIDE.md)
+
+### Hook Naming Conventions
+
+To avoid confusion, we use distinct naming conventions:
+
+**Language Hooks:**
+
+- `useLanguageContext()` - Context hook for standard usage (recommended)
+- `useTranslations()` - Direct hook for custom language features
+
+**Authentication Hooks:**
+
+- `useAuthContext()` - Context hook for standard usage (recommended)
+- `useAuthentication()` - Direct hook for custom auth features
+
+### Quick Usage Examples
+
+#### Standard Component (Most Common)
 
 ```typescript
-import { useLanguage } from '../hooks';
+import { useLanguageContext, useAuthContext } from '../contexts';
 
 const MyComponent = () => {
-  const { t, language, setLanguage } = useLanguage();
+  const { t } = useLanguageContext();
+  const { user, logout } = useAuthContext();
 
   return (
     <div>
-      <h1>{t('auth.loginTitle')}</h1>
-      <p>{t('dashboard.welcome')}</p>
-      <button onClick={() => setLanguage('vi')}>
-        Switch to Vietnamese
+      <h1>{t('dashboard.welcome')}</h1>
+      <p>{t('common.hello')}, {user?.firstName}!</p>
+      <button onClick={logout}>{t('auth.logout')}</button>
+    </div>
+  );
+};
+```
+
+#### Custom Language Feature
+
+```typescript
+import { useTranslations } from '../hooks';
+
+const AdvancedLanguageSwitcher = () => {
+  const { language, setLanguage, toggleLanguage, isLoading } = useTranslations();
+
+  // Custom language switching logic
+  return (
+    <div>
+      <button onClick={toggleLanguage} disabled={isLoading}>
+        {language === 'en' ? 'Switch to Vietnamese' : 'Chuyển sang tiếng Anh'}
       </button>
     </div>
   );
 };
 ```
 
-### Translation Key Structure
-
-Translations are organized by feature/domain:
+### Quick Translation Reference
 
 ```typescript
-// src/locales/en.ts
-export const en = {
-  common: {
-    loading: 'Loading...',
-    save: 'Save',
-    cancel: 'Cancel',
-  },
-  auth: {
-    loginTitle: 'Welcome Back',
-    loginButton: 'Sign In',
-    registerTitle: 'Create Account',
-  },
-  dashboard: {
-    title: 'Dashboard',
-    totalBalance: 'Total Balance',
-    monthlyIncome: 'Monthly Income',
-  },
-  validation: {
-    emailRequired: 'Email is required',
-    passwordTooShort: 'Password too short',
-  },
-};
-```
-
-### Adding New Translations
-
-1. **Add to type definition** (`src/types/common.ts`):
-
-```typescript
-export interface TranslationKeys {
-  // Add new section
-  myFeature: {
-    title: string;
-    description: string;
-  };
-}
-```
-
-2. **Add to English translations** (`src/locales/en.ts`):
-
-```typescript
-export const en = {
-  // ...existing translations
-  myFeature: {
-    title: 'My Feature',
-    description: 'This is my feature',
-  },
-};
-```
-
-3. **Add to Vietnamese translations** (`src/locales/vi.ts`):
-
-```typescript
-export const vi = {
-  // ...existing translations
-  myFeature: {
-    title: 'Tính năng của tôi',
-    description: 'Đây là tính năng của tôi',
-  },
-};
-```
-
-### Language Switching
-
-The app provides multiple ways to switch languages:
-
-1. **Language Switcher Component**:
-
-```typescript
-import { LanguageSwitcher } from '../components/ui';
-
-// Toggle button style
-<LanguageSwitcher variant="toggle" showText={false} />
-
-// Dropdown style with text
-<LanguageSwitcher variant="dropdown" showText={true} />
-```
-
-2. **Programmatic switching**:
-
-```typescript
-const { setLanguage, toggleLanguage } = useLanguage();
-
-// Set specific language
-setLanguage('vi');
-
-// Toggle between languages
-toggleLanguage();
-```
-
-### Best Practices for Translations
-
-✅ **DO:**
-
-- Use descriptive, hierarchical keys: `auth.validation.emailRequired`
-- Keep translations close to feature domains
-- Provide fallbacks for missing translations
-- Use the `t()` function consistently: `t('key.path')`
-
-❌ **DON'T:**
-
-- Hardcode user-facing strings: `<h1>Welcome</h1>`
-- Use property access: `t.auth.title` (use `t('auth.title')`)
-- Skip translations for new features
-- Mix languages in the same component
-
-### Language-Aware Formatting
-
-Use utility functions for locale-aware formatting:
-
-```typescript
-import { formatCurrency, formatDate, formatNumber } from '../utils';
-
+// Use hierarchical keys for better organization
 const MyComponent = () => {
-  const { language } = useLanguage();
+  const { t } = useLanguageContext();
 
   return (
     <div>
-      <p>{formatCurrency(1234.56, language)}</p>
-      <p>{formatDate(new Date(), language)}</p>
-      <p>{formatNumber(9876.543, language)}</p>
+      <h1>{t('auth.loginTitle')}</h1>           {/* 'Welcome Back' */}
+      <p>{t('dashboard.welcome')}</p>           {/* 'Welcome to your dashboard' */}
+      <span>{t('common.loading')}</span>        {/* 'Loading...' */}
+      <button>{t('common.save')}</button>       {/* 'Save' */}
     </div>
   );
 };
 ```
+
+### Key Development Rules
+
+✅ **DO:**
+
+- Use `useLanguageContext()` for standard components
+- Use `useAuthContext()` for authentication needs
+- Always use `t('key.path')` for user-facing text
+- Organize keys by feature: `auth.validation.emailRequired`
+
+❌ **DON'T:**
+
+- Hardcode strings: `<h1>Welcome</h1>`
+- Use old hook names: `useLanguage` from hooks
+- Mix hook types in same component
+
+> 📚 **For complete implementation details, architecture, and extension guide**, see [INTERNATIONALIZATION_GUIDE.md](./INTERNATIONALIZATION_GUIDE.md)
 
 ## ✅ Code Quality Standards
 
@@ -1019,16 +959,16 @@ const MyComponent = () => {
 
 ### Naming Conventions
 
-| Type                 | Convention                                      | Example                               |
-| -------------------- | ----------------------------------------------- | ------------------------------------- |
-| **Components**       | PascalCase                                      | `TransactionCard`, `UserProfile`      |
-| **Files**            | PascalCase for components, camelCase for others | `TransactionCard.tsx`, `userUtils.ts` |
-| **Functions**        | camelCase                                       | `calculateTotal`, `handleSubmit`      |
-| **Variables**        | camelCase                                       | `userName`, `isLoading`               |
-| **Constants**        | UPPER_SNAKE_CASE                                | `API_BASE_URL`, `MAX_RETRIES`         |
-| **CSS Classes**      | kebab-case                                      | `.transaction-card`, `.user-profile`  |
-| **Hooks**            | camelCase starting with 'use'                   | `useTransactions`, `useAuth`          |
-| **Types/Interfaces** | PascalCase                                      | `User`, `CreateTransactionRequest`    |
+| Type                 | Convention                                      | Example                                                   |
+| -------------------- | ----------------------------------------------- | --------------------------------------------------------- |
+| **Components**       | PascalCase                                      | `TransactionCard`, `UserProfile`                          |
+| **Files**            | PascalCase for components, camelCase for others | `TransactionCard.tsx`, `userUtils.ts`                     |
+| **Functions**        | camelCase                                       | `calculateTotal`, `handleSubmit`                          |
+| **Variables**        | camelCase                                       | `userName`, `isLoading`                                   |
+| **Constants**        | UPPER_SNAKE_CASE                                | `API_BASE_URL`, `MAX_RETRIES`                             |
+| **CSS Classes**      | kebab-case                                      | `.transaction-card`, `.user-profile`                      |
+| **Hooks**            | camelCase starting with 'use'                   | `useTransactions`, `useAuthContext`, `useLanguageContext` |
+| **Types/Interfaces** | PascalCase                                      | `User`, `CreateTransactionRequest`                        |
 
 ## 🚨 Common Mistakes to Avoid
 
@@ -1093,7 +1033,7 @@ const Page1 = ({ user, setUser }) => {
 };
 
 // ✅ DO: Use context for global state
-const { user, setUser } = useAuth();
+const { user, logout } = useAuthContext();
 ```
 
 ### ❌ Import Issues
@@ -1107,163 +1047,8 @@ import { functionB } from './fileB';
 import { functionA } from './fileA'; // ❌ Circular dependency
 
 // ❌ DON'T: Import from implementation files
-import { useAuth } from '../contexts/AuthContext'; // ❌ Import from implementation
+import { useAuthContext } from '../contexts/AuthContext'; // ❌ Import from implementation
 
 // ✅ DO: Import from index files
-import { useAuth } from '../contexts'; // ✅ Import from index
-```
-
-## 🌐 Language and Internationalization
-
-The MoneyWise application supports multiple languages (English and Vietnamese) through a robust i18n system.
-
-### Using Translations in Components
-
-```typescript
-import { useLanguage } from '../hooks';
-
-const MyComponent = () => {
-  const { t, language, setLanguage } = useLanguage();
-
-  return (
-    <div>
-      <h1>{t('auth.loginTitle')}</h1>
-      <p>{t('dashboard.welcome')}</p>
-      <button onClick={() => setLanguage('vi')}>
-        Switch to Vietnamese
-      </button>
-    </div>
-  );
-};
-```
-
-### Translation Key Structure
-
-Translations are organized by feature/domain:
-
-```typescript
-// src/locales/en.ts
-export const en = {
-  common: {
-    loading: 'Loading...',
-    save: 'Save',
-    cancel: 'Cancel',
-  },
-  auth: {
-    loginTitle: 'Welcome Back',
-    loginButton: 'Sign In',
-    registerTitle: 'Create Account',
-  },
-  dashboard: {
-    title: 'Dashboard',
-    totalBalance: 'Total Balance',
-    monthlyIncome: 'Monthly Income',
-  },
-  validation: {
-    emailRequired: 'Email is required',
-    passwordTooShort: 'Password too short',
-  },
-};
-```
-
-### Adding New Translations
-
-1. **Add to type definition** (`src/types/common.ts`):
-
-```typescript
-export interface TranslationKeys {
-  // Add new section
-  myFeature: {
-    title: string;
-    description: string;
-  };
-}
-```
-
-2. **Add to English translations** (`src/locales/en.ts`):
-
-```typescript
-export const en = {
-  // ...existing translations
-  myFeature: {
-    title: 'My Feature',
-    description: 'This is my feature',
-  },
-};
-```
-
-3. **Add to Vietnamese translations** (`src/locales/vi.ts`):
-
-```typescript
-export const vi = {
-  // ...existing translations
-  myFeature: {
-    title: 'Tính năng của tôi',
-    description: 'Đây là tính năng của tôi',
-  },
-};
-```
-
-### Language Switching
-
-The app provides multiple ways to switch languages:
-
-1. **Language Switcher Component**:
-
-```typescript
-import { LanguageSwitcher } from '../components/ui';
-
-// Toggle button style
-<LanguageSwitcher variant="toggle" showText={false} />
-
-// Dropdown style with text
-<LanguageSwitcher variant="dropdown" showText={true} />
-```
-
-2. **Programmatic switching**:
-
-```typescript
-const { setLanguage, toggleLanguage } = useLanguage();
-
-// Set specific language
-setLanguage('vi');
-
-// Toggle between languages
-toggleLanguage();
-```
-
-### Best Practices for Translations
-
-✅ **DO:**
-
-- Use descriptive, hierarchical keys: `auth.validation.emailRequired`
-- Keep translations close to feature domains
-- Provide fallbacks for missing translations
-- Use the `t()` function consistently: `t('key.path')`
-
-❌ **DON'T:**
-
-- Hardcode user-facing strings: `<h1>Welcome</h1>`
-- Use property access: `t.auth.title` (use `t('auth.title')`)
-- Skip translations for new features
-- Mix languages in the same component
-
-### Language-Aware Formatting
-
-Use utility functions for locale-aware formatting:
-
-```typescript
-import { formatCurrency, formatDate, formatNumber } from '../utils';
-
-const MyComponent = () => {
-  const { language } = useLanguage();
-
-  return (
-    <div>
-      <p>{formatCurrency(1234.56, language)}</p>
-      <p>{formatDate(new Date(), language)}</p>
-      <p>{formatNumber(9876.543, language)}</p>
-    </div>
-  );
-};
+import { useAuthContext } from '../contexts'; // ✅ Import from index
 ```

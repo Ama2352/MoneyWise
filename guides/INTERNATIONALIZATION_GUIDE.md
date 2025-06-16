@@ -1,8 +1,9 @@
-# Language Feature Implementation Documentation
+# Internationalization (i18n) Feature Guide
 
 ## 📋 Table of Contents
 
 - [🌐 Overview](#-overview)
+- [🎯 Hook Naming Conventions](#-hook-naming-conventions)
 - [🏗️ Architecture](#️-architecture)
 - [📂 File Structure](#-file-structure)
 - [🔧 Core Components](#-core-components)
@@ -34,6 +35,181 @@ The MoneyWise application includes a comprehensive internationalization (i18n) s
 - ✅ Locale-aware formatting (currency, dates, numbers)
 - ✅ Multiple UI components for language switching
 - ✅ Browser language detection
+- ✅ Clear hook naming conventions to avoid confusion
+
+---
+
+## 🎯 Hook Naming Conventions
+
+To avoid confusion between similar hooks and ensure clear import paths, this project uses distinct naming conventions for hooks and their corresponding context consumers.
+
+### Language Hooks
+
+#### 1. `useTranslations` (Hook - Direct Language Management)
+
+**Location:** `src/hooks/useLanguage.ts`
+**Export:** `useTranslations`
+**Purpose:** Direct language state management with React hooks
+**Usage:** When you need to build custom language functionality
+
+```typescript
+import { useTranslations } from '../hooks';
+
+const CustomLanguageComponent = () => {
+  const { language, setLanguage, t, translations, toggleLanguage, isLoading } = useTranslations();
+
+  // Direct access to language state management
+  // Use this when building custom language features
+  return (
+    <div>
+      <p>Current language: {language}</p>
+      <button onClick={toggleLanguage}>Toggle Language</button>
+    </div>
+  );
+};
+```
+
+#### 2. `useLanguageContext` (Context Hook - Consumer)
+
+**Location:** `src/contexts/LanguageContext.tsx`
+**Export:** `useLanguageContext`
+**Purpose:** Access language state through React Context
+**Usage:** Standard usage for components that need translations
+
+```typescript
+import { useLanguageContext } from '../contexts';
+
+const StandardComponent = () => {
+  const { t, language, setLanguage } = useLanguageContext();
+
+  // Standard usage for most components
+  return (
+    <div>
+      <h1>{t('common.title')}</h1>
+      <p>{t('common.description')}</p>
+    </div>
+  );
+};
+```
+
+### Authentication Hooks
+
+#### 1. `useAuthentication` (Hook - Direct Auth Management)
+
+**Location:** `src/hooks/useAuth.ts`
+**Export:** `useAuthentication`
+**Purpose:** Direct authentication state management with React hooks
+**Usage:** When you need to build custom authentication functionality
+
+```typescript
+import { useAuthentication } from '../hooks';
+
+const CustomAuthComponent = () => {
+  const {
+    userProfile,
+    isLoading,
+    isAuthenticated,
+    login,
+    register,
+    logout,
+    refreshToken
+  } = useAuthentication();
+
+  // Direct access to auth state management
+  // Use this when building custom auth features
+  return (
+    <div>
+      <p>User: {userProfile?.firstName}</p>
+      <p>Authenticated: {isAuthenticated ? 'Yes' : 'No'}</p>
+      {isLoading && <span>Loading...</span>}
+    </div>
+  );
+};
+```
+
+#### 2. `useAuthContext` (Context Hook - Consumer)
+
+**Location:** `src/contexts/AuthContext.tsx`
+**Export:** `useAuthContext`
+**Purpose:** Access authentication state through React Context
+**Usage:** Standard usage for components that need authentication
+
+```typescript
+import { useAuthContext } from '../contexts';
+
+const StandardComponent = () => {
+  const { userProfile, isAuthenticated, logout } = useAuthContext();
+
+  // Standard usage for most components
+  return (
+    <div>
+      {isAuthenticated ? (
+        <div>
+          <p>Welcome, {userProfile?.firstName}!</p>
+          <button onClick={() => logout()}>Logout</button>
+        </div>
+      ) : (
+        <p>Please log in</p>
+      )}
+    </div>
+  );
+};
+```
+
+### Import Patterns
+
+#### For Standard Components (Recommended)
+
+Most components should use the context hooks:
+
+```typescript
+import { useLanguageContext } from '../contexts';
+import { useAuthContext } from '../contexts';
+```
+
+#### For Custom Features
+
+Only use the direct hooks when building custom functionality:
+
+```typescript
+import { useTranslations } from '../hooks'; // For custom language features
+import { useAuthentication } from '../hooks'; // For custom auth features
+```
+
+### Migration Guide
+
+If you have old imports, update them as follows:
+
+```typescript
+// OLD (ambiguous)
+import { useLanguage } from '../hooks';
+import { useLanguage } from '../contexts';
+import { useAuth } from '../contexts';
+
+// NEW (clear)
+import { useTranslations } from '../hooks'; // For custom language features
+import { useLanguageContext } from '../contexts'; // For standard usage
+import { useAuthentication } from '../hooks'; // For custom auth features
+import { useAuthContext } from '../contexts'; // For standard auth usage
+```
+
+### Best Practices
+
+#### Language Hooks
+
+1. **Default Choice**: Use `useLanguageContext` for 95% of cases
+2. **Custom Features**: Only use `useTranslations` when building language-specific functionality
+
+#### Authentication Hooks
+
+1. **Default Choice**: Use `useAuthContext` for 95% of cases
+2. **Custom Features**: Only use `useAuthentication` when building auth-specific functionality
+
+#### General
+
+1. **Consistent Imports**: Stick to the import patterns shown above
+2. **Documentation**: Always document which hook you're using and why
+3. **Context First**: Prefer context hooks over direct hooks unless you need the extra functionality
 
 ---
 
@@ -85,10 +261,12 @@ src/
 ├── services/
 │   └── languageService.ts           # Language business logic and persistence
 ├── hooks/
-│   └── useLanguage.ts               # React hook for language management
+│   ├── useLanguage.ts               # React hook for language management
+│   └── useAuth.ts                   # React hook for authentication management
 ├── contexts/
 │   ├── index.ts                     # Context exports
-│   └── LanguageContext.tsx          # React context provider
+│   ├── LanguageContext.tsx          # React context provider for language
+│   └── AuthContext.tsx              # React context provider for authentication
 ├── components/
 │   └── ui/
 │       ├── LanguageSwitcher.tsx     # Language switching component
@@ -316,7 +494,7 @@ export const languageService = new LanguageService();
 **Purpose**: React hook that provides language state management and translation functions.
 
 ```typescript
-export interface UseLanguageReturn {
+export interface UseTranslationsReturn {
   language: Language; // Current language
   translations: TranslationKeys; // Full translation object
   t: (key: string, fallback?: string) => string; // Translation function
@@ -325,7 +503,7 @@ export interface UseLanguageReturn {
   isLoading: boolean; // Loading state
 }
 
-export const useLanguage = (): UseLanguageReturn => {
+export const useTranslations = (): UseTranslationsReturn => {
   const [language, setLanguageState] = useState<Language>(() =>
     languageService.getStoredLanguage()
   );
@@ -403,12 +581,12 @@ export const useLanguage = (): UseLanguageReturn => {
 **Purpose**: Provides global language state through React Context API.
 
 ```typescript
-type LanguageContextType = UseLanguageReturn;
+type LanguageContextType = UseTranslationsReturn;
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const languageHook = useLanguageHook();
+  const languageHook = useTranslations();
 
   return (
     <LanguageContext.Provider value={languageHook}>
@@ -418,10 +596,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 };
 
 // Custom hook to access language context
-export const useLanguage = (): LanguageContextType => {
+export const useLanguageContext = (): LanguageContextType => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
+    throw new Error('useLanguageContext must be used within a LanguageProvider');
   }
   return context;
 };
@@ -454,7 +632,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   showText = true,
   className = '',
 }) => {
-  const { language, setLanguage, toggleLanguage, isLoading } = useLanguage();
+  const { language, setLanguage, toggleLanguage, isLoading } = useLanguageContext();
 
   if (variant === 'toggle') {
     return (
@@ -510,7 +688,7 @@ User clicks language switcher
          ↓
 LanguageSwitcher calls setLanguage()
          ↓
-useLanguage hook updates state
+useTranslations hook updates state
          ↓
 languageService.saveLanguage() persists choice
          ↓
@@ -526,7 +704,7 @@ All t() calls return new language strings
 ```
 Component calls t('auth.loginTitle')
          ↓
-useLanguage hook receives call
+useLanguageContext hook receives call
          ↓
 getNestedValue() extracts value from translations
          ↓
@@ -542,7 +720,7 @@ App starts
          ↓
 LanguageProvider initializes
          ↓
-useLanguage hook calls languageService.getStoredLanguage()
+useTranslations hook calls languageService.getStoredLanguage()
          ↓
 Service checks localStorage → browser language → 'en' fallback
          ↓
@@ -558,10 +736,10 @@ All components receive initial translations
 ### Basic Translation Usage
 
 ```typescript
-import { useLanguage } from '../hooks';
+import { useLanguageContext } from '../contexts';
 
 const MyComponent = () => {
-  const { t } = useLanguage();
+  const { t } = useLanguageContext();
 
   return (
     <div>
@@ -576,11 +754,11 @@ const MyComponent = () => {
 ### Language Switching
 
 ```typescript
-import { useLanguage } from '../hooks';
+import { useLanguageContext } from '../contexts';
 import { LanguageSwitcher } from '../components/ui';
 
 const Header = () => {
-  const { language, setLanguage, toggleLanguage } = useLanguage();
+  const { language, setLanguage, toggleLanguage } = useLanguageContext();
 
   return (
     <header>
@@ -607,7 +785,7 @@ const Header = () => {
 
 ```typescript
 const LoginForm = () => {
-  const { t } = useLanguage();
+  const { t } = useLanguageContext();
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = (formData: LoginFormData) => {
@@ -643,13 +821,30 @@ const LoginForm = () => {
 };
 ```
 
+### Authentication with Translations
+
+```typescript
+const LoginPage = () => {
+  const { t } = useLanguageContext();
+  const { login, isLoading } = useAuthContext();
+
+  return (
+    <div>
+      <h1>{t('auth.loginTitle')}</h1>
+      <p>{t('auth.loginSubtitle')}</p>
+      {/* Form implementation */}
+    </div>
+  );
+};
+```
+
 ### Locale-Aware Formatting
 
 ```typescript
 import { formatCurrency, formatDate } from '../utils';
 
 const TransactionItem = ({ transaction }) => {
-  const { language } = useLanguage();
+  const { language } = useLanguageContext();
 
   return (
     <div>
@@ -707,7 +902,7 @@ localStorage.setItem('moneywise_language', 'invalid');
 // Refresh page → should fallback to English
 
 // Test translation function
-const { t } = useLanguage();
+const { t } = useLanguageContext();
 console.log(t('auth.loginTitle')); // Should return translation
 console.log(t('invalid.key')); // Should return 'invalid.key'
 console.log(t('invalid.key', 'Fallback')); // Should return 'Fallback'
@@ -854,7 +1049,7 @@ const t = (key: string, count?: number, params?: object) => {
 
 ---
 
-## 🎯 Best Practices Summary
+## 🎯 Summary
 
 ### ✅ DO
 
@@ -862,6 +1057,9 @@ const t = (key: string, count?: number, params?: object) => {
 - Provide fallbacks for all translations
 - Keep translations close to feature domains
 - Use the `t()` function consistently
+- Follow the hook naming conventions
+- Use `useLanguageContext` for standard usage
+- Use `useAuthContext` for standard authentication needs
 - Test all language combinations
 - Update documentation when adding translations
 
@@ -873,6 +1071,8 @@ const t = (key: string, count?: number, params?: object) => {
 - Skip translations for new features
 - Ignore accessibility considerations
 - Forget to handle edge cases
+- Mix up hook naming conventions
+- Use direct hooks when context hooks suffice
 
 ### 🔧 Maintenance
 
@@ -882,7 +1082,9 @@ const t = (key: string, count?: number, params?: object) => {
 - Test language switching in all browsers
 - Monitor localStorage usage
 - Consider performance implications of large translation files
+- Maintain consistent hook naming patterns
+- Document any new hook usage patterns
 
 ---
 
-This documentation provides a complete overview of the language feature implementation. The system is designed to be maintainable, extensible, and performant while providing an excellent user experience for multilingual support.
+This comprehensive guide provides everything needed to understand, implement, and extend the internationalization feature in the MoneyWise application, including the important hook naming conventions that prevent confusion and maintain code clarity.
