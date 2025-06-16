@@ -4,11 +4,11 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import { useToastContext } from './contexts'; // Renamed to avoid confusion with hook
-import { useAuth } from './contexts';
+import { useToastContext } from './contexts';
+import { useAuthContext } from './contexts';
 import { LoginPage, RegisterPage, DashboardPage } from './pages';
 import { Loading, ToastContainer, TokenExpiryDialog } from './components/ui';
-import { ToastProvider, AuthProvider } from './contexts';
+import { ToastProvider, AuthProvider, LanguageProvider } from './contexts';
 import { ROUTES } from './constants';
 import { STORAGE_KEYS } from './constants';
 import './App.css';
@@ -21,7 +21,7 @@ function AppContent() {
     refreshToken,
     clearTokenExpired,
     logout,
-  } = useAuth();
+  } = useAuthContext();
   const { toasts, removeToast } = useToastContext();
 
   const handleStayLoggedIn = async () => {
@@ -107,13 +107,15 @@ function AppContent() {
 function App() {
   return (
     <div className="app">
-      <ToastProvider>
-        <AuthProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </AuthProvider>
-      </ToastProvider>
+      <LanguageProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </AuthProvider>
+        </ToastProvider>
+      </LanguageProvider>
     </div>
   );
 }

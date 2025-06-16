@@ -9,7 +9,7 @@ import type {
   RegisterResponse,
 } from '../types';
 
-export interface UseAuthReturn {
+export interface UseAuthenticationReturn {
   userProfile: UserProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -30,7 +30,7 @@ export interface UseAuthReturn {
 }
 
 // Hook for managing authentication state and operations
-export const useAuth = (): UseAuthReturn => {
+export const useAuthentication = (): UseAuthenticationReturn => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);

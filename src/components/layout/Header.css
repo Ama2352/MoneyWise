@@ -44,10 +44,17 @@
     color: #3b82f6;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 .header-user {
     display: flex;
     align-items: center;
     gap: 16px;
+}
 }
 
 .user-name {
@@ -68,4 +75,28 @@
 
 .logout-btn:hover {
     background-color: #dc2626;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .header-content {
+        padding: 0 16px;
+        height: 56px;
+    }
+    
+    .header-nav {
+        display: none;
+    }
+    
+    .header-actions {
+        gap: 12px;
+    }
+    
+    .user-name {
+        display: none;
+    }
+    
+    .header-title {
+        font-size: 18px;
+    }
 }

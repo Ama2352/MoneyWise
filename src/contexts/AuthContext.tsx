@@ -1,9 +1,9 @@
 import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
-import { useAuth as useAuthHook } from '../hooks/useAuth';
-import type { UseAuthReturn } from '../hooks/useAuth';
+import { useAuthentication } from '../hooks/useAuth';
+import type { UseAuthenticationReturn } from '../hooks/useAuth';
 
-type AuthContextType = UseAuthReturn;
+type AuthContextType = UseAuthenticationReturn;
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     refreshToken,
     clearTokenExpired,
-  } = useAuthHook();
+  } = useAuthentication();
 
   return (
     <AuthContext.Provider
@@ -45,10 +45,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuthContext = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuthContext must be used within an AuthProvider');
   }
   return context;
 };

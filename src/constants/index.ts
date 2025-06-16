@@ -2,6 +2,8 @@
  * Application constants
  */
 
+import type { Language, LanguageOption } from '../types';
+
 export const APP_NAME = 'MoneyWise';
 export const APP_VERSION = '1.0.0';
 
@@ -11,6 +13,7 @@ export const STORAGE_KEYS = {
   REFRESH_TOKEN: 'refreshToken',
   USER_PREFERENCES: 'userPreferences',
   THEME: 'theme',
+  LANGUAGE: 'language',
 } as const;
 
 // Route paths
@@ -70,3 +73,19 @@ export const CURRENCIES = [
   { value: 'JPY', label: 'Japanese Yen (¥)' },
   { value: 'CAD', label: 'Canadian Dollar (C$)' },
 ] as const;
+
+// Language settings
+export const LANGUAGES: LanguageOption[] = [
+  {
+    code: 'en',
+    name: 'English',
+    flag: '🇺🇸',
+  },
+  {
+    code: 'vi',
+    name: 'Tiếng Việt',
+    flag: '🇻🇳',
+  },
+] as const;
+
+export const DEFAULT_LANGUAGE: Language = 'en';

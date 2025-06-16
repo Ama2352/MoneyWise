@@ -11,6 +11,7 @@ A comprehensive guide for building features in the MoneyWise React + TypeScript 
 - [🧩 Component Development Guidelines](#-component-development-guidelines)
 - [🔌 API Integration Best Practices](#-api-integration-best-practices)
 - [🪝 Custom Hooks Guidelines](#-custom-hooks-guidelines)
+- [🌐 Language and Internationalization](#-language-and-internationalization)
 - [🎨 Styling Guidelines](#-styling-guidelines)
 - [✅ Code Quality Standards](#-code-quality-standards)
 - [🚨 Common Mistakes to Avoid](#-common-mistakes-to-avoid)
@@ -812,6 +813,161 @@ export const useFeature = (initialLoad = true): UseFeatureReturn => {
 };
 ```
 
+## 🌐 Language and Internationalization
+
+The MoneyWise application supports multiple languages (English and Vietnamese) through a robust i18n system.
+
+### Using Translations in Components
+
+```typescript
+import { useLanguage } from '../hooks';
+
+const MyComponent = () => {
+  const { t, language, setLanguage } = useLanguage();
+
+  return (
+    <div>
+      <h1>{t('auth.loginTitle')}</h1>
+      <p>{t('dashboard.welcome')}</p>
+      <button onClick={() => setLanguage('vi')}>
+        Switch to Vietnamese
+      </button>
+    </div>
+  );
+};
+```
+
+### Translation Key Structure
+
+Translations are organized by feature/domain:
+
+```typescript
+// src/locales/en.ts
+export const en = {
+  common: {
+    loading: 'Loading...',
+    save: 'Save',
+    cancel: 'Cancel',
+  },
+  auth: {
+    loginTitle: 'Welcome Back',
+    loginButton: 'Sign In',
+    registerTitle: 'Create Account',
+  },
+  dashboard: {
+    title: 'Dashboard',
+    totalBalance: 'Total Balance',
+    monthlyIncome: 'Monthly Income',
+  },
+  validation: {
+    emailRequired: 'Email is required',
+    passwordTooShort: 'Password too short',
+  },
+};
+```
+
+### Adding New Translations
+
+1. **Add to type definition** (`src/types/common.ts`):
+
+```typescript
+export interface TranslationKeys {
+  // Add new section
+  myFeature: {
+    title: string;
+    description: string;
+  };
+}
+```
+
+2. **Add to English translations** (`src/locales/en.ts`):
+
+```typescript
+export const en = {
+  // ...existing translations
+  myFeature: {
+    title: 'My Feature',
+    description: 'This is my feature',
+  },
+};
+```
+
+3. **Add to Vietnamese translations** (`src/locales/vi.ts`):
+
+```typescript
+export const vi = {
+  // ...existing translations
+  myFeature: {
+    title: 'Tính năng của tôi',
+    description: 'Đây là tính năng của tôi',
+  },
+};
+```
+
+### Language Switching
+
+The app provides multiple ways to switch languages:
+
+1. **Language Switcher Component**:
+
+```typescript
+import { LanguageSwitcher } from '../components/ui';
+
+// Toggle button style
+<LanguageSwitcher variant="toggle" showText={false} />
+
+// Dropdown style with text
+<LanguageSwitcher variant="dropdown" showText={true} />
+```
+
+2. **Programmatic switching**:
+
+```typescript
+const { setLanguage, toggleLanguage } = useLanguage();
+
+// Set specific language
+setLanguage('vi');
+
+// Toggle between languages
+toggleLanguage();
+```
+
+### Best Practices for Translations
+
+✅ **DO:**
+
+- Use descriptive, hierarchical keys: `auth.validation.emailRequired`
+- Keep translations close to feature domains
+- Provide fallbacks for missing translations
+- Use the `t()` function consistently: `t('key.path')`
+
+❌ **DON'T:**
+
+- Hardcode user-facing strings: `<h1>Welcome</h1>`
+- Use property access: `t.auth.title` (use `t('auth.title')`)
+- Skip translations for new features
+- Mix languages in the same component
+
+### Language-Aware Formatting
+
+Use utility functions for locale-aware formatting:
+
+```typescript
+import { formatCurrency, formatDate, formatNumber } from '../utils';
+
+const MyComponent = () => {
+  const { language } = useLanguage();
+
+  return (
+    <div>
+      <p>{formatCurrency(1234.56, language)}</p>
+      <p>{formatDate(new Date(), language)}</p>
+      <p>{formatNumber(9876.543, language)}</p>
+    </div>
+  );
+};
+```
+
 ## ✅ Code Quality Standards
 
 ### TypeScript Requirements
@@ -957,74 +1113,157 @@ import { useAuth } from '../contexts/AuthContext'; // ❌ Import from implementa
 import { useAuth } from '../contexts'; // ✅ Import from index
 ```
 
-## 📝 Examples
+## 🌐 Language and Internationalization
 
-### Complete Feature Checklist
+The MoneyWise application supports multiple languages (English and Vietnamese) through a robust i18n system.
 
-When building a new feature, ensure you have:
+### Using Translations in Components
 
-- [ ] **Types defined** in `src/types/`
-- [ ] **API functions** in `src/api/`
-- [ ] **Custom hook** in `src/hooks/` (if needed)
-- [ ] **UI components** in `src/components/ui/`
-- [ ] **Feature components** in `src/components/`
-- [ ] **Page component** in `src/pages/`
-- [ ] **Routes added** to `src/App.tsx`
-- [ ] **Constants added** to `src/constants/`
-- [ ] **Utils created** in `src/utils/` (if needed)
-- [ ] **Styles added** with proper naming
-- [ ] **Error handling** implemented
-- [ ] **Loading states** handled
-- [ ] **TypeScript errors** resolved
-- [ ] **Exports added** to index files
+```typescript
+import { useLanguage } from '../hooks';
 
-### Git Workflow
+const MyComponent = () => {
+  const { t, language, setLanguage } = useLanguage();
 
-```bash
-# 1. Create feature branch
-git checkout -b feature/transaction-management
-
-# 2. Follow the development steps above
-
-# 3. Commit with meaningful messages
-git add .
-git commit -m "feat: add transaction management API and hooks"
-
-git add .
-git commit -m "feat: add transaction UI components and page"
-
-git add .
-git commit -m "feat: integrate transaction routes and navigation"
-
-# 4. Push and create PR
-git push origin feature/transaction-management
+  return (
+    <div>
+      <h1>{t('auth.loginTitle')}</h1>
+      <p>{t('dashboard.welcome')}</p>
+      <button onClick={() => setLanguage('vi')}>
+        Switch to Vietnamese
+      </button>
+    </div>
+  );
+};
 ```
 
-### Code Review Checklist
+### Translation Key Structure
 
-When reviewing code, check:
+Translations are organized by feature/domain:
 
-- [ ] Follows architecture layers correctly
-- [ ] TypeScript types are properly defined
-- [ ] Error handling is implemented
-- [ ] Loading states are handled
-- [ ] CSS follows naming conventions
-- [ ] No circular dependencies
-- [ ] Imports are from index files
-- [ ] Components are properly exported
-- [ ] Code is readable and well-commented
+```typescript
+// src/locales/en.ts
+export const en = {
+  common: {
+    loading: 'Loading...',
+    save: 'Save',
+    cancel: 'Cancel',
+  },
+  auth: {
+    loginTitle: 'Welcome Back',
+    loginButton: 'Sign In',
+    registerTitle: 'Create Account',
+  },
+  dashboard: {
+    title: 'Dashboard',
+    totalBalance: 'Total Balance',
+    monthlyIncome: 'Monthly Income',
+  },
+  validation: {
+    emailRequired: 'Email is required',
+    passwordTooShort: 'Password too short',
+  },
+};
+```
 
-## 🎯 Final Tips
+### Adding New Translations
 
-1. **Start Small**: Build one component at a time, test, then move to the next
-2. **Follow the Flow**: Always go API → Hook → Component → Page → Route
-3. **Use Types**: Define interfaces before writing implementation
-4. **Test Early**: Test each layer as you build it
-5. **Keep It Simple**: Don't over-engineer - add complexity only when needed
-6. **Ask Questions**: When in doubt about architecture, refer back to this guide
+1. **Add to type definition** (`src/types/common.ts`):
 
-Remember: **Consistency is more important than perfection**. Follow these patterns, and your codebase will remain maintainable and scalable! 🚀
+```typescript
+export interface TranslationKeys {
+  // Add new section
+  myFeature: {
+    title: string;
+    description: string;
+  };
+}
+```
 
----
+2. **Add to English translations** (`src/locales/en.ts`):
 
-_Happy coding! 💻✨_
+```typescript
+export const en = {
+  // ...existing translations
+  myFeature: {
+    title: 'My Feature',
+    description: 'This is my feature',
+  },
+};
+```
+
+3. **Add to Vietnamese translations** (`src/locales/vi.ts`):
+
+```typescript
+export const vi = {
+  // ...existing translations
+  myFeature: {
+    title: 'Tính năng của tôi',
+    description: 'Đây là tính năng của tôi',
+  },
+};
+```
+
+### Language Switching
+
+The app provides multiple ways to switch languages:
+
+1. **Language Switcher Component**:
+
+```typescript
+import { LanguageSwitcher } from '../components/ui';
+
+// Toggle button style
+<LanguageSwitcher variant="toggle" showText={false} />
+
+// Dropdown style with text
+<LanguageSwitcher variant="dropdown" showText={true} />
+```
+
+2. **Programmatic switching**:
+
+```typescript
+const { setLanguage, toggleLanguage } = useLanguage();
+
+// Set specific language
+setLanguage('vi');
+
+// Toggle between languages
+toggleLanguage();
+```
+
+### Best Practices for Translations
+
+✅ **DO:**
+
+- Use descriptive, hierarchical keys: `auth.validation.emailRequired`
+- Keep translations close to feature domains
+- Provide fallbacks for missing translations
+- Use the `t()` function consistently: `t('key.path')`
+
+❌ **DON'T:**
+
+- Hardcode user-facing strings: `<h1>Welcome</h1>`
+- Use property access: `t.auth.title` (use `t('auth.title')`)
+- Skip translations for new features
+- Mix languages in the same component
+
+### Language-Aware Formatting
+
+Use utility functions for locale-aware formatting:
+
+```typescript
+import { formatCurrency, formatDate, formatNumber } from '../utils';
+
+const MyComponent = () => {
+  const { language } = useLanguage();
+
+  return (
+    <div>
+      <p>{formatCurrency(1234.56, language)}</p>
+      <p>{formatDate(new Date(), language)}</p>
+      <p>{formatNumber(9876.543, language)}</p>
+    </div>
+  );
+};
+```

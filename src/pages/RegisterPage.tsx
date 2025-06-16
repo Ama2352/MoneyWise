@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts';
+import { useAuthContext } from '../contexts';
 import { useToastContext } from '../contexts'; // Renamed to avoid confusion with hook
+import { useLanguageContext } from '../contexts';
 import { Button, Input, Card } from '../components/ui';
 import { validateEmail, validateRequired, validatePassword } from '../utils';
 import { ROUTES } from '../constants';
@@ -17,8 +18,9 @@ interface RegisterFormData {
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { register, isLoading } = useAuth();
+  const { register, isLoading } = useAuthContext();
   const { showSuccess, showError } = useToastContext();
+  const { t } = useLanguageContext();
   const [formData, setFormData] = useState<RegisterFormData>({
     firstName: '',
     lastName: '',
@@ -45,32 +47,46 @@ const RegisterPage = () => {
     const newErrors: Partial<RegisterFormData> = {};
 
     if (!validateRequired(formData.firstName)) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = t('validation.firstNameRequired');
     }
 
     if (!validateRequired(formData.lastName)) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = t('validation.lastNameRequired');
     }
 
     if (!validateRequired(formData.email)) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('validation.emailRequired');
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = t('validation.emailInvalid');
     }
 
     if (!validateRequired(formData.password)) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('validation.passwordRequired');
     } else {
       const passwordValidation = validatePassword(formData.password);
       if (!passwordValidation.isValid) {
-        newErrors.password = passwordValidation.errors[0]; // Show first error
+        // Map the first error to appropriate translation key
+        const firstError = passwordValidation.errors[0];
+        if (firstError.includes('8 characters')) {
+          newErrors.password = t('validation.passwordTooShort');
+        } else if (firstError.includes('uppercase')) {
+          newErrors.password = t('validation.passwordMissingUppercase');
+        } else if (firstError.includes('lowercase')) {
+          newErrors.password = t('validation.passwordMissingLowercase');
+        } else if (firstError.includes('number')) {
+          newErrors.password = t('validation.passwordMissingNumber');
+        } else if (firstError.includes('special')) {
+          newErrors.password = t('validation.passwordMissingSpecial');
+        } else {
+          newErrors.password = firstError; // Fallback to original error
+        }
       }
     }
 
     if (!validateRequired(formData.confirmPassword)) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = t('validation.confirmPasswordRequired');
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t('validation.passwordsNotMatch');
     }
 
     setErrors(newErrors);
@@ -91,36 +107,32 @@ const RegisterPage = () => {
         password: formData.password,
         confirmPassword: formData.confirmPassword,
       });
-
       if (result.success) {
         // Registration successful, show toast and then navigate
-        showSuccess(
-          'Registration successful! Please log in with your credentials.'
-        );
+        showSuccess(t('auth.registerSuccess'));
         navigate(ROUTES.LOGIN);
       } else {
-        showError(result.error || 'Registration failed. Please try again.');
+        showError(result.error || t('auth.registerFailed'));
       }
     } catch (error) {
       console.error('Registration error:', error);
-      showError('Registration failed. Please try again.');
+      showError(t('auth.registerFailed'));
     }
   };
   return (
     <div className="auth-container">
       <div className="auth-background"></div>
       <div className="auth-content">
+        {' '}
         <div className="auth-form-container">
           <div className="auth-brand">
             <div className="auth-brand-icon">💰</div>
-            <h1 className="auth-brand-title">Money Wise</h1>
+            <h1 className="auth-brand-title">{t('app.title')}</h1>
           </div>
 
           <div className="auth-header">
-            <h2 className="auth-title">Create Account</h2>
-            <p className="auth-subtitle">
-              Join us to start managing your finances
-            </p>
+            <h2 className="auth-title">{t('auth.registerTitle')}</h2>
+            <p className="auth-subtitle">{t('auth.registerSubtitle')}</p>
           </div>
 
           <Card className="auth-card">
@@ -128,9 +140,10 @@ const RegisterPage = () => {
             <form onSubmit={handleSubmit} className="auth-form" noValidate>
               <div className="form-row">
                 <div className="form-group">
+                  {' '}
                   <Input
                     type="text"
-                    placeholder="First name"
+                    placeholder={t('auth.firstNamePlaceholder')}
                     value={formData.firstName}
                     onChange={(value: string) =>
                       handleInputChange('firstName', value)
@@ -153,9 +166,10 @@ const RegisterPage = () => {
                   />
                 </div>
                 <div className="form-group">
+                  {' '}
                   <Input
                     type="text"
-                    placeholder="Last name"
+                    placeholder={t('auth.lastNamePlaceholder')}
                     value={formData.lastName}
                     onChange={(value: string) =>
                       handleInputChange('lastName', value)
@@ -178,11 +192,11 @@ const RegisterPage = () => {
                   />
                 </div>
               </div>
-
               <div className="form-group">
+                {' '}
                 <Input
                   type="email"
-                  placeholder="Email address"
+                  placeholder={t('auth.emailAddressPlaceholder')}
                   value={formData.email}
                   onChange={(value: string) =>
                     handleInputChange('email', value)
@@ -204,11 +218,11 @@ const RegisterPage = () => {
                   }
                 />
               </div>
-
               <div className="form-group">
+                {' '}
                 <Input
                   type="password"
-                  placeholder="Password"
+                  placeholder={t('auth.passwordPlaceholder')}
                   value={formData.password}
                   onChange={(value: string) =>
                     handleInputChange('password', value)
@@ -232,11 +246,11 @@ const RegisterPage = () => {
                   }
                 />
               </div>
-
               <div className="form-group">
+                {' '}
                 <Input
                   type="password"
-                  placeholder="Confirm password"
+                  placeholder={t('auth.confirmPasswordPlaceholder')}
                   value={formData.confirmPassword}
                   onChange={(value: string) =>
                     handleInputChange('confirmPassword', value)
@@ -260,23 +274,22 @@ const RegisterPage = () => {
                   }
                 />
               </div>
-
               <div className="form-actions">
+                {' '}
                 <Button
                   type="submit"
                   variant="primary"
                   disabled={isLoading}
                   className="auth-submit-btn"
                 >
-                  {isLoading ? 'Creating account...' : 'Create Account'}
+                  {isLoading ? t('auth.registering') : t('auth.registerButton')}
                 </Button>
-              </div>
-
+              </div>{' '}
               <div className="auth-footer">
                 <p className="auth-switch">
-                  Already have an account?{' '}
+                  {t('auth.hasAccount')}{' '}
                   <Link to={ROUTES.LOGIN} className="auth-link">
-                    Sign in
+                    {t('auth.signIn')}
                   </Link>
                 </p>
               </div>

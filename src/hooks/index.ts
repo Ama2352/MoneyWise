@@ -4,4 +4,5 @@
 
 export { useApi } from './useApi';
 export { useToast } from './useToast';
-export { useAuth } from './useAuth';
+export { useAuthentication } from './useAuth';
+export { useTranslations } from './useLanguage';

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts';
+import { useAuthContext } from '../contexts';
 import { useToastContext } from '../contexts'; // Renamed to avoid confusion with hook
+import { useLanguageContext } from '../contexts';
 import { Button, Input, Card } from '../components/ui';
 import type { LoginFormData } from '../types';
 import { validateEmail, validateRequired } from '../utils';
@@ -9,8 +10,9 @@ import { ROUTES } from '../constants';
 import './LoginPage.css';
 
 const LoginPage = () => {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading } = useAuthContext();
   const { showError } = useToastContext();
+  const { t } = useLanguageContext();
 
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -35,15 +37,15 @@ const LoginPage = () => {
     const newErrors: Partial<LoginFormData> = {};
 
     if (!validateRequired(formData.email)) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('validation.emailRequired');
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = t('validation.emailInvalid');
     }
 
     if (!validateRequired(formData.password)) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('validation.passwordRequired');
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = t('validation.passwordTooShort');
     }
 
     setErrors(newErrors);
@@ -63,19 +65,14 @@ const LoginPage = () => {
       });
       if (result.success) {
         // Store success message for dashboard to show
-        sessionStorage.setItem(
-          'loginSuccess',
-          'Welcome back! Login successful.'
-        );
+        sessionStorage.setItem('loginSuccess', t('auth.loginSuccess'));
         // React Router will handle navigation automatically when isAuthenticated becomes true
       } else {
-        showError(
-          result.error || 'Login failed. Please check your credentials.'
-        );
+        showError(result.error || t('auth.loginFailed'));
       }
     } catch (error) {
       console.error('Login error:', error);
-      showError('Login failed. Please check your credentials and try again.');
+      showError(t('auth.loginFailed'));
     }
   };
   return (
@@ -83,23 +80,23 @@ const LoginPage = () => {
       <div className="auth-background"></div>
       <div className="auth-content">
         <div className="auth-form-container">
+          {' '}
           <div className="auth-brand">
             <div className="auth-brand-icon">💰</div>
-            <h1 className="auth-brand-title">Money Wise</h1>
+            <h1 className="auth-brand-title">{t('app.title')}</h1>
           </div>
-
           <div className="auth-header">
-            <h2 className="auth-title">Welcome Back</h2>
-            <p className="auth-subtitle">Sign in to your account to continue</p>
+            <h2 className="auth-title">{t('auth.loginTitle')}</h2>
+            <p className="auth-subtitle">{t('auth.loginSubtitle')}</p>
           </div>
-
           <Card className="auth-card">
             <form onSubmit={handleSubmit} className="auth-form" noValidate>
               {' '}
               <div className="form-group">
+                {' '}
                 <Input
                   type="email"
-                  placeholder="Email address"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={formData.email}
                   onChange={(value: string) =>
                     handleInputChange('email', value)
@@ -122,9 +119,10 @@ const LoginPage = () => {
                 />
               </div>
               <div className="form-group">
+                {' '}
                 <Input
                   type="password"
-                  placeholder="Password"
+                  placeholder={t('auth.passwordPlaceholder')}
                   value={formData.password}
                   onChange={(value: string) =>
                     handleInputChange('password', value)
@@ -149,20 +147,21 @@ const LoginPage = () => {
                 />
               </div>
               <div className="form-actions">
+                {' '}
                 <Button
                   type="submit"
                   variant="primary"
                   disabled={isLoading}
                   className="auth-submit-btn"
                 >
-                  {isLoading ? 'Signing in...' : 'Sign In'}
+                  {isLoading ? t('auth.loggingIn') : t('auth.loginButton')}
                 </Button>
-              </div>
+              </div>{' '}
               <div className="auth-footer">
                 <p className="auth-switch">
-                  Don't have an account?{' '}
+                  {t('auth.noAccount')}{' '}
                   <Link to={ROUTES.REGISTER} className="auth-link">
-                    Sign up
+                    {t('auth.signUp')}
                   </Link>
                 </p>
               </div>
