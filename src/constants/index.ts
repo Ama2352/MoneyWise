@@ -27,11 +27,13 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   DASHBOARD: '/dashboard',
+  WALLETS: '/wallets',
   TRANSACTIONS: '/transactions',
   CATEGORIES: '/categories',
-  ACCOUNTS: '/accounts',
-  BUDGETS: '/budgets',
-  PROFILE: '/profile',
+  ANALYTICS: '/analytics',
+  REPORTS: '/reports',
+  SAVING_GOALS: '/saving-goals',
+  BUDGET: '/budget',
   SETTINGS: '/settings',
 } as const;
 

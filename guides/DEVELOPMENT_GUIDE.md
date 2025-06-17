@@ -7,6 +7,7 @@ A comprehensive guide for building features in the MoneyWise React + TypeScript 
 - [🏗️ Architecture Overview](#️-architecture-overview)
 - [🚀 Feature Development Workflow](#-feature-development-workflow)
 - [📂 Project Structure Rules](#-project-structure-rules)
+- [🛣️ Routing Architecture](#️-routing-architecture)
 - [🎯 Step-by-Step Feature Development](#-step-by-step-feature-development)
 - [🧩 Component Development Guidelines](#-component-development-guidelines)
 - [🔌 API Integration Best Practices](#-api-integration-best-practices)
@@ -86,9 +87,10 @@ Follow this **exact order** when building any new feature:
 
 ### Phase 4: Integration
 
-10. **Add Routes** (`src/App.tsx`)
-11. **Test Integration**
-12. **Add Error Handling**
+10. **Add Routes** (`src/router/AppRouter.tsx` & `src/constants/index.ts`)
+11. **Update Navigation** (`src/components/layout/Sidebar.tsx`)
+12. **Test Integration**
+13. **Add Error Handling**
 
 ## 📂 Project Structure Rules
 
@@ -99,16 +101,20 @@ src/
 ├── api/                    # HTTP requests only
 ├── components/
 │   ├── ui/                # Reusable UI components
-│   └── layout/            # Layout-specific components
+│   ├── layout/            # Layout-specific components (Sidebar, Header, etc.)
+│   └── examples/          # Example components for demonstrations
 ├── contexts/              # Global state providers
 ├── hooks/                 # Custom React hooks
-├── pages/                 # Route components
+├── pages/                 # Route components (page-level components)
+├── router/                # Application routing configuration
+│   └── AppRouter.tsx      # Main router component
 ├── services/              # Business logic (when needed)
 ├── types/                 # TypeScript definitions
 ├── utils/                 # Pure utility functions
-├── constants/             # App constants
+├── constants/             # App constants (ROUTES, etc.)
 ├── styles/                # Global styles
 ├── assets/                # Static files
+├── locales/               # Internationalization files
 └── config/                # Configuration
 ```
 
@@ -119,6 +125,132 @@ src/
 - ❌ **Don't put business logic in API layer**
 - ❌ **Don't create circular dependencies**
 - ❌ **Don't skip TypeScript types**
+
+## 🛣️ Routing Architecture
+
+### Router Structure Overview
+
+The application uses a **centralized routing system** with a clear separation between the main app router and individual route definitions.
+
+```
+App.tsx (Main Routes)
+├── Public Routes (/login, /register)
+├── Protected Routes (/)
+└── AppRouter (/*)
+    ├── DashboardLayout (Sidebar + Header)
+    └── Nested Routes
+        ├── /dashboard (index)
+        ├── /transactions
+        ├── /wallets
+        └── /settings, etc.
+```
+
+### Key Files
+
+| File                                        | Purpose                 | Contains                                               |
+| ------------------------------------------- | ----------------------- | ------------------------------------------------------ |
+| `src/App.tsx`                               | Main application router | Public/private route separation, authentication guards |
+| `src/router/AppRouter.tsx`                  | Dashboard routes        | All dashboard pages with shared layout                 |
+| `src/components/layout/DashboardLayout.tsx` | Dashboard layout        | Sidebar, header, and outlet for page content           |
+| `src/constants/index.ts`                    | Route constants         | Centralized route path definitions                     |
+
+### Routing Best Practices
+
+#### ✅ DO: Use ROUTES Constants
+
+```typescript
+// ✅ Good - Use constants for maintainability
+import { ROUTES } from '../constants';
+
+<Route path={ROUTES.DASHBOARD} element={<ModernDashboard />} />
+<NavLink to={ROUTES.DASHBOARD}>Dashboard</NavLink>
+```
+
+#### ✅ DO: Use Absolute Paths in AppRouter
+
+```typescript
+// ✅ Good - Absolute paths work correctly with your ROUTES constants
+// src/router/AppRouter.tsx
+<Route path="/" element={<DashboardLayout />}>
+  <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+  <Route path={ROUTES.DASHBOARD} element={<ModernDashboard />} />
+  <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
+</Route>
+```
+
+#### ✅ DO: Use ROUTES Constants Directly in Navigation
+
+```typescript
+// ✅ Good - ROUTES constants already include the leading slash
+// src/components/layout/Sidebar.tsx
+const navigationItems = [
+  {
+    path: ROUTES.DASHBOARD, // Already "/dashboard"
+    label: 'Dashboard',
+  },
+];
+];
+```
+
+#### ❌ DON'T: Forget to Use ROUTES Constants
+
+```typescript
+// ❌ Bad - Hardcoded paths are harder to maintain
+<Route path="/dashboard" element={<ModernDashboard />} />
+<NavLink to="/dashboard">Dashboard</NavLink>
+
+// ✅ Good - Use ROUTES constants
+<Route path={ROUTES.DASHBOARD} element={<ModernDashboard />} />
+<NavLink to={ROUTES.DASHBOARD}>Dashboard</NavLink>
+```
+
+### Adding New Routes
+
+When adding a new route, follow these steps:
+
+1. **Add to ROUTES constants** (`src/constants/index.ts`):
+
+```typescript
+export const ROUTES = {
+  // ...existing routes
+  BUDGETS: '/budgets', // Add new route (absolute path)
+} as const;
+```
+
+2. **Add to AppRouter** (`src/router/AppRouter.tsx`):
+
+```typescript
+<Route path={ROUTES.BUDGETS} element={<BudgetsPage />} />
+```
+
+3. **Add to navigation** (`src/components/layout/Sidebar.tsx`):
+
+```typescript
+{
+  id: 'budgets',
+  label: 'Budgets',
+  icon: PiggyBank,
+  path: ROUTES.BUDGETS, // Already includes leading slash
+},
+```
+
+### Route Protection
+
+All dashboard routes are automatically protected through the main App.tsx:
+
+```typescript
+// src/App.tsx
+<Route
+  path="/*"
+  element={
+    isAuthenticated ? (
+      <AppRouter />
+    ) : (
+      <Navigate to={ROUTES.LOGIN} replace />
+    )
+  }
+/>
+```
 
 ## 🎯 Step-by-Step Feature Development
 
@@ -530,20 +662,39 @@ const TransactionsPage: React.FC = () => {
 export default TransactionsPage;
 ```
 
-### Step 6: Add Routes (`src/App.tsx`)
+### Step 6: Add Routes
+
+#### Update Constants (`src/constants/index.ts`)
 
 ```typescript
-// Add to your existing routes
-<Route
-  path={ROUTES.TRANSACTIONS}
-  element={
-    isAuthenticated ? (
-      <TransactionsPage />
-    ) : (
-      <Navigate to={ROUTES.LOGIN} replace />
-    )
-  }
-/>
+export const ROUTES = {
+  // ...existing routes
+  TRANSACTIONS: 'transactions',
+} as const;
+```
+
+#### Update AppRouter (`src/router/AppRouter.tsx`)
+
+```typescript
+import { TransactionsPage } from '../pages';
+
+// Add to existing routes
+<Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
+```
+
+#### Update Navigation (`src/components/layout/Sidebar.tsx`)
+
+```typescript
+const navigationItems: NavigationItem[] = [
+  // ...existing items
+  {
+    id: 'transactions',
+    label: 'Transactions',
+    icon: ArrowUpDown,
+    path: `/${ROUTES.TRANSACTIONS}`,
+    badge: '24', // Optional
+  },
+];
 ```
 
 ### Step 7: Export Everything (`index.ts` files)
@@ -563,6 +714,59 @@ export { transactionApi } from './transactionApi';
 ```
 
 ## 🧩 Component Development Guidelines
+
+### Layout Components Architecture
+
+The application uses a **hierarchical layout system** that provides consistent structure across all dashboard pages:
+
+```
+DashboardLayout
+├── Sidebar (Navigation)
+├── DashboardHeader (Top bar)
+└── Outlet (Page content)
+```
+
+#### Key Layout Components
+
+| Component         | Purpose                                        | Location                                    |
+| ----------------- | ---------------------------------------------- | ------------------------------------------- |
+| `DashboardLayout` | Main layout wrapper with sidebar and header    | `src/components/layout/DashboardLayout.tsx` |
+| `Sidebar`         | Navigation menu with collapsible functionality | `src/components/layout/Sidebar.tsx`         |
+| `DashboardHeader` | Top header with user info and actions          | `src/components/layout/DashboardHeader.tsx` |
+
+#### Layout Best Practices
+
+**✅ DO: Use DashboardLayout for all dashboard pages**
+
+```typescript
+// src/router/AppRouter.tsx
+<Route path="/" element={<DashboardLayout />}>
+  <Route path="dashboard" element={<ModernDashboard />} />
+  <Route path="transactions" element={<TransactionsPage />} />
+</Route>
+```
+
+**✅ DO: Keep layout-specific logic in layout components**
+
+```typescript
+// ✅ Good - Sidebar handles its own collapse state
+const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
+  // Sidebar-specific logic here
+};
+```
+
+**❌ DON'T: Duplicate layout structure in pages**
+
+```typescript
+// ❌ Bad - Don't recreate sidebar/header in each page
+const TransactionsPage = () => (
+  <div>
+    <Sidebar /> {/* Don't do this - use DashboardLayout */}
+    <Header />
+    <TransactionContent />
+  </div>
+);
+```
 
 ### ✅ Good Component Structure
 
