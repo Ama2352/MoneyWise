@@ -46,8 +46,7 @@ export interface LanguageOption {
   flag: string;
 }
 
-export interface TranslationKeys {
-  // Common
+export interface TranslationKeys {  // Common
   common: {
     loading: string;
     error: string;
@@ -61,6 +60,10 @@ export interface TranslationKeys {
     edit: string;
     delete: string;
     add: string;
+    create: string;
+    update: string;
+    retry: string;
+    createdAt: string;
     search: string;
     back: string;
     next: string;
@@ -180,9 +183,25 @@ export interface TranslationKeys {
     deleteConfirm: string;
   };
 
+  // Category
+  category: {
+    title: string;
+    add: string;
+    create: string;
+    edit: string;
+    delete: string;
+    name: string;
+    namePlaceholder: string;
+    loading: string;
+    noCategories: string;
+    noCategoriesDesc: string;
+    createFirst: string;
+    deleteConfirm: string;
+  };
   // Validation
   validation: {
     required: string;
+    minLength: string;
     emailInvalid: string;
     emailRequired: string;
     passwordRequired: string;

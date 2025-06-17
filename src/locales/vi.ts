@@ -1,7 +1,6 @@
 import type { TranslationKeys } from '../types';
 
-export const vi: TranslationKeys = {
-  common: {
+export const vi: TranslationKeys = {  common: {
     loading: 'Đang tải...',
     error: 'Đã xảy ra lỗi',
     success: 'Thành công',
@@ -14,6 +13,10 @@ export const vi: TranslationKeys = {
     delete: 'Xóa',
     edit: 'Chỉnh sửa',
     add: 'Thêm',
+    create: 'Tạo',
+    update: 'Cập nhật',
+    retry: 'Thử lại',
+    createdAt: 'Ngày tạo:',
     search: 'Tìm kiếm',
     back: 'Quay lại',
     next: 'Tiếp theo',
@@ -28,9 +31,9 @@ export const vi: TranslationKeys = {
     lastName: 'Tên',
     confirmPassword: 'Xác nhận mật khẩu',
   },
-
   validation: {
     required: 'Trường này là bắt buộc',
+    minLength: 'Tên phải có ít nhất 2 ký tự',
     emailInvalid: 'Email không hợp lệ',
     emailRequired: 'Email là bắt buộc',
     passwordRequired: 'Mật khẩu là bắt buộc',
@@ -144,6 +147,21 @@ export const vi: TranslationKeys = {
     expense: 'Chi tiêu',
     noTransactions: 'Không tìm thấy giao dịch',
     deleteConfirm: 'Bạn có chắc chắn muốn xóa giao dịch này?',
+  },
+
+  category: {
+    title: 'Danh mục',
+    add: 'Thêm danh mục',
+    create: 'Tạo danh mục',
+    edit: 'Chỉnh sửa danh mục',
+    delete: 'Xóa danh mục',
+    name: 'Tên danh mục',
+    namePlaceholder: 'Nhập tên danh mục',
+    loading: 'Đang tải danh mục...',
+    noCategories: 'Không tìm thấy danh mục',
+    noCategoriesDesc: 'Bắt đầu bằng cách tạo danh mục đầu tiên để phân loại giao dịch của bạn.',
+    createFirst: 'Tạo danh mục đầu tiên',
+    deleteConfirm: 'Bạn có chắc chắn muốn xóa danh mục này?',
   },
 
   language: {

@@ -16,15 +16,18 @@ export interface Transaction {
 }
 
 export interface Category {
-  id: number;
+  categoryID: string; // UUID as string
   name: string;
-  description?: string;
-  color: string;
-  icon?: string;
-  type: 'INCOME' | 'EXPENSE';
-  userId: number;
   createdAt: string;
-  updatedAt: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+}
+
+export interface UpdateCategoryRequest {
+  categoryID: string;
+  name: string;
 }
 
 export interface Account {

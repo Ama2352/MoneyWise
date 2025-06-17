@@ -7,6 +7,7 @@ import type {
   Budget,
   CreateTransactionRequest,
   CreateCategoryRequest,
+  UpdateCategoryRequest,
   CreateAccountRequest,
   CreateBudgetRequest,
   TransactionSummary,
@@ -64,31 +65,43 @@ export const transactionApi = {
 
 // Category APIs
 export const categoryApi = {
-  getAll: async (): Promise<Category[]> => {
-    const response = await httpClient.get<Category[]>(API_ENDPOINTS.CATEGORIES.BASE);
+  getAll: async (acceptLanguage?: string): Promise<Category[]> => {
+    const headers = acceptLanguage ? { 'Accept-Language': acceptLanguage } : {};
+    const response = await httpClient.get<Category[]>(
+      API_ENDPOINTS.CATEGORIES.BASE,
+      { headers }
+    );
     return response.data;
   },
 
-  getById: async (id: number): Promise<Category> => {
-    const response = await httpClient.get<Category>(`${API_ENDPOINTS.CATEGORIES.BASE}/${id}`);
+  getById: async (categoryId: string): Promise<Category> => {
+    const response = await httpClient.get<Category>(
+      `${API_ENDPOINTS.CATEGORIES.BASE}/${categoryId}`
+    );
     return response.data;
   },
 
   create: async (category: CreateCategoryRequest): Promise<Category> => {
-    const response = await httpClient.post<Category>(API_ENDPOINTS.CATEGORIES.BASE, category);
-    return response.data;
-  },
-
-  update: async (id: number, category: Partial<CreateCategoryRequest>): Promise<Category> => {
-    const response = await httpClient.put<Category>(
-      `${API_ENDPOINTS.CATEGORIES.BASE}/${id}`,
+    const response = await httpClient.post<Category>(
+      API_ENDPOINTS.CATEGORIES.BASE, 
       category
     );
     return response.data;
   },
 
-  delete: async (id: number): Promise<void> => {
-    await httpClient.delete(`${API_ENDPOINTS.CATEGORIES.BASE}/${id}`);
+  update: async (category: UpdateCategoryRequest): Promise<Category> => {
+    const response = await httpClient.put<Category>(
+      API_ENDPOINTS.CATEGORIES.BASE,
+      category
+    );
+    return response.data;
+  },
+
+  delete: async (categoryId: string): Promise<string> => {
+    const response = await httpClient.delete<string>(
+      `${API_ENDPOINTS.CATEGORIES.BASE}/${categoryId}`
+    );
+    return response.data;
   },
 };
 

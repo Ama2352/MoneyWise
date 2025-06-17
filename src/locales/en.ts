@@ -1,7 +1,6 @@
 import type { TranslationKeys } from '../types';
 
-export const en: TranslationKeys = {
-  common: {
+export const en: TranslationKeys = {  common: {
     loading: 'Loading...',
     error: 'Something went wrong',
     success: 'Success',
@@ -14,6 +13,10 @@ export const en: TranslationKeys = {
     delete: 'Delete',
     edit: 'Edit',
     add: 'Add',
+    create: 'Create',
+    update: 'Update',
+    retry: 'Try Again',
+    createdAt: 'Created:',
     search: 'Search',
     back: 'Back',
     next: 'Next',
@@ -28,9 +31,9 @@ export const en: TranslationKeys = {
     lastName: 'Last name',
     confirmPassword: 'Confirm password',
   },
-
   validation: {
     required: 'This field is required',
+    minLength: 'Name must be at least 2 characters',
     emailInvalid: 'Email is invalid',
     emailRequired: 'Email is required',
     passwordRequired: 'Password is required',
@@ -147,6 +150,21 @@ export const en: TranslationKeys = {
     expense: 'Expense',
     noTransactions: 'No transactions found',
     deleteConfirm: 'Are you sure you want to delete this transaction?',
+  },
+
+  category: {
+    title: 'Categories',
+    add: 'Add Category',
+    create: 'Create Category',
+    edit: 'Edit Category',
+    delete: 'Delete Category',
+    name: 'Category Name',
+    namePlaceholder: 'Enter category name',
+    loading: 'Loading categories...',
+    noCategories: 'No Categories Found',
+    noCategoriesDesc: 'Start by creating your first category to organize your transactions.',
+    createFirst: 'Create First Category',
+    deleteConfirm: 'Are you sure you want to delete this category?',
   },
 
   language: {

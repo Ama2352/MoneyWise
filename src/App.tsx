@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import { useToastContext } from './contexts';
 import { useAuthContext } from './contexts';
-import { LoginPage, RegisterPage, DashboardPage } from './pages';
+import { LoginPage, RegisterPage, DashboardPage, CategoryPage } from './pages';
 import { Loading, ToastContainer, TokenExpiryDialog } from './components/ui';
 import { ToastProvider, AuthProvider, LanguageProvider } from './contexts';
 import { ROUTES } from './constants';
@@ -76,6 +76,16 @@ function AppContent() {
           element={
             isAuthenticated ? (
               <DashboardPage />
+            ) : (
+              <Navigate to={ROUTES.LOGIN} replace />
+            )
+          }
+        />
+        <Route
+          path={ROUTES.CATEGORIES}
+          element={
+            isAuthenticated ? (
+              <CategoryPage />
             ) : (
               <Navigate to={ROUTES.LOGIN} replace />
             )

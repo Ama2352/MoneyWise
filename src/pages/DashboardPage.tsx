@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthContext } from '../contexts';
 import { useToastContext } from '../contexts'; // Renamed to avoid confusion with hook
 import { useLanguageContext } from '../contexts';
+import { ROUTES } from '../constants';
 import Layout from '../components/layout/Layout';
 import Header from '../components/layout/Header';
 import Card from '../components/ui/Card';
@@ -66,8 +68,28 @@ const DashboardPage: React.FC = () => {
               {t('dashboard.sameAsLastMonth')}
             </div>
           </Card>
-        </div>{' '}
-        <div className="dashboard-content">
+        </div>{' '}        <div className="dashboard-content">
+          <Card title={t('dashboard.quickActions')}>
+            <div className="quick-actions">
+              <Link to={ROUTES.CATEGORIES} className="action-button">
+                <span className="action-icon">📁</span>
+                <span className="action-text">{t('nav.categories')}</span>
+              </Link>
+              <Link to={ROUTES.TRANSACTIONS} className="action-button">
+                <span className="action-icon">💳</span>
+                <span className="action-text">{t('nav.transactions')}</span>
+              </Link>
+              <Link to={ROUTES.BUDGETS} className="action-button">
+                <span className="action-icon">💰</span>
+                <span className="action-text">{t('nav.budgets')}</span>
+              </Link>
+              <Link to={ROUTES.ACCOUNTS} className="action-button">
+                <span className="action-icon">🏦</span>
+                <span className="action-text">{t('nav.accounts')}</span>
+              </Link>
+            </div>
+          </Card>
+          
           <Card title={t('dashboard.recentTransactions')}>
             <div className="transaction-list">
               <div className="transaction-item">
