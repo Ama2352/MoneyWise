@@ -10,3 +10,4 @@ export { Toast } from './Toast';
 export { default as ToastContainer } from './ToastContainer';
 export { default as TokenExpiryDialog } from './TokenExpiryDialog';
 export { default as LanguageSwitcher } from './LanguageSwitcher';
+export { default as PlaceholderPage } from './PlaceholderPage';

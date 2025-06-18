@@ -9,9 +9,11 @@ import { useAuthContext } from './contexts';
 import { LoginPage, RegisterPage, DashboardPage, CategoryPage } from './pages';
 import { Loading, ToastContainer, TokenExpiryDialog } from './components/ui';
 import { ToastProvider, AuthProvider, LanguageProvider } from './contexts';
+import { CurrencyExample } from './components/examples/CurrencyExample';
 import { ROUTES } from './constants';
 import { STORAGE_KEYS } from './constants';
 import './App.css';
+import { AppRouter } from './router';
 
 function AppContent() {
   const {
@@ -48,7 +50,7 @@ function AppContent() {
   return (
     <>
       <Routes>
-        {/* Public Routes - redirect to dashboard if authenticated */}
+        {/* Public Routes - redirect to dashboard if authenticated */}{' '}
         <Route
           path={ROUTES.LOGIN}
           element={
@@ -68,14 +70,13 @@ function AppContent() {
               <Navigate to={ROUTES.DASHBOARD} replace />
             )
           }
-        />
-
+        />{' '}
         {/* Protected Routes - redirect to login if not authenticated */}
         <Route
-          path={ROUTES.DASHBOARD}
+          path="/*"
           element={
             isAuthenticated ? (
-              <DashboardPage />
+              <AppRouter />
             ) : (
               <Navigate to={ROUTES.LOGIN} replace />
             )
@@ -94,12 +95,13 @@ function AppContent() {
 
         {/* Default Route */}
         <Route
-          path={ROUTES.HOME}
+          path="/currency-test"
           element={
-            <Navigate
-              to={isAuthenticated ? ROUTES.DASHBOARD : ROUTES.LOGIN}
-              replace
-            />
+            isAuthenticated ? (
+              <CurrencyExample />
+            ) : (
+              <Navigate to={ROUTES.LOGIN} replace />
+            )
           }
         />
       </Routes>
