@@ -95,7 +95,7 @@ export const categoryApi = {
     
     try {
       const response = await httpClient.put<Category>(
-        `${API_ENDPOINTS.CATEGORIES.BASE}/${category.categoryId}`,
+        `${API_ENDPOINTS.CATEGORIES.BASE}`,
         category
       );
       

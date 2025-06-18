@@ -1,4 +1,4 @@
-/* CategoryModal.css - Modern Design System */
+/* CategoryModal.css - Ultra Compact No Scroll Design */
 .category-modal {
   position: fixed;
   top: 0;
@@ -11,19 +11,21 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: var(--space-6);
-  animation: modalBackdropFadeIn var(--transition-slow) ease-out;
+  padding: 0;
+  animation: modalBackdropFadeIn var(--transition-slow, 0.3s) ease-out;
+  overflow: hidden;
 }
 
 .category-modal__content {
   max-width: 90vw;
   max-height: 90vh;
-  overflow-y: auto;
-  background: var(--white);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
-  animation: modalSlideIn var(--transition-slow) ease-out;
+  overflow: hidden;
+  background: var(--white, #ffffff);
+  border-radius: var(--radius-xl, 12px);
+  box-shadow: var(--shadow-xl, 0 10px 25px rgba(0, 0, 0, 0.15));
+  animation: modalSlideIn var(--transition-slow, 0.3s) ease-out;
   position: relative;
+  margin: 0 1rem;
 }
 
 /* Animations */
@@ -55,8 +57,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--gradient-glass);
-  border-radius: var(--radius-xl);
+  background: var(--gradient-glass, transparent);
+  border-radius: var(--radius-xl, 12px);
   pointer-events: none;
   z-index: -1;
 }

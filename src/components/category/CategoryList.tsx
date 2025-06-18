@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Loading, ConfirmationModal } from '../ui';
 import { useTranslations } from '../../hooks';
-import { formatDate } from '../../utils';
+import { formatDate, getIconForCategory, getColorForCategory } from '../../utils';
 import type { Category } from '../../types';
 import './CategoryList.css';
 
@@ -98,15 +98,29 @@ export const CategoryList: React.FC<CategoryListProps> = ({
         </div>
       ) : (        <div className="category-list__grid">
           {categories.map((category) => {
+            const IconComponent = getIconForCategory(category.name);
+            const color = getColorForCategory(category.name);
+            
             return (
               <Card key={category.categoryId} className="category-card">
                 <div className="category-card__content">
-                  <div className="category-card__main">
-                    <h3 className="category-card__name">{category.name}</h3>
-                    <div className="category-card__meta">
-                      <span className="category-card__date">
-                        {t('common.createdAt', 'Created:')} {formatDate(category.createdAt)}
-                      </span>
+                  <div className="category-card__header">
+                    <div 
+                      className="category-card__icon"
+                      style={{ 
+                        backgroundColor: color,
+                        color: 'white'
+                      }}
+                    >
+                      <IconComponent size={24} />
+                    </div>
+                    <div className="category-card__main">
+                      <h3 className="category-card__name">{category.name}</h3>
+                      <div className="category-card__meta">
+                        <span className="category-card__date">
+                          {formatDate(category.createdAt)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="category-card__actions">

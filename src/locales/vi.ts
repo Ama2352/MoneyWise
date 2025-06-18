@@ -149,8 +149,7 @@ export const vi: TranslationKeys = {  common: {
     expense: 'Chi tiêu',
     noTransactions: 'Không tìm thấy giao dịch',
     deleteConfirm: 'Bạn có chắc chắn muốn xóa giao dịch này?',
-  },
-  category: {
+  },  category: {
     title: 'Danh mục',
     add: 'Thêm danh mục',
     create: 'Tạo danh mục',
@@ -158,6 +157,10 @@ export const vi: TranslationKeys = {  common: {
     delete: 'Xóa danh mục',
     name: 'Tên danh mục',
     namePlaceholder: 'Nhập tên danh mục',
+    createDescription: 'Tạo danh mục mới để phân loại giao dịch của bạn',
+    editDescription: 'Cập nhật thông tin danh mục',
+    previewDescription: 'Đây là cách danh mục sẽ hiển thị',
+    nameHint: 'Biểu tượng và màu sắc sẽ được tự động gán dựa trên tên',
     icon: 'Biểu tượng',
     color: 'Màu sắc',
     type: 'Loại',

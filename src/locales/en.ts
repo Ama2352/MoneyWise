@@ -152,8 +152,7 @@ export const en: TranslationKeys = {  common: {
     expense: 'Expense',
     noTransactions: 'No transactions found',
     deleteConfirm: 'Are you sure you want to delete this transaction?',
-  },
-  category: {
+  },  category: {
     title: 'Categories',
     add: 'Add Category',
     create: 'Create Category',
@@ -161,6 +160,10 @@ export const en: TranslationKeys = {  common: {
     delete: 'Delete Category',
     name: 'Category Name',
     namePlaceholder: 'Enter category name',
+    createDescription: 'Create a new category to organize your transactions',
+    editDescription: 'Update your category information',
+    previewDescription: 'This is how your category will appear',
+    nameHint: 'Icon and color will be automatically assigned based on the name',
     icon: 'Icon',
     color: 'Color',
     type: 'Type',

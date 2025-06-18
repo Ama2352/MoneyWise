@@ -37,7 +37,7 @@ export const CategoryPage: React.FC = () => {
   const handleModalSubmit = async (data: CreateCategoryRequest | UpdateCategoryRequest) => {
     setModalLoading(true);
     try {
-      if ('categoryID' in data) {
+      if ('categoryId' in data) {
         // Update existing category
         await updateCategory(data as UpdateCategoryRequest);
       } else {
