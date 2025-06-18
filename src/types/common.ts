@@ -62,6 +62,8 @@ export interface TranslationKeys {  // Common
     add: string;
     create: string;
     update: string;
+    creating: string;
+    updating: string;
     retry: string;
     createdAt: string;
     search: string;
@@ -182,7 +184,6 @@ export interface TranslationKeys {  // Common
     noTransactions: string;
     deleteConfirm: string;
   };
-
   // Category
   category: {
     title: string;
@@ -192,11 +193,20 @@ export interface TranslationKeys {  // Common
     delete: string;
     name: string;
     namePlaceholder: string;
+    icon: string;
+    color: string;
+    type: string;
+    income: string;
+    expense: string;
     loading: string;
+    creating: string;
+    updating: string;
     noCategories: string;
     noCategoriesDesc: string;
     createFirst: string;
     deleteConfirm: string;
+    deleteTitle: string;
+    deleteMessage: string;
   };
   // Validation
   validation: {

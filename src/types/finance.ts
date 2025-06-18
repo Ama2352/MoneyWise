@@ -18,7 +18,7 @@ export interface Transaction {
 }
 
 export interface Category {
-  categoryID: string; // UUID as string
+  categoryId: string; // UUID as string
   name: string;
   createdAt: string;
 }
@@ -28,7 +28,7 @@ export interface CreateCategoryRequest {
 }
 
 export interface UpdateCategoryRequest {
-  categoryID: string;
+  categoryId: string;
   name: string;
 }
 
@@ -71,14 +71,6 @@ export interface CreateTransactionRequest {
   type: 'INCOME' | 'EXPENSE';
   categoryId: number;
   accountId: number;
-}
-
-export interface CreateCategoryRequest {
-  name: string;
-  description?: string;
-  color: string;
-  icon?: string;
-  type: 'INCOME' | 'EXPENSE';
 }
 
 export interface CreateAccountRequest {

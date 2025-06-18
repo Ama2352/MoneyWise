@@ -15,6 +15,8 @@ export const en: TranslationKeys = {  common: {
     add: 'Add',
     create: 'Create',
     update: 'Update',
+    creating: 'Creating...',
+    updating: 'Updating...',
     retry: 'Try Again',
     createdAt: 'Created:',
     search: 'Search',
@@ -151,7 +153,6 @@ export const en: TranslationKeys = {  common: {
     noTransactions: 'No transactions found',
     deleteConfirm: 'Are you sure you want to delete this transaction?',
   },
-
   category: {
     title: 'Categories',
     add: 'Add Category',
@@ -160,11 +161,20 @@ export const en: TranslationKeys = {  common: {
     delete: 'Delete Category',
     name: 'Category Name',
     namePlaceholder: 'Enter category name',
+    icon: 'Icon',
+    color: 'Color',
+    type: 'Type',
+    income: 'Income',
+    expense: 'Expense',
     loading: 'Loading categories...',
+    creating: 'Creating...',
+    updating: 'Updating...',
     noCategories: 'No Categories Found',
     noCategoriesDesc: 'Start by creating your first category to organize your transactions.',
     createFirst: 'Create First Category',
     deleteConfirm: 'Are you sure you want to delete this category?',
+    deleteTitle: 'Delete Category',
+    deleteMessage: 'This action cannot be undone. All transactions associated with this category will no longer be categorized.',
   },
 
   language: {

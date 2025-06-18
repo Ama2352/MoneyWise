@@ -36,16 +36,23 @@ export const useCategory = (): UseCategoryReturn => {
       setLoading(false);
     }
   };
-
   const createCategory = async (category: CreateCategoryRequest): Promise<Category | null> => {
+    console.log('🎯 [useCategory] Creating category');
+    console.log('📤 [useCategory] Create payload:', JSON.stringify(category, null, 2));
+    
     try {
       setLoading(true);
       setError(null);
       const newCategory = await categoryApi.create(category);
+      
+      console.log('✅ [useCategory] Create success, updating state');
+      console.log('📥 [useCategory] New category:', newCategory);
+      
       setCategories((prev: Category[]) => [...prev, newCategory]);
       showToast('Category created successfully', 'success');
       return newCategory;
     } catch (err) {
+      console.error('❌ [useCategory] Create error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to create category';
       setError(errorMessage);
       showToast(errorMessage, 'error');
@@ -56,18 +63,26 @@ export const useCategory = (): UseCategoryReturn => {
   };
 
   const updateCategory = async (category: UpdateCategoryRequest): Promise<Category | null> => {
+    console.log('🎯 [useCategory] Updating category');
+    console.log('📤 [useCategory] Update payload:', JSON.stringify(category, null, 2));
+    
     try {
       setLoading(true);
       setError(null);
       const updatedCategory = await categoryApi.update(category);
+      
+      console.log('✅ [useCategory] Update success, updating state');
+      console.log('📥 [useCategory] Updated category:', updatedCategory);
+      
       setCategories((prev: Category[]) => 
         prev.map((cat: Category) => 
-          cat.categoryID === category.categoryID ? updatedCategory : cat
+          cat.categoryId === category.categoryId ? updatedCategory : cat
         )
       );
       showToast('Category updated successfully', 'success');
       return updatedCategory;
     } catch (err) {
+      console.error('❌ [useCategory] Update error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to update category';
       setError(errorMessage);
       showToast(errorMessage, 'error');
@@ -76,16 +91,22 @@ export const useCategory = (): UseCategoryReturn => {
       setLoading(false);
     }
   };
-
   const deleteCategory = async (categoryId: string): Promise<boolean> => {
+    console.log('🎯 [useCategory] Deleting category');
+    console.log('📤 [useCategory] Delete ID:', categoryId);
+    
     try {
       setLoading(true);
       setError(null);
       await categoryApi.delete(categoryId);
-      setCategories((prev: Category[]) => prev.filter((cat: Category) => cat.categoryID !== categoryId));
+      
+      console.log('✅ [useCategory] Delete success, updating state');
+      
+      setCategories((prev: Category[]) => prev.filter((cat: Category) => cat.categoryId !== categoryId));
       showToast('Category deleted successfully', 'success');
       return true;
     } catch (err) {
+      console.error('❌ [useCategory] Delete error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete category';
       setError(errorMessage);
       showToast(errorMessage, 'error');

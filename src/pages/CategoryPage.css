@@ -1,7 +1,8 @@
-/* CategoryPage.css */
+/* CategoryPage.css - Modern Design System */
 .category-page {
+  padding: var(--space-6);
+  background-color: var(--gray-25);
   min-height: 100vh;
-  background-color: var(--color-background);
 }
 
 .category-page__error {
@@ -11,45 +12,57 @@
   justify-content: center;
   min-height: 400px;
   text-align: center;
-  padding: var(--spacing-xl);
+  padding: var(--space-12);
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
 }
 
 .category-page__error h2 {
-  color: var(--color-error);
-  font-size: var(--font-size-xl);
-  margin-bottom: var(--spacing-md);
+  color: var(--error-600);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
 }
 
 .category-page__error p {
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-lg);
+  color: var(--gray-600);
+  margin-bottom: var(--space-6);
   max-width: 600px;
   line-height: 1.6;
 }
 
 .category-page__retry-btn {
-  background-color: var(--color-primary);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--white);
   border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--border-radius-md);
-  font-size: var(--font-size-md);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: var(--transition-normal);
+  box-shadow: var(--shadow-sm);
 }
 
 .category-page__retry-btn:hover {
-  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
-.category-page__retry-btn:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+.category-page__retry-btn:active {
+  transform: translateY(0);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .category-page {
+    padding: var(--space-4);
+  }
+
   .category-page__error {
-    padding: var(--spacing-lg);
+    padding: var(--space-8);
+    margin: var(--space-4);
   }
 }

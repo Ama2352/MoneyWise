@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Card, Loading } from '../ui';
+import React, { useState } from 'react';
+import { Button, Card, Loading, ConfirmationModal } from '../ui';
 import { useTranslations } from '../../hooks';
 import { formatDate } from '../../utils';
 import type { Category } from '../../types';
@@ -21,19 +21,51 @@ export const CategoryList: React.FC<CategoryListProps> = ({
   onAdd,
 }) => {
   const { t } = useTranslations();
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    category: Category | null;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    category: null,
+    loading: false,
+  });
 
   if (loading) {
-    return (
-      <div className="category-list__loading">
-        <Loading message={t('category.loading', 'Loading categories...')} />
+    return (      <div className="category-list__loading">
+        <Loading />
+        <p>{t('category.loading', 'Loading categories...')}</p>
       </div>
     );
   }
 
-  const handleDelete = (category: Category) => {
-    if (window.confirm(t('category.deleteConfirm', 'Are you sure you want to delete this category?'))) {
-      onDelete(category.categoryID);
+  const handleDeleteClick = (category: Category) => {
+    setConfirmDelete({
+      isOpen: true,
+      category,
+      loading: false,
+    });
+  };
+  const handleDeleteConfirm = async () => {
+    if (!confirmDelete.category) return;
+    
+    console.log('🎯 [CategoryList] Delete confirm clicked');
+    console.log('📤 [CategoryList] Deleting category:', confirmDelete.category);
+    
+    setConfirmDelete(prev => ({ ...prev, loading: true }));
+    
+    try {
+      await onDelete(confirmDelete.category.categoryId);
+      console.log('✅ [CategoryList] Delete successful');
+      setConfirmDelete({ isOpen: false, category: null, loading: false });
+    } catch (error) {
+      console.error('❌ [CategoryList] Delete error:', error);
+      setConfirmDelete(prev => ({ ...prev, loading: false }));
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setConfirmDelete({ isOpen: false, category: null, loading: false });
   };
 
   return (
@@ -64,38 +96,53 @@ export const CategoryList: React.FC<CategoryListProps> = ({
             </Button>
           </div>
         </div>
-      ) : (
-        <div className="category-list__grid">
-          {categories.map((category) => (
-            <Card key={category.categoryID} className="category-card">
-              <div className="category-card__content">
-                <div className="category-card__main">
-                  <h3 className="category-card__name">{category.name}</h3>
-                  <p className="category-card__date">
-                    {t('common.createdAt', 'Created:')} {formatDate(category.createdAt)}
-                  </p>
+      ) : (        <div className="category-list__grid">
+          {categories.map((category) => {
+            return (
+              <Card key={category.categoryId} className="category-card">
+                <div className="category-card__content">
+                  <div className="category-card__main">
+                    <h3 className="category-card__name">{category.name}</h3>
+                    <div className="category-card__meta">
+                      <span className="category-card__date">
+                        {t('common.createdAt', 'Created:')} {formatDate(category.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="category-card__actions">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => onEdit(category)}
+                    >
+                      {t('common.edit', 'Edit')}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteClick(category)}
+                    >
+                      {t('common.delete', 'Delete')}
+                    </Button>
+                  </div>
                 </div>
-                <div className="category-card__actions">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => onEdit(category)}
-                  >
-                    {t('common.edit', 'Edit')}
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDelete(category)}
-                  >
-                    {t('common.delete', 'Delete')}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={confirmDelete.isOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title={t('category.deleteTitle', 'Delete Category')}
+        message={t('category.deleteMessage', 'This action cannot be undone. All transactions associated with this category will no longer be categorized.')}
+        confirmText={t('common.delete', 'Delete')}
+        cancelText={t('common.cancel', 'Cancel')}
+        type="danger"
+        loading={confirmDelete.loading}
+      />
     </div>
   );
 };

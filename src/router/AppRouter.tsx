@@ -9,7 +9,7 @@ import {
   Settings,
 } from 'lucide-react';
 import { DashboardLayout } from '../components/layout';
-import { ModernDashboard, TransactionsPage, WalletsPage } from '../pages';
+import { ModernDashboard, TransactionsPage, WalletsPage, CategoryPage } from '../pages';
 import { PlaceholderPage } from '../components/ui';
 import '../styles/pages.css';
 import { ROUTES } from '../constants';
@@ -25,17 +25,10 @@ const AppRouter: React.FC = () => {
         <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
         <Route path={ROUTES.DASHBOARD} element={<ModernDashboard />} />
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
-        <Route path={ROUTES.WALLETS} element={<WalletsPage />} />{' '}
+        <Route path={ROUTES.WALLETS} element={<WalletsPage />} />{' '}        
         <Route
           path={ROUTES.CATEGORIES}
-          element={
-            <PlaceholderPage
-              title="Categories"
-              description="Organize your transactions with custom categories and track spending patterns"
-              icon={FolderOpen}
-              comingSoon={true}
-            />
-          }
+          element={<CategoryPage />}
         />{' '}
         <Route
           path={ROUTES.ANALYTICS}
