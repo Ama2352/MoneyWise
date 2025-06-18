@@ -41,8 +41,7 @@ export const API_ENDPOINTS = {
   },
 
   CATEGORIES: {
-    BASE: '/categories',
-    BY_USER: '/categories/user',
+    BASE: '/Categories',
   },
 
   BUDGETS: {

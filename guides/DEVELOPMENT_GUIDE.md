@@ -8,8 +8,11 @@ A comprehensive guide for building features in the MoneyWise React + TypeScript 
 - [🚀 Feature Development Workflow](#-feature-development-workflow)
 - [📂 Project Structure Rules](#-project-structure-rules)
 - [🛣️ Routing Architecture](#️-routing-architecture)
+- [📊 Data Fetching with SWR](#-data-fetching-with-swr)
 - [🎯 Step-by-Step Feature Development](#-step-by-step-feature-development)
 - [🧩 Component Development Guidelines](#-component-development-guidelines)
+- [🔔 Notification & Dialog Systems](#-notification--dialog-systems)
+- [🎨 Category Icon System](#-category-icon-system)
 - [🔌 API Integration Best Practices](#-api-integration-best-practices)
 - [🪝 Custom Hooks Guidelines](#-custom-hooks-guidelines)
 - [🌐 Language and Internationalization](#-language-and-internationalization)
@@ -17,6 +20,8 @@ A comprehensive guide for building features in the MoneyWise React + TypeScript 
 - [✅ Code Quality Standards](#-code-quality-standards)
 - [🚨 Common Mistakes to Avoid](#-common-mistakes-to-avoid)
 - [📝 Examples](#-examples)
+- [🚀 Migration Guide](#-migration-guide)
+- [📚 Related Guides](#-related-guides)
 
 ## 🏗️ Architecture Overview
 
@@ -29,23 +34,23 @@ Our frontend follows a **layered architecture** with clear separation of concern
 └─────────────────┘
          ↓
 ┌─────────────────┐
-│   Contexts      │ ← Global state management (Auth, Toast)
+│   Contexts      │ ← Global state management (Auth, Toast, Language)
 │   (Providers)   │
 └─────────────────┘
          ↓
 ┌─────────────────┐
-│     Hooks       │ ← React state, effects, API orchestration
-│   (useAuth)     │
+│     Hooks       │ ← React state, effects, SWR data fetching
+│ (useFinanceData)│
 └─────────────────┘
          ↓
 ┌─────────────────┐
-│    Services     │ ← Business logic, complex calculations
-│  (Future use)   │   (Currently empty - use when needed)
+│    Services     │ ← Business logic, icon mapping, i18n services
+│ (categoryIcon)  │
 └─────────────────┘
          ↓
 ┌─────────────────┐
-│   API Layer     │ ← HTTP requests, data transformation
-│  (authApi, etc) │
+│   API Layer     │ ← HTTP requests, data transformation, SWR config
+│  (financeApi)   │
 └─────────────────┘
          ↓
 ┌─────────────────┐
@@ -55,13 +60,51 @@ Our frontend follows a **layered architecture** with clear separation of concern
 
 ### 🎯 Layer Responsibilities
 
-| Layer          | Purpose                         | What Goes Here                                 | What NOT to Put Here                     |
-| -------------- | ------------------------------- | ---------------------------------------------- | ---------------------------------------- |
-| **Components** | UI rendering & user interaction | JSX, form handling, event handlers, validation | API calls, business logic, complex state |
-| **Contexts**   | Global state management         | Auth state, toast notifications, theme         | Component-specific state, API calls      |
-| **Hooks**      | React state & API orchestration | useState, useEffect, API coordination          | Direct JSX, business calculations        |
-| **Services**   | Business logic & calculations   | Complex algorithms, data processing            | React state, UI logic                    |
-| **API**        | Backend communication           | HTTP requests, data transformation             | UI logic, React state                    |
+| Layer          | Purpose                         | What Goes Here                                  | What NOT to Put Here                     |
+| -------------- | ------------------------------- | ----------------------------------------------- | ---------------------------------------- |
+| **Components** | UI rendering & user interaction | JSX, form handling, event handlers, validation  | API calls, business logic, complex state |
+| **Contexts**   | Global state management         | Auth state, toast notifications, language       | Component-specific state, API calls      |
+| **Hooks**      | React state & API orchestration | useState, useEffect, SWR integration, mutations | Direct JSX, business calculations        |
+| **Services**   | Business logic & calculations   | Icon mapping, i18n logic, data processing       | React state, UI logic                    |
+| **API**        | Backend communication           | HTTP requests, data transformation, SWR config  | UI logic, React state                    |
+
+### 🚀 Recent Major Changes
+
+#### SWR Data Fetching Integration
+
+- **Migration from manual fetch**: All finance data now uses SWR for caching, synchronization, and automatic revalidation
+- **New hook pattern**: `useCategories()`, `useCategoryMutations()` replace manual API state management
+- **Cache management**: Automatic background updates, optimistic updates, and error recovery
+
+#### Modern Layout System (AppLayout)
+
+- **Replaced old layout**: Migrated from `DashboardLayout`/`DashboardHeader` to `AppLayout`/`AppHeader`
+- **Enhanced responsive design**: Mobile-first approach with collapsible sidebar and overlay
+- **Improved navigation**: Centralized routing with `ROUTES` constants and smart active states
+
+#### Notification & Dialog Systems
+
+- **Toast notifications**: Replaced browser `alert()` with custom toast system (`ToastContext`, `ToastContainer`)
+- **Confirmation dialogs**: Replaced browser `confirm()` with `ConfirmDialog` component
+- **UX best practices**: Toasts for feedback, dialogs for user decisions
+
+#### Category Icon System
+
+- **Modular architecture**: Separate service (`categoryIconService`), component (`CategoryIcon`), and hook (`useCategoryIcon`)
+- **Intelligent mapping**: Keyword-based icon selection with 22+ supported categories
+- **Internationalization**: Category suggestions use translation keys for multi-language support
+
+#### Session Management & Token Expiry
+
+- **TokenExpiryDialog**: Graceful session expiry handling with user choice
+- **Automatic token refresh**: Background token renewal and expiry detection
+- **Global dialog integration**: Centralized session management in App.tsx
+
+#### Example Components & Learning Resources
+
+- **SWRExample**: Live demonstration of SWR vs legacy patterns
+- **CurrencyExample**: Multi-currency system demonstration
+- **Educational routes**: `/swr-example`, `/currency-example` for learning
 
 ## 🚀 Feature Development Workflow
 
@@ -76,21 +119,34 @@ Follow this **exact order** when building any new feature:
 ### Phase 2: Foundation
 
 4. **Create API Functions** (`src/api/`)
-5. **Build Custom Hooks** (`src/hooks/`)
-6. **Add Business Services** (`src/services/`) _if needed_
+5. **Configure SWR Keys** (`src/config/swr.ts`)
+6. **Build Custom Hooks** (`src/hooks/`) _with SWR integration_
+7. **Add Business Services** (`src/services/`) _for complex logic_
 
 ### Phase 3: UI
 
-7. **Create UI Components** (`src/components/ui/`)
-8. **Build Feature Components** (`src/components/`)
-9. **Create Pages** (`src/pages/`)
+8. **Create UI Components** (`src/components/ui/`)
+9. **Build Feature Components** (`src/components/`)
+10. **Create Pages** (`src/pages/`)
+11. **Add Internationalization** (`src/locales/`)
 
 ### Phase 4: Integration
 
-10. **Add Routes** (`src/router/AppRouter.tsx` & `src/constants/index.ts`)
-11. **Update Navigation** (`src/components/layout/Sidebar.tsx`)
-12. **Test Integration**
-13. **Add Error Handling**
+12. **Add Routes** (`src/router/AppRouter.tsx` & `src/constants/index.ts`)
+13. **Update Navigation** (`src/components/layout/Sidebar.tsx`)
+14. **Test Integration**
+15. **Add Error Handling** and loading states
+16. **Configure Session Management** if needed
+17. **Update Export Structure** (`index.ts` files)
+
+### Phase 5: Polish & Documentation
+
+18. **Add Example Components** for complex features
+19. **Update Documentation** (guides and README files)
+20. **Validate Migration Checklist**
+21. **Integrate Notifications** (toasts and dialogs)
+22. **Test Integration**
+23. **Add Error Handling**
 
 ## 📂 Project Structure Rules
 
@@ -98,24 +154,24 @@ Follow this **exact order** when building any new feature:
 
 ```
 src/
-├── api/                    # HTTP requests only
 ├── components/
-│   ├── ui/                # Reusable UI components
-│   ├── layout/            # Layout-specific components (Sidebar, Header, etc.)
-│   └── examples/          # Example components for demonstrations
-├── contexts/              # Global state providers
-├── hooks/                 # Custom React hooks
-├── pages/                 # Route components (page-level components)
+│   ├── ui/                # Reusable UI components (Button, Input, Toast, ConfirmDialog)
+│   ├── layout/            # Layout components (AppLayout, AppHeader, Sidebar)
+│   └── examples/          # Example/demo components (SWRExample, CurrencyExample)
+├── contexts/              # Global state providers (Auth, Toast, Language)
+├── hooks/                 # Custom React hooks (useFinanceData, useCategoryIcon)
+├── pages/                 # Route components (ModernDashboard, CategoriesPage)
 ├── router/                # Application routing configuration
 │   └── AppRouter.tsx      # Main router component
-├── services/              # Business logic (when needed)
+├── services/              # Business logic services (categoryIconService, languageService)
 ├── types/                 # TypeScript definitions
 ├── utils/                 # Pure utility functions
-├── constants/             # App constants (ROUTES, etc.)
+├── constants/             # App constants (ROUTES, LANGUAGE_OPTIONS)
 ├── styles/                # Global styles
 ├── assets/                # Static files
-├── locales/               # Internationalization files
-└── config/                # Configuration
+├── locales/               # Internationalization files (en.ts, vi.ts)
+├── config/                # Configuration (SWR, API endpoints)
+└── api/                   # HTTP client and API functions
 ```
 
 ### ❌ DON'T Break These Rules
@@ -130,29 +186,32 @@ src/
 
 ### Router Structure Overview
 
-The application uses a **centralized routing system** with a clear separation between the main app router and individual route definitions.
+The application uses a **centralized routing system** with modern layout architecture:
 
 ```
 App.tsx (Main Routes)
 ├── Public Routes (/login, /register)
 ├── Protected Routes (/)
 └── AppRouter (/*)
-    ├── DashboardLayout (Sidebar + Header)
+    ├── AppLayout (Sidebar + Header)
     └── Nested Routes
         ├── /dashboard (index)
         ├── /transactions
         ├── /wallets
+        ├── /categories
         └── /settings, etc.
 ```
 
 ### Key Files
 
-| File                                        | Purpose                 | Contains                                               |
-| ------------------------------------------- | ----------------------- | ------------------------------------------------------ |
-| `src/App.tsx`                               | Main application router | Public/private route separation, authentication guards |
-| `src/router/AppRouter.tsx`                  | Dashboard routes        | All dashboard pages with shared layout                 |
-| `src/components/layout/DashboardLayout.tsx` | Dashboard layout        | Sidebar, header, and outlet for page content           |
-| `src/constants/index.ts`                    | Route constants         | Centralized route path definitions                     |
+| File                                  | Purpose                 | Contains                                               |
+| ------------------------------------- | ----------------------- | ------------------------------------------------------ |
+| `src/App.tsx`                         | Main application router | Public/private route separation, authentication guards |
+| `src/router/AppRouter.tsx`            | Dashboard routes        | All dashboard pages with shared layout                 |
+| `src/components/layout/AppLayout.tsx` | Dashboard layout        | Sidebar, header, and outlet for page content           |
+| `src/components/layout/AppHeader.tsx` | Top navigation bar      | Search, notifications, profile, language switcher      |
+| `src/components/layout/Sidebar.tsx`   | Side navigation         | Navigation menu with icons, badges, and active states  |
+| `src/constants/index.ts`              | Route constants         | Centralized route path definitions                     |
 
 ### Routing Best Practices
 
@@ -212,8 +271,25 @@ When adding a new route, follow these steps:
 
 ```typescript
 export const ROUTES = {
-  // ...existing routes
-  BUDGETS: '/budgets', // Add new route (absolute path)
+  // Authentication routes
+  HOME: '/',
+  LOGIN: '/login',
+  REGISTER: '/register',
+
+  // Dashboard routes
+  DASHBOARD: '/dashboard',
+  WALLETS: '/wallets',
+  TRANSACTIONS: '/transactions',
+  CATEGORIES: '/categories',
+  ANALYTICS: '/analytics',
+  REPORTS: '/reports',
+  SAVING_GOALS: '/saving-goals',
+  BUDGET: '/budget',
+  SETTINGS: '/settings',
+
+  // Example routes
+  SWR_EXAMPLE: '/swr-example',
+  CURRENCY_EXAMPLE: '/currency-example',
 } as const;
 ```
 
@@ -250,6 +326,138 @@ All dashboard routes are automatically protected through the main App.tsx:
     )
   }
 />
+```
+
+## 📊 Data Fetching with SWR
+
+MoneyWise uses **SWR (Stale-While-Revalidate)** for all data fetching, providing automatic caching, background updates, and optimistic mutations.
+
+### SWR Configuration
+
+```typescript
+// src/config/swr.ts
+export const swrConfig: SWRConfiguration = {
+  fetcher: swrFetcher,
+  dedupingInterval: 5 * 60 * 1000, // Cache for 5 minutes
+  revalidateOnFocus: true, // Refresh on window focus
+  revalidateOnReconnect: true, // Refresh on network reconnect
+  refreshInterval: 10 * 60 * 1000, // Background refresh every 10 minutes
+  errorRetryCount: 3, // Retry failed requests
+  shouldRetryOnError: error => error.status >= 500, // Only retry server errors
+};
+
+// Consistent SWR keys
+export const SWR_KEYS = {
+  CATEGORIES: {
+    ALL: '/Categories',
+    BY_ID: (id: string) => `/Categories/${id}`,
+  },
+  TRANSACTIONS: {
+    ALL: '/transactions',
+    BY_USER: '/transactions/user',
+  },
+  // ... more keys
+};
+```
+
+### SWR-based Hooks Pattern
+
+**✅ Modern Pattern (Current)**:
+
+```typescript
+// src/hooks/useFinanceData.ts
+export const useCategories = () => {
+  const { data, error, isLoading } = useSWR<Category[]>(
+    SWR_KEYS.CATEGORIES.ALL,
+    () => categoryApi.getAll()
+  );
+
+  return {
+    categories: data,
+    isLoading,
+    error,
+    refresh: () => mutate(SWR_KEYS.CATEGORIES.ALL),
+  };
+};
+
+export const useCategoryMutations = () => {
+  const createCategory = async (data: CreateCategoryRequest) => {
+    try {
+      const newCategory = await categoryApi.create(data);
+      mutate(SWR_KEYS.CATEGORIES.ALL); // Auto-refresh cache
+      return { success: true, data: newCategory };
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message };
+    }
+  };
+
+  return { createCategory, updateCategory, deleteCategory };
+};
+```
+
+**❌ Old Pattern (Deprecated)**:
+
+```typescript
+// DON'T: Manual state management
+export const useTransactions = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchTransactions = async () => {
+    setIsLoading(true);
+    try {
+      const data = await transactionApi.getAll();
+      setTransactions(data);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  return { transactions, isLoading, fetchTransactions };
+};
+```
+
+### Key Benefits of SWR Integration
+
+- **Automatic caching**: Data is cached and shared between components
+- **Background updates**: Data refreshes automatically when stale
+- **Optimistic mutations**: UI updates immediately, reverts on error
+- **Error recovery**: Automatic retries and error handling
+- **Performance**: Eliminates unnecessary re-renders and requests
+
+### SWR Usage Examples
+
+```typescript
+// In components - use the SWR-based hooks
+const CategoriesPage = () => {
+  const { categories, isLoading, error } = useCategories();
+  const { createCategory } = useCategoryMutations();
+  const { showSuccess, showError } = useToastContext();
+
+  const handleCreate = async (data) => {
+    const result = await createCategory(data);
+    if (result.success) {
+      showSuccess('Category created!');
+      // SWR automatically updates the cache
+    } else {
+      showError(result.error);
+    }
+  };
+
+  // No manual refresh needed - SWR handles everything
+  return (
+    <div>
+      {isLoading && <Loading />}
+      {categories?.map(category => (
+        <CategoryCard key={category.categoryId} category={category} />
+      ))}
+    </div>
+  );
+};
 ```
 
 ## 🎯 Step-by-Step Feature Development
@@ -292,7 +500,7 @@ export interface TransactionFilters {
 }
 ```
 
-### Step 2: Create API Functions (`src/api/transactionApi.ts`)
+### Step 2: Create API Functions (`src/api/financeApi.ts`)
 
 ```typescript
 import httpClient from './httpClient';
@@ -363,222 +571,125 @@ export const transactionApi = {
 };
 ```
 
-### Step 3: Create Custom Hook (`src/hooks/useTransactions.ts`)
+### Step 3: Configure SWR Keys (`src/config/swr.ts`)
 
 ```typescript
-import { useState, useCallback, useEffect } from 'react';
-import { transactionApi } from '../api';
+// Add to existing SWR_KEYS
+export const SWR_KEYS = {
+  // ...existing keys
+  TRANSACTIONS: {
+    ALL: '/transactions',
+    BY_USER: '/transactions/user',
+    BY_CATEGORY: (categoryId: string) => `/transactions/category/${categoryId}`,
+    SUMMARY: '/transactions/summary',
+  },
+} as const;
+```
+
+### Step 4: Create SWR-based Hooks (`src/hooks/useTransactionData.ts`)
+
+```typescript
+import useSWR, { mutate } from 'swr';
+import { transactionApi } from '../api/financeApi';
+import { SWR_KEYS } from '../config/swr';
 import type {
   Transaction,
   CreateTransactionRequest,
   TransactionFilters,
 } from '../types';
 
-export interface UseTransactionsReturn {
-  transactions: Transaction[];
-  isLoading: boolean;
-  error: string | null;
-  totalPages: number;
-  currentPage: number;
-  filters: TransactionFilters;
-  fetchTransactions: () => Promise<void>;
-  createTransaction: (
-    data: CreateTransactionRequest
-  ) => Promise<{ success: boolean; error?: string }>;
-  updateTransaction: (
-    id: number,
-    data: Partial<CreateTransactionRequest>
-  ) => Promise<{ success: boolean; error?: string }>;
-  deleteTransaction: (
-    id: number
-  ) => Promise<{ success: boolean; error?: string }>;
-  setFilters: (filters: TransactionFilters) => void;
-  setPage: (page: number) => void;
-}
-
-export const useTransactions = (): UseTransactionsReturn => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [filters, setFilters] = useState<TransactionFilters>({});
-
-  // Fetch transactions with current filters and pagination
-  const fetchTransactions = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await transactionApi.getAll(filters, currentPage, 10);
-      setTransactions(response.content);
-      setTotalPages(response.totalPages);
-    } catch (err) {
-      setError('Failed to fetch transactions');
-      setTransactions([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filters, currentPage]);
-
-  // Create new transaction
-  const createTransaction = useCallback(
-    async (data: CreateTransactionRequest) => {
-      try {
-        const newTransaction = await transactionApi.create(data);
-        setTransactions(prev => [newTransaction, ...prev]);
-        return { success: true };
-      } catch (err) {
-        return { success: false, error: 'Failed to create transaction' };
-      }
-    },
-    []
+/**
+ * Hook to fetch all transactions using SWR
+ */
+export const useTransactions = (filters?: TransactionFilters) => {
+  const { data, error, isLoading } = useSWR<Transaction[]>(
+    SWR_KEYS.TRANSACTIONS.ALL,
+    () => transactionApi.getAll(filters)
   );
-
-  // Update existing transaction
-  const updateTransaction = useCallback(
-    async (id: number, data: Partial<CreateTransactionRequest>) => {
-      try {
-        const updatedTransaction = await transactionApi.update(id, data);
-        setTransactions(prev =>
-          prev.map(t => (t.id === id ? updatedTransaction : t))
-        );
-        return { success: true };
-      } catch (err) {
-        return { success: false, error: 'Failed to update transaction' };
-      }
-    },
-    []
-  );
-
-  // Delete transaction
-  const deleteTransaction = useCallback(async (id: number) => {
-    try {
-      await transactionApi.delete(id);
-      setTransactions(prev => prev.filter(t => t.id !== id));
-      return { success: true };
-    } catch (err) {
-      return { success: false, error: 'Failed to delete transaction' };
-    }
-  }, []);
-
-  // Set page number
-  const setPage = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
-
-  // Fetch transactions when filters or page changes
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
 
   return {
-    transactions,
+    transactions: data,
     isLoading,
     error,
-    totalPages,
-    currentPage,
-    filters,
-    fetchTransactions,
+    refresh: () => mutate(SWR_KEYS.TRANSACTIONS.ALL),
+  };
+};
+
+/**
+ * Hook for transaction mutations with SWR cache updates
+ */
+export const useTransactionMutations = () => {
+  const createTransaction = async (data: CreateTransactionRequest) => {
+    try {
+      const newTransaction = await transactionApi.create(data);
+      mutate(SWR_KEYS.TRANSACTIONS.ALL); // Refresh cache
+      return { success: true, data: newTransaction };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to create transaction',
+      };
+    }
+  };
+
+  const updateTransaction = async (
+    id: number,
+    data: Partial<CreateTransactionRequest>
+  ) => {
+    try {
+      const updatedTransaction = await transactionApi.update(id, data);
+      mutate(SWR_KEYS.TRANSACTIONS.ALL); // Refresh cache
+      return { success: true, data: updatedTransaction };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to update transaction',
+      };
+    }
+  };
+
+  const deleteTransaction = async (id: number) => {
+    try {
+      await transactionApi.delete(id);
+      mutate(SWR_KEYS.TRANSACTIONS.ALL); // Refresh cache
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to delete transaction',
+      };
+    }
+  };
+
+  return {
     createTransaction,
     updateTransaction,
     deleteTransaction,
-    setFilters,
-    setPage,
   };
 };
-```
-
-### Step 4: Create UI Components (`src/components/ui/TransactionCard.tsx`)
-
-```typescript
-import React from 'react';
-import { formatCurrency, formatDate } from '../../utils';
-import { Button } from './Button';
-import type { Transaction } from '../../types';
-import './TransactionCard.css';
-
-interface TransactionCardProps {
-  transaction: Transaction;
-  onEdit?: (transaction: Transaction) => void;
-  onDelete?: (id: number) => void;
-  showActions?: boolean;
-}
-
-export const TransactionCard: React.FC<TransactionCardProps> = ({
-  transaction,
-  onEdit,
-  onDelete,
-  showActions = true,
-}) => {
-  const isIncome = transaction.type === 'INCOME';
-
-  return (
-    <div className={`transaction-card ${isIncome ? 'income' : 'expense'}`}>
-      <div className="transaction-info">
-        <div className="transaction-header">
-          <h3 className="transaction-description">{transaction.description}</h3>
-          <span className={`transaction-amount ${isIncome ? 'positive' : 'negative'}`}>
-            {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
-          </span>
-        </div>
-        <div className="transaction-meta">
-          <span className="transaction-date">{formatDate(transaction.date)}</span>
-          <span className="transaction-type">{transaction.type}</span>
-        </div>
-      </div>
-
-      {showActions && (
-        <div className="transaction-actions">
-          {onEdit && (
-            <Button
-              variant="secondary"
-              size="small"
-              onClick={() => onEdit(transaction)}
-            >
-              Edit
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              variant="danger"
-              size="small"
-              onClick={() => onDelete(transaction.id)}
-            >
-              Delete
-            </Button>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default TransactionCard;
 ```
 
 ### Step 5: Create Feature Page (`src/pages/TransactionsPage.tsx`)
 
 ```typescript
 import React, { useState } from 'react';
-import { useTransactions } from '../hooks/useTransactions';
+import { useTransactions, useTransactionMutations } from '../hooks/useTransactionData';
 import { useToastContext } from '../contexts';
-import { TransactionCard, Button, Loading } from '../components/ui';
-import Layout from '../components/layout/Layout';
+import { TransactionCard, Button, Loading, ConfirmDialog } from '../components/ui';
 import type { Transaction } from '../types';
 import './TransactionsPage.css';
 
 const TransactionsPage: React.FC = () => {
-  const {
-    transactions,
-    isLoading,
-    error,
-    createTransaction,
-    updateTransaction,
-    deleteTransaction,
-  } = useTransactions();
-
+  const { transactions, isLoading, error } = useTransactions();
+  const { createTransaction, updateTransaction, deleteTransaction } = useTransactionMutations();
   const { showSuccess, showError } = useToastContext();
+
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    transactionId: 0,
+    transactionName: '',
+  });
 
   const handleCreateTransaction = async (data: CreateTransactionRequest) => {
     const result = await createTransaction(data);
@@ -590,72 +701,83 @@ const TransactionsPage: React.FC = () => {
     }
   };
 
-  const handleEditTransaction = (transaction: Transaction) => {
-    // Open edit modal/form
-    console.log('Edit transaction:', transaction);
+  const handleDeleteTransaction = (transaction: Transaction) => {
+    setConfirmDialog({
+      isOpen: true,
+      transactionId: transaction.id,
+      transactionName: transaction.description,
+    });
   };
 
-  const handleDeleteTransaction = async (id: number) => {
-    if (window.confirm('Are you sure you want to delete this transaction?')) {
-      const result = await deleteTransaction(id);
-      if (result.success) {
-        showSuccess('Transaction deleted successfully!');
-      } else {
-        showError(result.error || 'Failed to delete transaction');
-      }
+  const confirmDelete = async () => {
+    const result = await deleteTransaction(confirmDialog.transactionId);
+    if (result.success) {
+      showSuccess('Transaction deleted successfully!');
+    } else {
+      showError(result.error || 'Failed to delete transaction');
     }
+    setConfirmDialog({ isOpen: false, transactionId: 0, transactionName: '' });
   };
 
   if (isLoading) return <Loading />;
 
   return (
-    <Layout>
-      <div className="transactions-page">
-        <div className="page-header">
-          <h1>Transactions</h1>
-          <Button
-            variant="primary"
-            onClick={() => setShowCreateForm(true)}
-          >
-            Add Transaction
-          </Button>
-        </div>
+    <div className="transactions-page">
+      <div className="page-header">
+        <h1>Transactions</h1>
+        <Button
+          variant="primary"
+          onClick={() => setShowCreateForm(true)}
+        >
+          Add Transaction
+        </Button>
+      </div>
 
-        {error && (
-          <div className="error-message">
-            {error}
+      {error && (
+        <div className="error-message">
+          {error.message}
+        </div>
+      )}
+
+      <div className="transactions-list">
+        {transactions?.length === 0 ? (
+          <div className="empty-state">
+            <p>No transactions found</p>
+            <Button
+              variant="primary"
+              onClick={() => setShowCreateForm(true)}
+            >
+              Add Your First Transaction
+            </Button>
           </div>
-        )}
-
-        <div className="transactions-list">
-          {transactions.length === 0 ? (
-            <div className="empty-state">
-              <p>No transactions found</p>
-              <Button
-                variant="primary"
-                onClick={() => setShowCreateForm(true)}
-              >
-                Add Your First Transaction
-              </Button>
-            </div>
-          ) : (
-            transactions.map(transaction => (
-              <TransactionCard
-                key={transaction.id}
-                transaction={transaction}
-                onEdit={handleEditTransaction}
-                onDelete={handleDeleteTransaction}
-              />
-            ))
-          )}
-        </div>
-
-        {/* TODO: Add CreateTransactionModal */}
-        {showCreateForm && (
-          <div>Create Transaction Form/Modal</div>
+        ) : (
+          transactions?.map(transaction => (
+            <TransactionCard
+              key={transaction.id}
+              transaction={transaction}
+              onDelete={() => handleDeleteTransaction(transaction)}
+            />
+          ))
         )}
       </div>
-    </Layout>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Delete Transaction"
+        message={`Are you sure you want to delete "${confirmDialog.transactionName}"?`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmDialog({ isOpen: false, transactionId: 0, transactionName: '' })}
+      />
+
+      {/* TODO: Add CreateTransactionModal */}
+      {showCreateForm && (
+        <div>Create Transaction Form/Modal</div>
+      )}
+    </div>
   );
 };
 
@@ -728,19 +850,19 @@ DashboardLayout
 
 #### Key Layout Components
 
-| Component         | Purpose                                        | Location                                    |
-| ----------------- | ---------------------------------------------- | ------------------------------------------- |
-| `DashboardLayout` | Main layout wrapper with sidebar and header    | `src/components/layout/DashboardLayout.tsx` |
-| `Sidebar`         | Navigation menu with collapsible functionality | `src/components/layout/Sidebar.tsx`         |
-| `DashboardHeader` | Top header with user info and actions          | `src/components/layout/DashboardHeader.tsx` |
+| Component   | Purpose                                        | Location                              | Features                                          |
+| ----------- | ---------------------------------------------- | ------------------------------------- | ------------------------------------------------- |
+| `AppLayout` | Main layout wrapper with sidebar and header    | `src/components/layout/AppLayout.tsx` | Mobile overlay, responsive design                 |
+| `Sidebar`   | Navigation menu with collapsible functionality | `src/components/layout/Sidebar.tsx`   | Route detection, icon integration                 |
+| `AppHeader` | Top header with user info and actions          | `src/components/layout/AppHeader.tsx` | Search, notifications, profile, language switcher |
 
 #### Layout Best Practices
 
-**✅ DO: Use DashboardLayout for all dashboard pages**
+**✅ DO: Use AppLayout for all dashboard pages**
 
 ```typescript
 // src/router/AppRouter.tsx
-<Route path="/" element={<DashboardLayout />}>
+<Route path="/" element={<AppLayout />}>
   <Route path="dashboard" element={<ModernDashboard />} />
   <Route path="transactions" element={<TransactionsPage />} />
 </Route>
@@ -753,7 +875,34 @@ DashboardLayout
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   // Sidebar-specific logic here
 };
+
+// ✅ Good - AppHeader handles dropdowns and theme switching
+const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
+
+  // Header-specific state and logic
+  return (
+    <header className="app-header">
+      <Search />
+      <Notifications />
+      <LanguageDropdown />
+      <ProfileDropdown />
+    </header>
+  );
+};
 ```
+
+#### AppHeader Features
+
+The `AppHeader` provides several built-in features:
+
+- **🔍 Search Bar**: Global search functionality
+- **🔔 Notifications**: Bell icon with notification count
+- **🌍 Language Switcher**: Dropdown for English/Vietnamese
+- **🌓 Theme Toggle**: Dark/light mode switching (ready for implementation)
+- **👤 Profile Menu**: User avatar with dropdown (settings, logout)
+- **📱 Mobile Menu**: Hamburger icon for mobile sidebar
 
 **❌ DON'T: Duplicate layout structure in pages**
 
@@ -761,12 +910,292 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
 // ❌ Bad - Don't recreate sidebar/header in each page
 const TransactionsPage = () => (
   <div>
-    <Sidebar /> {/* Don't do this - use DashboardLayout */}
+    <Sidebar /> {/* Don't do this - use AppLayout */}
     <Header />
     <TransactionContent />
   </div>
 );
 ```
+
+## 🔔 Notification & Dialog Systems
+
+MoneyWise uses a **dual notification system** that replaces browser alerts and confirms with custom UI components:
+
+### Toast Notification System
+
+**Purpose**: Provide non-blocking feedback to users about successful operations or errors.
+
+```typescript
+// src/contexts/ToastContext.tsx
+export const useToastContext = () => {
+  const { showSuccess, showError, showInfo, showWarning } = useToastContext();
+
+  // Usage in components
+  const handleAction = async () => {
+    const result = await performAction();
+    if (result.success) {
+      showSuccess('Operation completed successfully!');
+    } else {
+      showError('Operation failed. Please try again.');
+    }
+  };
+};
+```
+
+#### Toast Usage Patterns
+
+```typescript
+// ✅ Good - Use toasts for feedback
+const { showSuccess, showError } = useToastContext();
+
+// Success operations
+const result = await createCategory(data);
+if (result.success) {
+  showSuccess('Category created successfully!');
+}
+
+// Error handling
+if (result.error) {
+  showError(`Failed to create category: ${result.error}`);
+}
+
+// ❌ Don't use browser alerts
+alert('Category created!'); // Don't do this
+```
+
+### Confirmation Dialog System
+
+**Purpose**: Ask users to confirm destructive or important actions.
+
+```typescript
+// src/components/ui/ConfirmDialog.tsx
+const [confirmDialog, setConfirmDialog] = useState({
+  isOpen: false,
+  categoryId: '',
+  categoryName: '',
+});
+
+const handleDelete = (category) => {
+  setConfirmDialog({
+    isOpen: true,
+    categoryId: category.categoryId,
+    categoryName: category.name,
+  });
+};
+
+const confirmDelete = async () => {
+  const result = await deleteCategory(confirmDialog.categoryId);
+  // Handle result...
+  setConfirmDialog({ isOpen: false, categoryId: '', categoryName: '' });
+};
+
+return (
+  <ConfirmDialog
+    isOpen={confirmDialog.isOpen}
+    title="Delete Category"
+    message={`Are you sure you want to delete "${confirmDialog.categoryName}"?`}
+    confirmText="Delete"
+    cancelText="Cancel"
+    type="danger"
+    onConfirm={confirmDelete}
+    onCancel={() => setConfirmDialog({ isOpen: false, categoryId: '', categoryName: '' })}
+  />
+);
+```
+
+#### Dialog Usage Patterns
+
+```typescript
+// ✅ Good - Use custom dialogs for confirmations
+<ConfirmDialog
+  isOpen={showDeleteDialog}
+  title={t('categories.confirmDelete.title')}
+  message={`${t('categories.confirmDelete.message')} "${itemName}"`}
+  confirmText={t('categories.confirmDelete.confirm')}
+  cancelText={t('categories.confirmDelete.cancel')}
+  type="danger"
+  onConfirm={handleConfirmDelete}
+  onCancel={handleCancelDelete}
+/>
+
+// ❌ Don't use browser confirms
+if (window.confirm('Are you sure?')) { // Don't do this
+  deleteItem();
+}
+```
+
+### Token Expiry Dialog System
+
+**Purpose**: Handle session expiry gracefully with user choice to extend session or logout.
+
+```typescript
+// src/components/ui/TokenExpiryDialog.tsx
+const [tokenExpired, setTokenExpired] = useState(false);
+
+const handleStayLoggedIn = () => {
+  refreshToken(); // Extend session
+  setTokenExpired(false);
+};
+
+const handleTokenExpiryLogout = () => {
+  logout(); // Clean logout
+  setTokenExpired(false);
+};
+
+return (
+  <TokenExpiryDialog
+    isOpen={tokenExpired}
+    onStayLoggedIn={handleStayLoggedIn}
+    onLogout={handleTokenExpiryLogout}
+  />
+);
+```
+
+#### Token Dialog Integration
+
+```typescript
+// App.tsx - Global token expiry handling
+import { TokenExpiryDialog } from './components/ui';
+
+function AppContent() {
+  const { tokenExpired, handleStayLoggedIn, handleTokenExpiryLogout } = useAuthContext();
+
+  return (
+    <>
+      {/* Main app content */}
+      <Routes>...</Routes>
+
+      {/* Global dialogs */}
+      <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
+      <TokenExpiryDialog
+        isOpen={tokenExpired}
+        onStayLoggedIn={handleStayLoggedIn}
+        onLogout={handleTokenExpiryLogout}
+      />
+    </>
+  );
+}
+```
+
+### When to Use Each System
+
+| Scenario                    | Use               | Example                             |
+| --------------------------- | ----------------- | ----------------------------------- |
+| **Success feedback**        | Toast             | "Category created successfully!"    |
+| **Error feedback**          | Toast             | "Failed to save. Please try again." |
+| **Destructive actions**     | Dialog            | "Delete this category?"             |
+| **Important confirmations** | Dialog            | "Logout from your account?"         |
+| **Loading states**          | Loading Component | `<Loading />`                       |
+| **Form validation**         | Inline errors     | Field-specific error messages       |
+
+## 🎨 Category Icon System
+
+MoneyWise includes an **intelligent icon mapping system** that automatically selects appropriate icons for financial categories based on name patterns.
+
+> 📚 **For complete documentation**, see [CATEGORY_ICON_SYSTEM_GUIDE.md](./CATEGORY_ICON_SYSTEM_GUIDE.md)
+
+### Architecture Overview
+
+```typescript
+// Service Layer - Icon mapping logic
+export const getCategoryIcon = (categoryName: string): LucideIcon => {
+  const normalizedName = categoryName.toLowerCase().trim();
+  const matchingPattern = CATEGORY_ICON_PATTERNS.find(pattern =>
+    pattern.keywords.some(keyword => normalizedName.includes(keyword))
+  );
+  return matchingPattern?.icon || Folder;
+};
+
+// Component Layer - UI rendering
+<CategoryIcon categoryName="Food & Dining" size={24} />
+
+// Hook Layer - React integration
+const { suggestions, getIcon, hasKnownIcon } = useCategoryIcon();
+```
+
+### Quick Usage Examples
+
+#### Basic Icon Display
+
+```typescript
+import { CategoryIcon } from '../components/ui';
+
+// Simple usage
+<CategoryIcon categoryName="Food & Dining" size={24} />
+
+// With wrapper styling
+<CategoryIcon
+  categoryName="Transportation"
+  size={28}
+  withWrapper={true}
+  className="custom-icon"
+/>
+```
+
+#### Category Suggestions with Icons
+
+```typescript
+import { useCategoryIcon } from '../hooks';
+
+const CreateCategoryForm = () => {
+  const { suggestions } = useCategoryIcon();
+  const { t } = useLanguageContext();
+
+  return (
+    <div className="icon-examples">
+      <p>{t('categories.examplesTitle')}</p>
+      <div className="example-tags">
+        {suggestions.map(({ translationKey }) => {
+          const translatedName = t(translationKey);
+          return (
+            <span
+              key={translationKey}
+              className="example-tag"
+              onClick={() => setFormData({ name: translatedName })}
+            >
+              {translatedName}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+```
+
+### Supported Categories (22+ Icons)
+
+- **Financial**: Salary, Income, Investment, Savings → 💰📈🐷
+- **Food & Dining**: Food, Restaurant, Grocery → 🍴
+- **Transportation**: Car, Gas, Taxi, Uber → 🚗
+- **Shopping**: Clothes, Retail → 🛍️
+- **Entertainment**: Movies, Games → 🎮
+- **Health**: Medical, Fitness, Gym → ❤️💪
+- **Travel**: Vacation, Flight, Hotel → ✈️
+- **Housing**: Rent, Utilities → 🏠⚡
+- **And 14+ more categories...**
+
+### Key Benefits
+
+- **Intelligent**: Keyword-based matching with fallback
+- **Internationalized**: Works with translated category names
+- **Extensible**: Easy to add new icon patterns
+- **Performance**: Memoized suggestions and efficient matching
+- **Type-safe**: Full TypeScript support
+
+### Development Guidelines
+
+**✅ DO:**
+
+- Use `CategoryIcon` component for all category displays
+- Use `useCategoryIcon()` hook for suggestions and logic
+- Add new patterns to `CATEGORY_ICON_PATTERNS` for new categories
+
+**❌ DON'T:**
+
+- Hardcode icon selections in components
+- Duplicate icon mapping logic
+- Skip the service layer for icon operations
 
 ### ✅ Good Component Structure
 
@@ -939,50 +1368,107 @@ export const badApi2 = {
 
 ✅ **DO create hooks for:**
 
-- Managing component state + API calls
+- SWR-based data fetching with cache management
 - Reusable logic across multiple components
-- Complex state management
-- Side effects coordination
+- Complex state management with mutations
+- Side effects coordination and error handling
 
 ❌ **DON'T create hooks for:**
 
 - Simple state that's only used in one component
 - Pure functions (use utils instead)
-- API calls without state (use API layer directly)
+- Direct API calls without caching (use SWR directly)
 
-### Hook Structure Template
+### Modern Hook Structure Template (SWR-based)
 
 ```typescript
-// src/hooks/useFeatureName.ts
-import { useState, useEffect, useCallback } from 'react';
+// src/hooks/useFeatureData.ts
+import useSWR, { mutate } from 'swr';
 import { featureApi } from '../api';
+import { SWR_KEYS } from '../config/swr';
 import type { FeatureData, CreateFeatureRequest } from '../types';
 
-export interface UseFeatureReturn {
-  // State
-  data: FeatureData[];
-  isLoading: boolean;
-  error: string | null;
+/**
+ * Hook for fetching feature data with SWR
+ */
+export const useFeatureData = () => {
+  const { data, error, isLoading } = useSWR<FeatureData[]>(
+    SWR_KEYS.FEATURES.ALL,
+    () => featureApi.getAll()
+  );
 
-  // Actions
-  fetchData: () => Promise<void>;
-  createItem: (
-    data: CreateFeatureRequest
-  ) => Promise<{ success: boolean; error?: string }>;
-  updateItem: (
-    id: number,
+  return {
+    data,
+    isLoading,
+    error,
+    refresh: () => mutate(SWR_KEYS.FEATURES.ALL),
+  };
+};
+
+/**
+ * Hook for feature mutations with SWR cache management
+ */
+export const useFeatureMutations = () => {
+  const createItem = async (data: CreateFeatureRequest) => {
+    try {
+      const newItem = await featureApi.create(data);
+      mutate(SWR_KEYS.FEATURES.ALL); // Auto-refresh cache
+      return { success: true, data: newItem };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to create item',
+      };
+    }
+  };
+
+  const updateItem = async (
+    id: string,
     data: Partial<CreateFeatureRequest>
-  ) => Promise<{ success: boolean; error?: string }>;
-  deleteItem: (id: number) => Promise<{ success: boolean; error?: string }>;
-}
+  ) => {
+    try {
+      const updatedItem = await featureApi.update(id, data);
+      mutate(SWR_KEYS.FEATURES.ALL);
+      mutate(SWR_KEYS.FEATURES.BY_ID(id));
+      return { success: true, data: updatedItem };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to update item',
+      };
+    }
+  };
 
+  const deleteItem = async (id: string) => {
+    try {
+      await featureApi.delete(id);
+      mutate(SWR_KEYS.FEATURES.ALL);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to delete item',
+      };
+    }
+  };
+
+  return {
+    createItem,
+    updateItem,
+    deleteItem,
+  };
+};
+```
+
+### Legacy Hook Pattern (Deprecated)
+
+```typescript
+// ❌ Old Pattern - Don't use manual state management
 export const useFeature = (initialLoad = true): UseFeatureReturn => {
-  // State
   const [data, setData] = useState<FeatureData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Actions
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -996,24 +1482,14 @@ export const useFeature = (initialLoad = true): UseFeatureReturn => {
     }
   }, []);
 
-  // More actions...
-
-  // Effects
+  // Manual effects and state management...
   useEffect(() => {
     if (initialLoad) {
       fetchData();
     }
   }, [fetchData, initialLoad]);
 
-  return {
-    data,
-    isLoading,
-    error,
-    fetchData,
-    createItem,
-    updateItem,
-    deleteItem,
-  };
+  return { data, isLoading, error, fetchData };
 };
 ```
 
@@ -1036,6 +1512,19 @@ To avoid confusion, we use distinct naming conventions:
 
 - `useAuthContext()` - Context hook for standard usage (recommended)
 - `useAuthentication()` - Direct hook for custom auth features
+
+**Data Fetching Hooks:**
+
+- `useCategories()` - Fetch all categories with SWR
+- `useCategory(id)` - Fetch single category with SWR
+- `useCategoryMutations()` - Category CRUD operations
+- `useCategoryIcon()` - Category icon system hook
+
+**Utility Hooks:**
+
+- `useCurrency()` - Currency formatting and conversion
+- `useApi()` - Legacy hook (deprecated, use SWR hooks instead)
+- `useToast()` - Toast notification management
 
 ### Quick Usage Examples
 
@@ -1191,10 +1680,49 @@ const BadComponent = () => {
   }, []);
 };
 
-// ✅ DO: Use hooks for API calls
+// ✅ DO: Use SWR-based hooks for data fetching
 const GoodComponent = () => {
   const { transactions, isLoading } = useTransactions();
   // Component focuses on UI logic only
+};
+```
+
+```typescript
+// ❌ DON'T: Manual state management for server data
+const BadComponent = () => {
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchCategories = async () => {
+    setIsLoading(true);
+    try {
+      const data = await categoryApi.getAll();
+      setCategories(data);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  return (
+    <div>
+      {isLoading ? <Loading /> : categories.map(cat => <div key={cat.id}>{cat.name}</div>)}
+    </div>
+  );
+};
+
+// ✅ DO: Use SWR for automatic caching and updates
+const GoodComponent = () => {
+  const { categories, isLoading } = useCategories();
+
+  return (
+    <div>
+      {isLoading ? <Loading /> : categories?.map(cat => <div key={cat.categoryId}>{cat.name}</div>)}
+    </div>
+  );
 };
 ```
 
@@ -1220,6 +1748,85 @@ export const goodTransactionApi = {
     const response = await httpClient.post<Transaction>('/transactions', data);
     return response.data;
   },
+};
+```
+
+### ❌ Notification & Dialog Issues
+
+```typescript
+// ❌ DON'T: Use browser alerts and confirms
+const handleDelete = async (id: string) => {
+  if (window.confirm('Are you sure?')) {
+    // Don't do this
+    await deleteItem(id);
+    alert('Item deleted!'); // Don't do this
+  }
+};
+
+// ✅ DO: Use custom notifications and dialogs
+const handleDelete = (item: Item) => {
+  setConfirmDialog({
+    isOpen: true,
+    itemId: item.id,
+    itemName: item.name,
+  });
+};
+
+const confirmDelete = async () => {
+  const result = await deleteItem(confirmDialog.itemId);
+  if (result.success) {
+    showSuccess('Item deleted successfully!');
+  } else {
+    showError(result.error);
+  }
+  setConfirmDialog({ isOpen: false, itemId: '', itemName: '' });
+};
+```
+
+### ❌ SWR Usage Issues
+
+```typescript
+// ❌ DON'T: Mix manual state with SWR
+const BadComponent = () => {
+  const [categories, setCategories] = useState([]);
+  const { data } = useSWR('/categories', fetcher);
+
+  useEffect(() => {
+    if (data) {
+      setCategories(data); // Don't duplicate state
+    }
+  }, [data]);
+};
+
+// ✅ DO: Use SWR state directly
+const GoodComponent = () => {
+  const { categories, isLoading } = useCategories();
+  // Use SWR state directly
+};
+```
+
+```typescript
+// ❌ DON'T: Manual cache invalidation
+const BadComponent = () => {
+  const handleCreate = async data => {
+    await categoryApi.create(data);
+    // Manual refetch
+    window.location.reload(); // Very bad
+    fetchCategories(); // Still bad
+  };
+};
+
+// ✅ DO: Let SWR handle cache updates
+const GoodComponent = () => {
+  const { createCategory } = useCategoryMutations();
+
+  const handleCreate = async data => {
+    const result = await createCategory(data);
+    // SWR automatically updates cache
+    if (result.success) {
+      showSuccess('Category created!');
+    }
+  };
 };
 ```
 
@@ -1256,3 +1863,251 @@ import { useAuthContext } from '../contexts/AuthContext'; // ❌ Import from imp
 // ✅ DO: Import from index files
 import { useAuthContext } from '../contexts'; // ✅ Import from index
 ```
+
+## 📝 Examples
+
+This guide includes several real-world examples from the MoneyWise application that demonstrate best practices:
+
+### 1. Categories Page Implementation
+
+The **Categories Page** showcases the complete modern architecture:
+
+**Key Features Demonstrated:**
+
+- **SWR Integration**: `useCategories()` and `useCategoryMutations()` hooks
+- **Toast Notifications**: Success/error feedback for all CRUD operations
+- **Confirmation Dialogs**: Custom dialog for delete confirmations
+- **Internationalization**: All text uses translation keys
+- **Category Icon System**: Intelligent icon selection and suggestions
+- **Form Handling**: Clean form state management and validation
+
+**Files to Study:**
+
+- `src/pages/CategoriesPage.tsx` - Complete page implementation
+- `src/hooks/useFinanceData.ts` - SWR-based data hooks
+- `src/components/ui/CategoryIcon.tsx` - Reusable icon component
+- `src/services/categoryIconService.ts` - Business logic service
+
+### 2. Modern Layout System
+
+The **App Layout System** demonstrates the new layout architecture:
+
+**Key Features Demonstrated:**
+
+- **Responsive Design**: Mobile-first with collapsible sidebar
+- **Navigation Integration**: Smart active states and ROUTES constants
+- **Header Features**: Search, notifications, profile, language switcher
+- **Context Integration**: Auth, language, and toast contexts
+
+**Files to Study:**
+
+- `src/components/layout/AppLayout.tsx` - Main layout wrapper
+- `src/components/layout/AppHeader.tsx` - Top navigation
+- `src/components/layout/Sidebar.tsx` - Side navigation
+- `src/router/AppRouter.tsx` - Route structure
+
+### 3. SWR Data Fetching Pattern
+
+The **Finance Data Hooks** show the complete SWR integration:
+
+**Key Features Demonstrated:**
+
+- **Cache Management**: Automatic cache updates on mutations
+- **Error Handling**: Consistent error patterns across all operations
+- **Optimistic Updates**: UI updates before server confirmation
+- **Type Safety**: Full TypeScript support for all operations
+
+**Files to Study:**
+
+- `src/hooks/useFinanceData.ts` - Complete SWR integration
+- `src/config/swr.ts` - SWR configuration and keys
+- `src/api/financeApi.ts` - API layer integration
+
+### 4. SWR Migration Demonstration
+
+The **SWR Example Component** provides a live comparison of old vs new patterns:
+
+**Key Features Demonstrated:**
+
+- **Side-by-side comparison**: Old `useApi` vs new SWR hooks
+- **Cache behavior**: Shows SWR caching and deduplication in action
+- **Performance benefits**: Demonstrates background updates and shared state
+- **Migration guide**: Visual proof of SWR advantages
+
+**Files to Study:**
+
+- `src/components/examples/SWRExample.tsx` - Live comparison demo
+- `src/hooks/useApi.ts` - Legacy hook (deprecated)
+- `src/hooks/useFinanceData.ts` - Modern SWR hooks
+
+**Usage**: Visit `/swr-example` route to see the live comparison and understand why SWR is superior for data fetching.
+
+### 5. Available Example Components
+
+The application includes several **educational examples** that you can access for learning:
+
+#### SWR vs Legacy Comparison (`/swr-example`)
+
+- **Component**: `src/components/examples/SWRExample.tsx`
+- **Purpose**: Side-by-side comparison of old `useApi` vs modern SWR hooks
+- **Learn**: Cache behavior, performance benefits, background updates
+
+#### Currency System Demo (`/currency-example`)
+
+- **Component**: `src/components/examples/CurrencyExample.tsx`
+- **Purpose**: Demonstrates currency formatting and conversion features
+- **Learn**: Multi-currency support, formatting patterns, conversion rates
+
+#### UI Component Showcase
+
+- **Toast Notifications**: Examples of success, error, warning, info toasts
+- **Confirmation Dialogs**: Various dialog types and usage patterns
+- **Category Icons**: Live icon selection and smart suggestions
+- **Layout Responsive**: Mobile and desktop layout behavior
+
+These examples serve as **live documentation** and help developers understand implementation patterns before building new features.
+
+## 🚀 Migration Guide
+
+### From Old to New Architecture
+
+If you're working with older parts of the codebase, here's how to migrate:
+
+#### 1. Data Fetching Migration
+
+```typescript
+// OLD: Manual state management
+const [data, setData] = useState([]);
+const [loading, setLoading] = useState(false);
+
+const fetchData = async () => {
+  setLoading(true);
+  try {
+    const result = await api.getData();
+    setData(result);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// NEW: SWR-based hooks
+const { data, isLoading } = useDataWithSWR();
+```
+
+#### 2. Notification Migration
+
+```typescript
+// OLD: Browser alerts
+alert('Success!');
+if (confirm('Delete?')) deleteItem();
+
+// NEW: Custom notifications
+showSuccess('Success!');
+<ConfirmDialog onConfirm={deleteItem} />
+```
+
+#### 3. Layout Migration
+
+```typescript
+// OLD: Individual layout imports
+import DashboardLayout from '../layout/DashboardLayout';
+import Header from '../layout/Header';
+
+// NEW: Centralized layout system
+// Pages use AppRouter with AppLayout - no individual imports needed
+```
+
+#### 4. Icon System Migration
+
+```typescript
+// OLD: Hardcoded icons
+const getIcon = (category) => {
+  if (category.includes('food')) return <Utensils />;
+  return <Folder />;
+};
+
+// NEW: Service-based system
+import { CategoryIcon } from '../components/ui';
+<CategoryIcon categoryName={category.name} />
+```
+
+### Best Practices Summary
+
+**✅ DO:**
+
+- Use SWR for all server state management
+- Use toasts for feedback, dialogs for confirmations
+- Use `CategoryIcon` component for category displays
+- Use `useLanguageContext()` for translations
+- Use `AppLayout` for all dashboard pages
+- Follow the established hook patterns
+
+**❌ DON'T:**
+
+- Mix manual state management with SWR
+- Use browser alerts or confirms
+- Hardcode icons or text strings
+- Import implementation files directly
+- Skip TypeScript types
+- Create manual cache invalidation
+
+### Migration Checklist
+
+When updating or creating new features:
+
+- [ ] **Data Fetching**: Use SWR-based hooks (`useCategories`, etc.)
+- [ ] **Notifications**: Use `ToastContext` instead of alerts
+- [ ] **Confirmations**: Use `ConfirmDialog` instead of browser confirms
+- [ ] **Icons**: Use `CategoryIcon` component and service
+- [ ] **Translations**: Use `useLanguageContext()` and translation keys
+- [ ] **Layout**: Use `AppLayout` and `AppRouter` structure
+- [ ] **Types**: Define TypeScript interfaces for all data
+- [ ] **Error Handling**: Use consistent error patterns
+- [ ] **Export Structure**: Update index.ts files
+- [ ] **Documentation**: Update relevant guide sections
+
+This architecture ensures consistency, maintainability, and excellent user experience across the entire MoneyWise application.
+
+## 📚 Related Guides
+
+The MoneyWise project includes several specialized guides for different aspects of the system:
+
+### 🎨 [Category Icon System Guide](./CATEGORY_ICON_SYSTEM_GUIDE.md)
+
+- **Complete icon system documentation**
+- Icon pattern definitions and keyword mapping
+- Component usage and customization examples
+- Service architecture and extension guide
+
+### 🌐 [Internationalization Guide](./INTERNATIONALIZATION_GUIDE.md)
+
+- **Complete i18n system documentation**
+- Translation key organization and hierarchy
+- Language switching implementation
+- Context vs hook usage patterns
+
+### 💰 [Currency Module Guide](./CURRENCY_MODULE_GUIDE.md)
+
+- **Multi-currency system documentation**
+- Currency formatting and conversion
+- Exchange rate integration
+- Regional formatting patterns
+
+### 📊 [App Layout & Navigation Guide](./APP_LAYOUT_GUIDE.md)
+
+- **Complete layout system documentation**
+- AppLayout, AppHeader, and Sidebar architecture
+- Responsive design and mobile optimization
+- Navigation patterns and routing integration
+
+### Development Workflow
+
+**For new features**, follow this guide order:
+
+1. **Start here**: DEVELOPMENT_GUIDE.md (this guide)
+2. **For icons**: CATEGORY_ICON_SYSTEM_GUIDE.md
+3. **For text**: INTERNATIONALIZATION_GUIDE.md
+4. **For currency**: CURRENCY_MODULE_GUIDE.md
+5. **For layout**: APP_LAYOUT_GUIDE.md
+
+Each guide complements this main development guide with specialized information for specific system components.

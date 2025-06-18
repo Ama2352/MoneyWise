@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
+import { SWRConfig } from 'swr';
 import { useToastContext } from './contexts';
 import { useAuthContext } from './contexts';
 import { LoginPage, RegisterPage } from './pages';
@@ -12,6 +13,7 @@ import { ToastProvider, AuthProvider, LanguageProvider } from './contexts';
 import { CurrencyExample } from './components/examples/CurrencyExample';
 import { ROUTES } from './constants';
 import { STORAGE_KEYS } from './constants';
+import { swrConfig } from './config/swr';
 import './App.css';
 import { AppRouter } from './router';
 
@@ -112,7 +114,9 @@ function App() {
         <ToastProvider>
           <AuthProvider>
             <Router>
-              <AppContent />
+              <SWRConfig value={swrConfig}>
+                <AppContent />
+              </SWRConfig>
             </Router>
           </AuthProvider>
         </ToastProvider>

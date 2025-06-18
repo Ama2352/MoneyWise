@@ -11,3 +11,9 @@ export {
   useCurrencyWithConversion,
   useExchangeRate,
 } from './useCurrency';
+export {
+  useCategories,
+  useCategory,
+  useCategoryMutations,
+} from './useFinanceData';
+export { useCategoryIcon } from './useCategoryIcon';

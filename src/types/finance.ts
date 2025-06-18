@@ -2,6 +2,18 @@
  * Money Management related type definitions
  */
 
+export interface Category {
+  categoryId: string;
+  name: string;
+  createdAt: string;
+}
+
+// With Pick - automatic sync (If Category.name changes, this automatically updates)
+export type CreateCategoryRequest = Pick<Category, 'name'>;
+export type UpdateCategoryRequest = CreateCategoryRequest & {
+  categoryId: string;
+};
+
 export type TransactionType = 'income' | 'expense';
 
 export interface Transaction {
@@ -12,18 +24,6 @@ export interface Transaction {
   type: 'INCOME' | 'EXPENSE';
   categoryId: number;
   accountId: number;
-  userId: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Category {
-  id: number;
-  name: string;
-  description?: string;
-  color: string;
-  icon?: string;
-  type: 'INCOME' | 'EXPENSE';
   userId: number;
   createdAt: string;
   updatedAt: string;
@@ -68,14 +68,6 @@ export interface CreateTransactionRequest {
   type: 'INCOME' | 'EXPENSE';
   categoryId: number;
   accountId: number;
-}
-
-export interface CreateCategoryRequest {
-  name: string;
-  description?: string;
-  color: string;
-  icon?: string;
-  type: 'INCOME' | 'EXPENSE';
 }
 
 export interface CreateAccountRequest {

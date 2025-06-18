@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import './DashboardLayout.css';
-import DashboardHeader from './DashboardHeader';
+import './AppLayout.css';
+import AppHeader from './AppHeader';
 
-const DashboardLayout: React.FC = () => {
+const AppLayout: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -17,18 +17,18 @@ const DashboardLayout: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-layout">
+    <div className="app-layout">
       {/* Mobile overlay */}
       {mobileMenuOpen && (
         <div
-          className="dashboard-layout__overlay"
+          className="app-layout__overlay"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`dashboard-layout__sidebar ${mobileMenuOpen ? 'dashboard-layout__sidebar--mobile-open' : ''}`}
+        className={`app-layout__sidebar ${mobileMenuOpen ? 'app-layout__sidebar--mobile-open' : ''}`}
       >
         <Sidebar
           isCollapsed={sidebarCollapsed}
@@ -38,14 +38,14 @@ const DashboardLayout: React.FC = () => {
 
       {/* Main content area */}
       <div
-        className={`dashboard-layout__main ${sidebarCollapsed ? 'dashboard-layout__main--expanded' : ''}`}
+        className={`app-layout__main ${sidebarCollapsed ? 'app-layout__main--expanded' : ''}`}
       >
-        <DashboardHeader
+        {' '}
+        <AppHeader
           onMobileMenuToggle={handleMobileMenuToggle}
           sidebarCollapsed={sidebarCollapsed}
         />
-
-        <main className="dashboard-layout__content">
+        <main className="app-layout__content">
           <Outlet />
         </main>
       </div>
@@ -53,4 +53,4 @@ const DashboardLayout: React.FC = () => {
   );
 };
 
-export default DashboardLayout;
+export default AppLayout;

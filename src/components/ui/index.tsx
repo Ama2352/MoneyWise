@@ -11,3 +11,5 @@ export { default as ToastContainer } from './ToastContainer';
 export { default as TokenExpiryDialog } from './TokenExpiryDialog';
 export { default as LanguageSwitcher } from './LanguageSwitcher';
 export { default as PlaceholderPage } from './PlaceholderPage';
+export { CategoryIcon, CategoryIconWithWrapper } from './CategoryIcon';
+export { ConfirmDialog } from './ConfirmDialog';

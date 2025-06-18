@@ -101,7 +101,12 @@ export const EXCHANGE_API = {
 } as const;
 
 // Language settings
-export const LANGUAGES: LanguageOption[] = [
+export const LANGUAGES = {
+  EN: 'en' as const,
+  VI: 'vi' as const,
+} as const;
+
+export const LANGUAGE_OPTIONS: LanguageOption[] = [
   {
     code: 'en',
     name: 'English',

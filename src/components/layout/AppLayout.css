@@ -1,5 +1,5 @@
-/* Dashboard Layout Styles */
-.dashboard-layout {
+﻿/* App Layout Styles */
+.app-layout {
   display: flex;
   height: 100vh;
   background: var(--gray-25);
@@ -7,7 +7,7 @@
 }
 
 /* Mobile overlay */
-.dashboard-layout__overlay {
+.app-layout__overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -26,13 +26,13 @@
 }
 
 /* Sidebar container */
-.dashboard-layout__sidebar {
+.app-layout__sidebar {
   flex-shrink: 0;
   transition: all var(--transition-normal);
 }
 
 @media (max-width: 768px) {
-  .dashboard-layout__sidebar {
+  .app-layout__sidebar {
     position: fixed;
     top: 0;
     left: 0;
@@ -41,13 +41,13 @@
     transition: transform var(--transition-normal);
   }
 
-  .dashboard-layout__sidebar--mobile-open {
+  .app-layout__sidebar--mobile-open {
     transform: translateX(0);
   }
 }
 
 /* Main content area */
-.dashboard-layout__main {
+.app-layout__main {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -56,7 +56,7 @@
 }
 
 /* Content area */
-.dashboard-layout__content {
+.app-layout__content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
@@ -64,32 +64,32 @@
   background: var(--gray-25);
 }
 
-.dashboard-layout__content::-webkit-scrollbar {
+.app-layout__content::-webkit-scrollbar {
   width: 8px;
 }
 
-.dashboard-layout__content::-webkit-scrollbar-track {
+.app-layout__content::-webkit-scrollbar-track {
   background: var(--gray-100);
 }
 
-.dashboard-layout__content::-webkit-scrollbar-thumb {
+.app-layout__content::-webkit-scrollbar-thumb {
   background: var(--gray-300);
   border-radius: var(--radius-full);
 }
 
-.dashboard-layout__content::-webkit-scrollbar-thumb:hover {
+.app-layout__content::-webkit-scrollbar-thumb:hover {
   background: var(--gray-400);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .dashboard-layout__content {
+  .app-layout__content {
     padding: var(--space-4);
   }
 }
 
 @media (max-width: 480px) {
-  .dashboard-layout__content {
+  .app-layout__content {
     padding: var(--space-3);
   }
 }

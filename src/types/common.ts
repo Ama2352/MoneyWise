@@ -2,12 +2,6 @@
  * Common type definitions used across the application
  */
 
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  success: boolean;
-}
-
 export interface PaginatedResponse<T> {
   data: T[];
   page: number;
@@ -16,13 +10,6 @@ export interface PaginatedResponse<T> {
   totalPages: number;
   last: boolean;
   first: boolean;
-}
-
-export interface ApiError {
-  message: string;
-  status: number;
-  error: string;
-  timestamp: string;
 }
 
 export interface SelectOption {
@@ -74,6 +61,11 @@ export interface TranslationKeys {
     firstName: string;
     lastName: string;
     confirmPassword: string;
+    searchPlaceholder: string;
+    profile: string;
+    settings: string;
+    helpSupport: string;
+    signOut: string;
   };
 
   // Navigation
@@ -161,7 +153,6 @@ export interface TranslationKeys {
       coffeeShop: string;
     };
   };
-
   // Transactions
   transactions: {
     title: string;
@@ -178,6 +169,68 @@ export interface TranslationKeys {
     expense: string;
     noTransactions: string;
     deleteConfirm: string;
+  };
+
+  // Categories
+  categories: {
+    title: string;
+    subtitle: string;
+    addNewCategory: string;
+    createDescription: string;
+    categoryName: string;
+    categoryNamePlaceholder: string;
+    examplesTitle: string;
+    iconPreview: string;
+    createButton: string;
+    creating: string;
+    yourCategories: string;
+    categoryCount: string;
+    categoriesCount: string;
+    refresh: string;
+    noCategoriesTitle: string;
+    noCategoriesDescription: string;
+    createdOn: string;
+    edit: string;
+    delete: string;
+    save: string;
+    cancel: string;
+    deleteConfirm: string;
+    errorLoad: string;
+    retry: string;
+    invalidCategoryId: string;
+    errorPrefix: string;
+    notifications: {
+      categoryCreated: string;
+      categoryUpdated: string;
+      categoryDeleted: string;
+      createError: string;
+      updateError: string;
+      deleteError: string;
+    };
+    confirmDelete: {
+      title: string;
+      message: string;
+      confirm: string;
+      cancel: string;
+    };
+    suggestions: {
+      foodDining: string;
+      transportation: string;
+      shopping: string;
+      entertainment: string;
+      healthFitness: string;
+      salary: string;
+      coffee: string;
+      travel: string;
+      education: string;
+      housing: string;
+      utilities: string;
+      gifts: string;
+      investment: string;
+      savings: string;
+      bills: string;
+      maintenance: string;
+    };
   };
 
   // Validation
@@ -198,12 +251,12 @@ export interface TranslationKeys {
     amountInvalid: string;
     dateInvalid: string;
   };
-
   // Language
   language: {
     english: string;
     vietnamese: string;
     switchTo: string;
+    selectLanguage: string;
   };
 
   // Errors
