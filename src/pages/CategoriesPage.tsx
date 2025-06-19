@@ -27,6 +27,7 @@ export const CategoriesPage: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '' });
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     categoryId: string;
@@ -44,6 +45,7 @@ export const CategoriesPage: React.FC = () => {
     const result = await createCategory({ name: formData.name.trim() });
     if (result.success) {
       setFormData({ name: '' });
+      setShowCreateDialog(false); // Close dialog on success
       showSuccess(t('categories.notifications.categoryCreated'));
       // SWR automatically refreshes the list
     } else {
@@ -131,87 +133,113 @@ export const CategoriesPage: React.FC = () => {
   return (
     <div className="categories-page">
       <div className="page-header">
-        <h1>{t('categories.title')}</h1>
-        <p>{t('categories.subtitle')}</p>
-      </div>
-
-      {/* Create New Category Section */}
-      <div className="create-section">
-        <Card>
-          <div className="create-category-container">
-            {' '}
-            <div className="create-header">
-              <h2>{t('categories.addNewCategory')}</h2>
-              <p>{t('categories.createDescription')}</p>
-              {/* Icon Examples */}
-              <div className="icon-examples">
-                <p className="examples-title">
-                  {t('categories.examplesTitle')}
-                </p>{' '}
-                <div className="example-tags">
-                  {suggestions.map(({ translationKey }) => {
-                    const translatedName = t(translationKey);
-                    return (
-                      <span
-                        key={translationKey}
-                        className="example-tag"
-                        onClick={() => setFormData({ name: translatedName })}
-                      >
-                        {translatedName}
-                      </span>
-                    );
-                  })}
-                </div>
+        <div>
+          <h1>{t('categories.title')}</h1>
+          <p>{t('categories.subtitle')}</p>
+        </div>
+        <div className="header-actions">
+          <button
+            className="add-category-btn"
+            onClick={() => setShowCreateDialog(true)}
+          >
+            {t('categories.addNewCategory')}
+          </button>
+        </div>
+      </div>{' '}
+      {/* Create Category Dialog */}
+      {showCreateDialog && (
+        <div
+          className="create-category-dialog"
+          onClick={e => {
+            if (e.target === e.currentTarget) {
+              setShowCreateDialog(false);
+              setFormData({ name: '' });
+            }
+          }}
+        >
+          <div className="dialog-content">
+            <div className="dialog-header">
+              <div>
+                <h2>{t('categories.addNewCategory')}</h2>
+                <p>{t('categories.createDescription')}</p>
               </div>
-            </div>{' '}
-            <form onSubmit={handleCreate} className="create-form">
-              <div className="input-group">
-                {' '}
-                <Input
-                  type="text"
-                  placeholder={t('categories.categoryNamePlaceholder')}
-                  value={formData.name}
-                  onChange={value => setFormData({ name: value })}
-                  disabled={isCreating}
-                  label={t('categories.categoryName')}
-                />
-              </div>
+              <button
+                className="dialog-close"
+                onClick={() => {
+                  setShowCreateDialog(false);
+                  setFormData({ name: '' });
+                }}
+              >
+                ✕
+              </button>
+            </div>
 
-              {/* Horizontal layout for icon preview and create button */}
-              <div className="form-bottom">
-                {' '}
-                {/* Icon Preview */}
-                {formData.name.trim() && (
-                  <div className="icon-preview">
-                    <div className="preview-icon-wrapper">
-                      <CategoryIcon
-                        categoryName={formData.name}
-                        size={24}
-                        className="preview-icon"
-                      />
-                    </div>
-                    <span className="preview-text">
-                      {t('categories.iconPreview')}
-                    </span>
+            <div className="dialog-body">
+              <form onSubmit={handleCreate} className="dialog-form">
+                {/* Icon Examples */}
+                <div className="icon-examples">
+                  <p className="examples-title">
+                    {t('categories.examplesTitle')}
+                  </p>
+                  <div className="example-tags">
+                    {suggestions.map(({ translationKey }) => {
+                      const translatedName = t(translationKey);
+                      return (
+                        <span
+                          key={translationKey}
+                          className="example-tag"
+                          onClick={() => setFormData({ name: translatedName })}
+                        >
+                          {translatedName}
+                        </span>
+                      );
+                    })}
                   </div>
-                )}
-                <div className="form-actions">
-                  <Button
-                    type="submit"
-                    disabled={isCreating || !formData.name.trim()}
-                    className="primary-btn"
-                  >
-                    {isCreating
-                      ? t('categories.creating')
-                      : t('categories.createButton')}
-                  </Button>
                 </div>
-              </div>
-            </form>
-          </div>
-        </Card>
-      </div>
 
+                <div className="input-group">
+                  <Input
+                    type="text"
+                    placeholder={t('categories.categoryNamePlaceholder')}
+                    value={formData.name}
+                    onChange={value => setFormData({ name: value })}
+                    disabled={isCreating}
+                    label={t('categories.categoryName')}
+                  />
+                </div>
+
+                <div className="form-bottom">
+                  {formData.name.trim() && (
+                    <div className="icon-preview">
+                      <div className="preview-icon-wrapper">
+                        <CategoryIcon
+                          categoryName={formData.name}
+                          size={24}
+                          className="preview-icon"
+                        />
+                      </div>
+                      <span className="preview-text">
+                        {t('categories.iconPreview')}
+                      </span>
+                    </div>
+                  )}
+                  <div className="form-actions">
+                    <Button
+                      type="submit"
+                      disabled={isCreating || !formData.name.trim()}
+                      className="primary-btn"
+                    >
+                      {isCreating
+                        ? t('categories.creating')
+                        : t('categories.createButton')}
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Categories List Section */}
       <div className="categories-section">
         <Card>
@@ -256,7 +284,6 @@ export const CategoriesPage: React.FC = () => {
           )}
         </Card>
       </div>
-
       {/* Confirmation Dialog */}
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}

@@ -11,6 +11,5 @@ export { default as ToastContainer } from './ToastContainer';
 export { default as TokenExpiryDialog } from './TokenExpiryDialog';
 export { default as LanguageSwitcher } from './LanguageSwitcher';
 export { default as PlaceholderPage } from './PlaceholderPage';
-export { ConfirmationModal } from './ConfirmationModal';
-export { IconSelector, getIconComponent } from './IconSelector';
-export type { CategoryIcon } from './IconSelector';
+export { ConfirmDialog } from './ConfirmDialog';
+export { CategoryIcon } from './CategoryIcon';

@@ -7,7 +7,7 @@ import {
 import { SWRConfig } from 'swr';
 import { useToastContext } from './contexts';
 import { useAuthContext } from './contexts';
-import { LoginPage, RegisterPage, DashboardPage } from './pages';
+import { LoginPage, RegisterPage } from './pages';
 import { Loading, ToastContainer, TokenExpiryDialog } from './components/ui';
 import { ToastProvider, AuthProvider, LanguageProvider } from './contexts';
 import { CurrencyExample } from './components/examples/CurrencyExample';
@@ -72,7 +72,8 @@ function AppContent() {
               <Navigate to={ROUTES.DASHBOARD} replace />
             )
           }
-        />{' '}        {/* Protected Routes - redirect to login if not authenticated */}
+        />{' '}
+        {/* Protected Routes - redirect to login if not authenticated */}
         <Route
           path="/*"
           element={
@@ -83,7 +84,6 @@ function AppContent() {
             )
           }
         />
-
         {/* Default Route */}
         <Route
           path="/currency-test"
@@ -95,7 +95,6 @@ function AppContent() {
             )
           }
         />
-
         {/* Default Route */}
         <Route
           path={ROUTES.HOME}

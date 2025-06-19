@@ -18,16 +18,6 @@ const httpClient: AxiosInstance = axios.create({
 // Request interceptor - Add auth token to requests
 httpClient.interceptors.request.use(
   config => {
-    // Log request details
-    console.log('🚀 [HTTP] Request:', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      baseURL: config.baseURL,
-      fullURL: `${config.baseURL}${config.url}`,
-      headers: config.headers,
-      data: config.data,
-    });
-
     // Get token from localStorage
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     if (token) {
@@ -65,14 +55,6 @@ const processQueue = (error: any, token: string | null = null) => {
 // Response interceptor - Handle responses and errors with token refresh
 httpClient.interceptors.response.use(
   (response: AxiosResponse) => {
-    console.log('✅ [HTTP] Response:', {
-      status: response.status,
-      statusText: response.statusText,
-      url: response.config.url,
-      method: response.config.method?.toUpperCase(),
-      data: response.data,
-      headers: response.headers,
-    });
     return response;
   },
   async (error: AxiosError) => {
@@ -86,7 +68,7 @@ httpClient.interceptors.response.use(
       requestData: error.config?.data,
     });
 
-    const originalRequest = error.config as any;// Handle 401 Unauthorized or 403 Forbidden - Token expired or invalid
+    const originalRequest = error.config as any; // Handle 401 Unauthorized or 403 Forbidden - Token expired or invalid
     if (
       (error.response?.status === 401 || error.response?.status === 403) &&
       !originalRequest._retry
