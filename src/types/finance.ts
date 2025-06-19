@@ -8,11 +8,6 @@ export interface Category {
   createdAt: string;
 }
 
-// With Pick - automatic sync (If Category.name changes, this automatically updates)
-export type CreateCategoryRequest = Pick<Category, 'name'>;
-export type UpdateCategoryRequest = CreateCategoryRequest & {
-  categoryId: string;
-};
 
 export type TransactionType = 'income' | 'expense';
 
@@ -27,6 +22,21 @@ export interface Transaction {
   userId: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Category {
+  categoryId: string; // UUID as string
+  name: string;
+  createdAt: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+}
+
+export interface UpdateCategoryRequest {
+  categoryId: string;
+  name: string;
 }
 
 export interface Account {

@@ -1,13 +1,9 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { BarChart3, FileText, PiggyBank, Target, Settings } from 'lucide-react';
+import { BarChart3, FileText, PiggyBank, Target, Settings, FolderOpen } from 'lucide-react';
 import { AppLayout } from '../components/layout';
-import {
-  ModernDashboard,
-  TransactionsPage,
-  WalletsPage,
-  CategoriesPage,
-} from '../pages';
+import { DashboardLayout } from '../components/layout';
+import { ModernDashboard, TransactionsPage, WalletsPage, CategoryPage } from '../pages';
 import { PlaceholderPage } from '../components/ui';
 import '../styles/pages.css';
 import { ROUTES } from '../constants';
@@ -23,8 +19,11 @@ const AppRouter: React.FC = () => {
         <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
         <Route path={ROUTES.DASHBOARD} element={<ModernDashboard />} />
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
-        <Route path={ROUTES.WALLETS} element={<WalletsPage />} />{' '}
-        <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />{' '}
+        <Route path={ROUTES.WALLETS} element={<WalletsPage />} />{' '}        
+        <Route
+          path={ROUTES.CATEGORIES}
+          element={<CategoryPage />}
+        />{' '}
         <Route
           path={ROUTES.ANALYTICS}
           element={

@@ -33,8 +33,7 @@ export interface LanguageOption {
   flag: string;
 }
 
-export interface TranslationKeys {
-  // Common
+export interface TranslationKeys {  // Common
   common: {
     loading: string;
     error: string;
@@ -48,6 +47,12 @@ export interface TranslationKeys {
     edit: string;
     delete: string;
     add: string;
+    create: string;
+    update: string;
+    creating: string;
+    updating: string;
+    retry: string;
+    createdAt: string;
     search: string;
     back: string;
     next: string;
@@ -170,72 +175,39 @@ export interface TranslationKeys {
     noTransactions: string;
     deleteConfirm: string;
   };
-
-  // Categories
-  categories: {
+  // Category  
+  category: {
     title: string;
-    subtitle: string;
-    addNewCategory: string;
-    createDescription: string;
-    categoryName: string;
-    categoryNamePlaceholder: string;
-    examplesTitle: string;
-    iconPreview: string;
-    createButton: string;
-    creating: string;
-    yourCategories: string;
-    categoryCount: string;
-    categoriesCount: string;
-    refresh: string;
-    noCategoriesTitle: string;
-    noCategoriesDescription: string;
-    createdOn: string;
+    add: string;
+    create: string;
     edit: string;
     delete: string;
-    save: string;
-    cancel: string;
+    name: string;
+    namePlaceholder: string;
+    createDescription: string;
+    editDescription: string;
+    previewDescription: string;
+    nameHint: string;
+    icon: string;
+    color: string;
+    type: string;
+    income: string;
+    expense: string;
+    loading: string;
+    creating: string;
+    updating: string;
+    noCategories: string;
+    noCategoriesDesc: string;
+    createFirst: string;
     deleteConfirm: string;
-    errorLoad: string;
-    retry: string;
-    invalidCategoryId: string;
-    errorPrefix: string;
-    notifications: {
-      categoryCreated: string;
-      categoryUpdated: string;
-      categoryDeleted: string;
-      createError: string;
-      updateError: string;
-      deleteError: string;
-    };
-    confirmDelete: {
-      title: string;
-      message: string;
-      confirm: string;
-      cancel: string;
-    };
-    suggestions: {
-      foodDining: string;
-      transportation: string;
-      shopping: string;
-      entertainment: string;
-      healthFitness: string;
-      salary: string;
-      coffee: string;
-      travel: string;
-      education: string;
-      housing: string;
-      utilities: string;
-      gifts: string;
-      investment: string;
-      savings: string;
-      bills: string;
-      maintenance: string;
-    };
+    deleteTitle: string;
+    deleteMessage: string;
   };
-
+  
   // Validation
   validation: {
     required: string;
+    minLength: string;
     emailInvalid: string;
     emailRequired: string;
     passwordRequired: string;

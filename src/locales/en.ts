@@ -1,7 +1,6 @@
 import type { TranslationKeys } from '../types';
 
-export const en: TranslationKeys = {
-  common: {
+export const en: TranslationKeys = {  common: {
     loading: 'Loading...',
     error: 'Something went wrong',
     success: 'Success',
@@ -14,6 +13,12 @@ export const en: TranslationKeys = {
     delete: 'Delete',
     edit: 'Edit',
     add: 'Add',
+    create: 'Create',
+    update: 'Update',
+    creating: 'Creating...',
+    updating: 'Updating...',
+    retry: 'Try Again',
+    createdAt: 'Created:',
     search: 'Search',
     back: 'Back',
     next: 'Next',
@@ -33,9 +38,9 @@ export const en: TranslationKeys = {
     helpSupport: 'Help & Support',
     signOut: 'Sign Out',
   },
-
   validation: {
     required: 'This field is required',
+    minLength: 'Name must be at least 2 characters',
     emailInvalid: 'Email is invalid',
     emailRequired: 'Email is required',
     passwordRequired: 'Password is required',
@@ -151,6 +156,32 @@ export const en: TranslationKeys = {
     expense: 'Expense',
     noTransactions: 'No transactions found',
     deleteConfirm: 'Are you sure you want to delete this transaction?',
+  },  category: {
+    title: 'Categories',
+    add: 'Add Category',
+    create: 'Create Category',
+    edit: 'Edit Category',
+    delete: 'Delete Category',
+    name: 'Category Name',
+    namePlaceholder: 'Enter category name',
+    createDescription: 'Create a new category to organize your transactions',
+    editDescription: 'Update your category information',
+    previewDescription: 'This is how your category will appear',
+    nameHint: 'Icon and color will be automatically assigned based on the name',
+    icon: 'Icon',
+    color: 'Color',
+    type: 'Type',
+    income: 'Income',
+    expense: 'Expense',
+    loading: 'Loading categories...',
+    creating: 'Creating...',
+    updating: 'Updating...',
+    noCategories: 'No Categories Found',
+    noCategoriesDesc: 'Start by creating your first category to organize your transactions.',
+    createFirst: 'Create First Category',
+    deleteConfirm: 'Are you sure you want to delete this category?',
+    deleteTitle: 'Delete Category',
+    deleteMessage: 'This action cannot be undone. All transactions associated with this category will no longer be categorized.',
   },
 
   categories: {

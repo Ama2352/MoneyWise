@@ -1,7 +1,6 @@
 import type { TranslationKeys } from '../types';
 
-export const vi: TranslationKeys = {
-  common: {
+export const vi: TranslationKeys = {  common: {
     loading: 'Đang tải...',
     error: 'Đã xảy ra lỗi',
     success: 'Thành công',
@@ -14,6 +13,12 @@ export const vi: TranslationKeys = {
     delete: 'Xóa',
     edit: 'Chỉnh sửa',
     add: 'Thêm',
+    create: 'Tạo',
+    update: 'Cập nhật',
+    creating: 'Đang tạo...',
+    updating: 'Đang cập nhật...',
+    retry: 'Thử lại',
+    createdAt: 'Ngày tạo:',
     search: 'Tìm kiếm',
     back: 'Quay lại',
     next: 'Tiếp theo',
@@ -33,9 +38,9 @@ export const vi: TranslationKeys = {
     helpSupport: 'Trợ giúp & Hỗ trợ',
     signOut: 'Đăng xuất',
   },
-
   validation: {
     required: 'Trường này là bắt buộc',
+    minLength: 'Tên phải có ít nhất 2 ký tự',
     emailInvalid: 'Email không hợp lệ',
     emailRequired: 'Email là bắt buộc',
     passwordRequired: 'Mật khẩu là bắt buộc',
@@ -148,6 +153,32 @@ export const vi: TranslationKeys = {
     expense: 'Chi tiêu',
     noTransactions: 'Không tìm thấy giao dịch',
     deleteConfirm: 'Bạn có chắc chắn muốn xóa giao dịch này?',
+  },  category: {
+    title: 'Danh mục',
+    add: 'Thêm danh mục',
+    create: 'Tạo danh mục',
+    edit: 'Chỉnh sửa danh mục',
+    delete: 'Xóa danh mục',
+    name: 'Tên danh mục',
+    namePlaceholder: 'Nhập tên danh mục',
+    createDescription: 'Tạo danh mục mới để phân loại giao dịch của bạn',
+    editDescription: 'Cập nhật thông tin danh mục',
+    previewDescription: 'Đây là cách danh mục sẽ hiển thị',
+    nameHint: 'Biểu tượng và màu sắc sẽ được tự động gán dựa trên tên',
+    icon: 'Biểu tượng',
+    color: 'Màu sắc',
+    type: 'Loại',
+    income: 'Thu nhập',
+    expense: 'Chi tiêu',
+    loading: 'Đang tải danh mục...',
+    creating: 'Đang tạo...',
+    updating: 'Đang cập nhật...',
+    noCategories: 'Không tìm thấy danh mục',
+    noCategoriesDesc: 'Bắt đầu bằng cách tạo danh mục đầu tiên để phân loại giao dịch của bạn.',
+    createFirst: 'Tạo danh mục đầu tiên',
+    deleteConfirm: 'Bạn có chắc chắn muốn xóa danh mục này?',
+    deleteTitle: 'Xóa danh mục',
+    deleteMessage: 'Hành động này không thể hoàn tác. Tất cả giao dịch liên quan đến danh mục này sẽ không còn được phân loại.',
   },
 
   categories: {

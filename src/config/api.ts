@@ -39,9 +39,9 @@ export const API_ENDPOINTS = {
     BY_CATEGORY: '/transactions/category',
     SUMMARY: '/transactions/summary',
   },
-
   CATEGORIES: {
     BASE: '/Categories',
+    BY_USER: '/Categories/user',
   },
 
   BUDGETS: {
