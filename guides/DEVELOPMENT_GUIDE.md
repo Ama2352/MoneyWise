@@ -11,12 +11,12 @@ A comprehensive guide for building features in the MoneyWise React + TypeScript 
 - [📊 Data Fetching with SWR](#-data-fetching-with-swr)
 - [🎯 Step-by-Step Feature Development](#-step-by-step-feature-development)
 - [🧩 Component Development Guidelines](#-component-development-guidelines)
-- [🔔 Notification & Dialog Systems](#-notification--dialog-systems)
+- [� CSS Architecture & Styling Guidelines](#-css-architecture--styling-guidelines)
+- [�🔔 Notification & Dialog Systems](#-notification--dialog-systems)
 - [🎨 Category Icon System](#-category-icon-system)
 - [🔌 API Integration Best Practices](#-api-integration-best-practices)
 - [🪝 Custom Hooks Guidelines](#-custom-hooks-guidelines)
 - [🌐 Language and Internationalization](#-language-and-internationalization)
-- [🎨 Styling Guidelines](#-styling-guidelines)
 - [✅ Code Quality Standards](#-code-quality-standards)
 - [🚨 Common Mistakes to Avoid](#-common-mistakes-to-avoid)
 - [📝 Examples](#-examples)
@@ -911,11 +911,382 @@ The `AppHeader` provides several built-in features:
 const TransactionsPage = () => (
   <div>
     <Sidebar /> {/* Don't do this - use AppLayout */}
-    <Header />
-    <TransactionContent />
+    <Header />    <TransactionContent />
   </div>
 );
 ```
+
+## 💅 CSS Architecture & Styling Guidelines
+
+MoneyWise follows a **component-centric CSS architecture** with clear separation of concerns between shared and component-specific styles.
+
+### CSS Organization Strategy
+
+```
+src/styles/
+├── global.css          # Global CSS variables, resets, utilities
+├── pages.css           # Shared page layout patterns
+└── Component.css       # Component-specific styles (co-located)
+
+src/components/ui/
+├── Button.tsx
+├── Button.css          # Button-specific styles
+├── Card.tsx
+└── Card.css            # Card-specific styles
+
+src/pages/
+├── CategoriesPage.tsx
+└── CategoriesPage.css  # Page-specific styles and overrides
+```
+
+### Styling Architecture Principles
+
+#### ✅ DO: Component-Specific CSS Files
+
+**Principle**: Each component with significant styling should have its own CSS file co-located with the component.
+
+```css
+/* CategoriesPage.css - Component-specific styles */
+
+/* Grid Layout */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 320px));
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-6);
+  justify-content: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Category Cards */
+.category-card {
+  background: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  transition: all var(--transition-normal);
+}
+
+/* Component-specific icon sizing */
+.category-icon-wrapper {
+  width: 48px !important;
+  height: 48px !important;
+}
+```
+
+#### ✅ DO: Shared Pattern Styles in pages.css
+
+**Principle**: Common page layout patterns go in `pages.css`, component-specific styles stay with components.
+
+```css
+/* pages.css - Shared page patterns */
+
+/* Reusable page structure */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--gray-900);
+}
+```
+
+#### ❌ DON'T: Mix Component Styles in Shared Files
+
+```css
+/* ❌ Bad - Don't put component-specific styles in pages.css */
+.pages.css {
+  .categories-grid {
+    /* This belongs in CategoriesPage.css */
+  }
+  .transaction-form {
+    /* This belongs in TransactionForm.css */
+  }
+}
+
+/* ✅ Good - Keep shared patterns in pages.css */
+.pages.css {
+  .page-container {
+    /* Shared across all pages */
+  }
+  .page-header {
+    /* Common header pattern */
+  }
+}
+```
+
+### Modern UI Design Patterns
+
+#### Dialog-Based Forms Pattern
+
+**Use Case**: Complex forms that need focus and avoid inline editing complexity.
+
+```css
+/* Dialog-based creation pattern */
+.create-category-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-content {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  max-width: 500px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+```
+
+**When to Use:**
+
+- ✅ Complex forms with multiple fields
+- ✅ Creation flows that need focus
+- ✅ Forms with validation and suggestions
+- ❌ Simple inline edits
+- ❌ Quick toggles or single-field updates
+
+#### Colorful Icon System Pattern
+
+**Use Case**: Visual category identification with consistent color schemes.
+
+```css
+/* Colorful icon pattern with color scheme integration */
+.category-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  /* Background color set by getCategoryColorScheme() */
+}
+
+.category-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--white);
+}
+```
+
+**Implementation**: Use the `CategoryIcon` component with `useColorScheme` prop:
+
+```tsx
+<CategoryIcon
+  categoryName="Food & Dining"
+  useColorScheme={true}
+  size={28}
+  withWrapper={true}
+/>
+```
+
+#### Soft CRUD Button Styling
+
+**Use Case**: Visually distinct but not overwhelming action buttons.
+
+```css
+/* Modern CRUD button pattern - soft, muted colors */
+
+/* Edit button - Soft Blue theme */
+.edit-btn {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Delete button - Soft Red theme */
+.delete-btn {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+}
+
+.delete-btn:hover {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  transform: translateY(-1px);
+}
+```
+
+**Design Philosophy**:
+
+- Muted backgrounds instead of bold colors
+- Subtle hover animations
+- Clear visual hierarchy without being aggressive
+
+### Responsive Design Patterns
+
+#### Progressive Grid Enhancement
+
+```css
+/* Mobile-first responsive grid pattern */
+.categories-grid {
+  /* Base: Single column on mobile */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .categories-grid {
+    /* Tablet: Auto-fit with larger cards */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 320px));
+    gap: var(--space-6);
+    padding: var(--space-8) var(--space-6);
+  }
+}
+
+@media (min-width: 1200px) {
+  .categories-grid {
+    /* Desktop: Centered with max width */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 340px));
+    gap: var(--space-8);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+```
+
+#### Centered Layout with Generous Spacing
+
+```css
+/* Centered content pattern with breathing room */
+.categories-grid {
+  justify-content: center; /* Center the grid items */
+  max-width: 1400px; /* Prevent over-stretching */
+  margin: 0 auto; /* Center the entire grid */
+  padding: var(--space-8); /* Generous outer padding */
+}
+```
+
+### CSS Architecture Best Practices
+
+#### ✅ DO: Follow These Patterns
+
+1. **Component CSS Co-location**
+
+   ```
+   CategoriesPage.tsx
+   CategoriesPage.css  ← Component-specific styles
+   ```
+
+2. **Clear Separation of Concerns**
+
+   ```css
+   /* pages.css - Shared patterns only */
+   .page-container {
+   }
+   .page-header {
+   }
+
+   /* CategoriesPage.css - Category-specific only */
+   .categories-grid {
+   }
+   .category-card {
+   }
+   ```
+
+3. **CSS Variable Usage**
+
+   ```css
+   /* Use design system variables */
+   gap: var(--space-6);
+   color: var(--gray-900);
+   border-radius: var(--radius-lg);
+   ```
+
+4. **BEM-like Naming**
+   ```css
+   .category-card {
+   }
+   .category-card__header {
+   }
+   .category-card--loading {
+   }
+   ```
+
+#### ❌ DON'T: Avoid These Antipatterns
+
+1. **Mixing Component Styles in Shared Files**
+
+   ```css
+   /* ❌ Don't put these in pages.css */
+   .categories-grid {
+   }
+   .transaction-form {
+   }
+   .wallet-card {
+   }
+   ```
+
+2. **Hardcoded Values Instead of Variables**
+
+   ```css
+   /* ❌ Don't hardcode design tokens */
+   gap: 24px;
+   color: #374151;
+
+   /* ✅ Use design system variables */
+   gap: var(--space-6);
+   color: var(--gray-700);
+   ```
+
+3. **Overly Specific Selectors**
+
+   ```css
+   /* ❌ Overly specific */
+   .page .container .categories .grid .card .header .title {
+   }
+
+   /* ✅ Simple, clear naming */
+   .category-card__title {
+   }
+   ```
+
+### CSS Migration and Refactoring
+
+When refactoring existing CSS or adding new components:
+
+1. **Audit Current Styles**: Check what's in shared vs component files
+2. **Move Component-Specific Styles**: Extract to co-located CSS files
+3. **Keep Shared Patterns**: Maintain common layout patterns in `pages.css`
+4. **Update Imports**: Ensure CSS files are properly imported
+5. **Test Responsive Behavior**: Verify layouts work across screen sizes
+
+The **Categories Page** serves as the **reference implementation** for this CSS architecture, demonstrating proper separation, modern UI patterns, and responsive design.
 
 ## 🔔 Notification & Dialog Systems
 
@@ -1868,25 +2239,40 @@ import { useAuthContext } from '../contexts'; // ✅ Import from index
 
 This guide includes several real-world examples from the MoneyWise application that demonstrate best practices:
 
-### 1. Categories Page Implementation
+### 1. Categories Page - Reference Implementation ⭐
 
-The **Categories Page** showcases the complete modern architecture:
+The **Categories Page** serves as the **complete reference implementation** of MoneyWise's modern architecture and is the **gold standard** for all new feature development:
 
-**Key Features Demonstrated:**
+**Architecture Completeness:**
 
-- **SWR Integration**: `useCategories()` and `useCategoryMutations()` hooks
-- **Toast Notifications**: Success/error feedback for all CRUD operations
-- **Confirmation Dialogs**: Custom dialog for delete confirmations
-- **Internationalization**: All text uses translation keys
-- **Category Icon System**: Intelligent icon selection and suggestions
-- **Form Handling**: Clean form state management and validation
+- ✅ **SWR Integration**: Full `useCategories()` and `useCategoryMutations()` implementation
+- ✅ **Toast Notifications**: Comprehensive success/error feedback for all CRUD operations
+- ✅ **Confirmation Dialogs**: Modern dialog system replacing browser confirms
+- ✅ **Internationalization**: 100% translation coverage with hierarchical keys
+- ✅ **Category Icon System**: Intelligent icon selection with colorful schemes
+- ✅ **Dialog-Based Forms**: Modern UI pattern with focused creation flow
+- ✅ **CSS Architecture**: Proper separation with component-specific styling
+- ✅ **Responsive Design**: Mobile-first with progressive enhancement
+- ✅ **Modern CRUD Patterns**: Soft, muted button styling and visual hierarchy
 
-**Files to Study:**
+**UI/UX Excellence:**
 
-- `src/pages/CategoriesPage.tsx` - Complete page implementation
-- `src/hooks/useFinanceData.ts` - SWR-based data hooks
-- `src/components/ui/CategoryIcon.tsx` - Reusable icon component
-- `src/services/categoryIconService.ts` - Business logic service
+- **Dialog-Based Creation**: Header-mounted "Add Category" button with focused modal
+- **Colorful Icon System**: Each category gets a unique, consistent color scheme
+- **Generous Spacing**: Cards properly spaced with breathing room
+- **Modern Button Styling**: Soft, muted colors instead of aggressive bright buttons
+- **Progressive Grid Layout**: Responsive grid that adapts from mobile to desktop
+- **Hover Animations**: Subtle card elevation and color transitions
+
+**Files to Study (Reference Implementation):**
+
+- `src/pages/CategoriesPage.tsx` - **Gold standard page implementation**
+- `src/pages/CategoriesPage.css` - **Complete CSS architecture example**
+- `src/hooks/useFinanceData.ts` - **Perfect SWR integration patterns**
+- `src/components/ui/CategoryIcon.tsx` - **Colorful icon component system**
+- `src/services/categoryIconService.ts` - **Business logic separation example**
+
+> 💡 **For New Developers**: Start by studying the Categories Page implementation. It demonstrates every pattern, principle, and best practice outlined in this guide. Use it as your blueprint for all new features.
 
 ### 2. Modern Layout System
 
@@ -2031,25 +2417,79 @@ import { CategoryIcon } from '../components/ui';
 <CategoryIcon categoryName={category.name} />
 ```
 
+#### 5. CSS Architecture Migration
+
+```css
+/* OLD: Mixed component styles in shared files */
+/* pages.css */
+.categories-grid {
+} /* ❌ Component-specific */
+.transaction-form {
+} /* ❌ Component-specific */
+.page-header {
+} /* ✅ Shared pattern */
+
+/* NEW: Proper separation of concerns */
+/* pages.css - Shared patterns only */
+.page-container {
+}
+.page-header {
+}
+
+/* CategoriesPage.css - Component-specific */
+.categories-grid {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 320px));
+  justify-content: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+```
+
+#### 6. Modern UI Pattern Migration
+
+```css
+/* OLD: Inline forms and aggressive button colors */
+.edit-btn {
+  background: #3b82f6; /* Bright blue */
+  color: white;
+}
+
+/* NEW: Dialog-based forms and soft button styling */
+.create-category-dialog {
+  position: fixed;
+  /* Dialog overlay pattern */
+}
+
+.edit-btn {
+  background: #f1f5f9; /* Soft blue background */
+  color: #475569; /* Muted text */
+  border: 1px solid #e2e8f0;
+}
+```
+
 ### Best Practices Summary
 
 **✅ DO:**
 
 - Use SWR for all server state management
 - Use toasts for feedback, dialogs for confirmations
-- Use `CategoryIcon` component for category displays
+- Use `CategoryIcon` component with colorful schemes
 - Use `useLanguageContext()` for translations
 - Use `AppLayout` for all dashboard pages
-- Follow the established hook patterns
+- Follow component-specific CSS architecture
+- Use dialog-based forms for complex creation flows
+- Use soft, muted colors for CRUD buttons
+- Center layouts with generous spacing
 
 **❌ DON'T:**
 
 - Mix manual state management with SWR
 - Use browser alerts or confirms
 - Hardcode icons or text strings
-- Import implementation files directly
-- Skip TypeScript types
-- Create manual cache invalidation
+- Mix component styles in shared CSS files
+- Use aggressive button colors
+- Create inline forms for complex flows
+- Let grids stretch without max-width constraints
 
 ### Migration Checklist
 
@@ -2058,8 +2498,12 @@ When updating or creating new features:
 - [ ] **Data Fetching**: Use SWR-based hooks (`useCategories`, etc.)
 - [ ] **Notifications**: Use `ToastContext` instead of alerts
 - [ ] **Confirmations**: Use `ConfirmDialog` instead of browser confirms
-- [ ] **Icons**: Use `CategoryIcon` component and service
+- [ ] **Icons**: Use `CategoryIcon` component and service with color schemes
 - [ ] **Translations**: Use `useLanguageContext()` and translation keys
+- [ ] **CSS Architecture**: Separate component styles from shared patterns
+- [ ] **UI Patterns**: Use dialog-based forms for complex creation
+- [ ] **Button Styling**: Use soft, muted color schemes instead of bright colors
+- [ ] **Layout**: Center grids with max-width and generous padding
 - [ ] **Layout**: Use `AppLayout` and `AppRouter` structure
 - [ ] **Types**: Define TypeScript interfaces for all data
 - [ ] **Error Handling**: Use consistent error patterns
@@ -2105,9 +2549,12 @@ The MoneyWise project includes several specialized guides for different aspects 
 **For new features**, follow this guide order:
 
 1. **Start here**: DEVELOPMENT_GUIDE.md (this guide)
-2. **For icons**: CATEGORY_ICON_SYSTEM_GUIDE.md
-3. **For text**: INTERNATIONALIZATION_GUIDE.md
-4. **For currency**: CURRENCY_MODULE_GUIDE.md
-5. **For layout**: APP_LAYOUT_GUIDE.md
+2. **Study reference**: CategoriesPage.tsx and CategoriesPage.css ⭐
+3. **For icons**: CATEGORY_ICON_SYSTEM_GUIDE.md
+4. **For text**: INTERNATIONALIZATION_GUIDE.md
+5. **For currency**: CURRENCY_MODULE_GUIDE.md
+6. **For layout**: APP_LAYOUT_GUIDE.md
+
+> 💡 **Quick Start**: Before reading specialized guides, study the **Categories Page implementation** (`src/pages/CategoriesPage.tsx` + `.css`) - it's the perfect reference implementation that demonstrates every pattern and principle in this guide.
 
 Each guide complements this main development guide with specialized information for specific system components.

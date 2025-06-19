@@ -14,6 +14,7 @@ import {
   CategoryIcon,
   ConfirmDialog,
 } from '../components/ui';
+import '../styles/pages.css';
 import './CategoriesPage.css';
 
 export const CategoriesPage: React.FC = () => {
@@ -131,15 +132,15 @@ export const CategoriesPage: React.FC = () => {
     );
   }
   return (
-    <div className="categories-page">
+    <div className="page-container">
       <div className="page-header">
         <div>
-          <h1>{t('categories.title')}</h1>
-          <p>{t('categories.subtitle')}</p>
+          <h1 className="page-title">{t('categories.title')}</h1>
+          <p className="page-subtitle">{t('categories.subtitle')}</p>
         </div>
-        <div className="header-actions">
+        <div className="page-actions">
           <button
-            className="add-category-btn"
+            className="btn btn--primary"
             onClick={() => setShowCreateDialog(true)}
           >
             {t('categories.addNewCategory')}
@@ -196,7 +197,6 @@ export const CategoriesPage: React.FC = () => {
                     })}
                   </div>
                 </div>
-
                 <div className="input-group">
                   <Input
                     type="text"
@@ -206,18 +206,18 @@ export const CategoriesPage: React.FC = () => {
                     disabled={isCreating}
                     label={t('categories.categoryName')}
                   />
-                </div>
-
+                </div>{' '}
                 <div className="form-bottom">
                   {formData.name.trim() && (
                     <div className="icon-preview">
-                      <div className="preview-icon-wrapper">
-                        <CategoryIcon
-                          categoryName={formData.name}
-                          size={24}
-                          className="preview-icon"
-                        />
-                      </div>
+                      <CategoryIcon
+                        categoryName={formData.name}
+                        size={24}
+                        className="preview-icon"
+                        withWrapper={true}
+                        useColorScheme={true}
+                        wrapperClassName="preview-icon-wrapper"
+                      />
                       <span className="preview-text">
                         {t('categories.iconPreview')}
                       </span>
@@ -239,13 +239,12 @@ export const CategoriesPage: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )}{' '}
       {/* Categories List Section */}
-      <div className="categories-section">
-        <Card>
-          <div className="section-header">
-            {' '}
-            <div className="header-info">
+      <div className="page-content">
+        <div className="card">
+          <div className="card-header">
+            <div>
               <h2>{t('categories.yourCategories')}</h2>
               <p className="category-count">
                 {categories?.length || 0}{' '}
@@ -254,9 +253,9 @@ export const CategoriesPage: React.FC = () => {
                   : t('categories.categoriesCount')}
               </p>
             </div>
-            <Button onClick={refresh} className="refresh-btn">
+            <button onClick={refresh} className="btn btn--secondary">
               {t('categories.refresh')}
-            </Button>
+            </button>
           </div>
 
           {categories && categories.length > 0 ? (
@@ -278,11 +277,11 @@ export const CategoriesPage: React.FC = () => {
           ) : (
             <div className="empty-state">
               <div className="empty-icon">📁</div>
-              <h3>{t('categories.noCategoriesTitle')}</h3>
+              <h3>{t('categories.noCategoriesTitle')}</h3>{' '}
               <p>{t('categories.noCategoriesDescription')}</p>
             </div>
           )}
-        </Card>
+        </div>
       </div>
       {/* Confirmation Dialog */}
       <ConfirmDialog
@@ -365,13 +364,13 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           <div className="view-mode">
             {' '}
             <div className="category-header">
-              <div className="category-icon-wrapper">
-                <CategoryIcon
-                  categoryName={category.name}
-                  size={28}
-                  className="category-icon"
-                />
-              </div>
+              <CategoryIcon
+                categoryName={category.name}
+                size={28}
+                className="category-icon"
+                withWrapper={true}
+                useColorScheme={true}
+              />
               <div className="category-info">
                 <h3 className="category-name">{category.name}</h3>{' '}
                 <p className="category-date">

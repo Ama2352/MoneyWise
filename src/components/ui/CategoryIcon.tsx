@@ -6,7 +6,10 @@
  */
 
 import React from 'react';
-import { getCategoryIcon } from '../../services/categoryIconService';
+import {
+  getCategoryIcon,
+  getCategoryColorScheme,
+} from '../../services/categoryIconService';
 
 export interface CategoryIconProps {
   /** The category name to get icon for */
@@ -19,6 +22,8 @@ export interface CategoryIconProps {
   withWrapper?: boolean;
   /** Wrapper CSS class names */
   wrapperClassName?: string;
+  /** Whether to use dynamic colors based on category name */
+  useColorScheme?: boolean;
 }
 
 /**
@@ -30,14 +35,28 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
   className = '',
   withWrapper = false,
   wrapperClassName = '',
+  useColorScheme = true,
 }) => {
   const IconComponent = getCategoryIcon(categoryName);
+  const colorScheme = useColorScheme
+    ? getCategoryColorScheme(categoryName)
+    : null;
 
   const iconElement = <IconComponent size={size} className={className} />;
 
   if (withWrapper) {
+    const wrapperStyle = colorScheme
+      ? {
+          background: colorScheme.bg,
+          color: colorScheme.text,
+        }
+      : {};
+
     return (
-      <div className={`category-icon-wrapper ${wrapperClassName}`}>
+      <div
+        className={`category-icon-wrapper ${wrapperClassName}`}
+        style={wrapperStyle}
+      >
         {iconElement}
       </div>
     );

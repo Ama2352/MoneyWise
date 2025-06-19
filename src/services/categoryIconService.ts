@@ -202,6 +202,74 @@ export const CATEGORY_ICON_PATTERNS: CategoryPattern[] = [
 ];
 
 /**
+ * Predefined color schemes for category icons using the design system
+ */
+export const CATEGORY_COLOR_SCHEMES = [
+  { bg: 'var(--gradient-primary)', text: 'var(--white)' }, // Primary green
+  {
+    bg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+    text: 'var(--white)',
+  }, // Blue
+  {
+    bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    text: 'var(--white)',
+  }, // Amber
+  {
+    bg: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    text: 'var(--white)',
+  }, // Red
+  {
+    bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+    text: 'var(--white)',
+  }, // Purple
+  {
+    bg: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+    text: 'var(--white)',
+  }, // Cyan
+  {
+    bg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+    text: 'var(--white)',
+  }, // Orange
+  {
+    bg: 'linear-gradient(135deg, #84cc16 0%, #65a30d 100%)',
+    text: 'var(--white)',
+  }, // Lime
+  {
+    bg: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+    text: 'var(--white)',
+  }, // Pink
+  {
+    bg: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)',
+    text: 'var(--white)',
+  }, // Teal
+  {
+    bg: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+    text: 'var(--white)',
+  }, // Indigo
+  {
+    bg: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',
+    text: 'var(--white)',
+  }, // Violet
+];
+
+/**
+ * Generate a consistent color scheme for a category name
+ */
+export const getCategoryColorScheme = (categoryName: string) => {
+  // Create a simple hash from the category name
+  let hash = 0;
+  for (let i = 0; i < categoryName.length; i++) {
+    const char = categoryName.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+
+  // Use absolute value and modulo to get a consistent index
+  const index = Math.abs(hash) % CATEGORY_COLOR_SCHEMES.length;
+  return CATEGORY_COLOR_SCHEMES[index];
+};
+
+/**
  * Get the most appropriate icon for a category name
  *
  * @param categoryName - The name of the category
@@ -286,5 +354,24 @@ export const getCategoryIconConfig = (
       size,
       className,
     },
+  };
+};
+
+/**
+ * Get category icon configuration with color scheme
+ */
+export const getCategoryIconConfigWithColor = (
+  categoryName: string,
+  size?: number,
+  className?: string
+) => {
+  const icon = getCategoryIcon(categoryName);
+  const colorScheme = getCategoryColorScheme(categoryName);
+
+  return {
+    icon,
+    colorScheme,
+    size: size || 24,
+    className: className || '',
   };
 };

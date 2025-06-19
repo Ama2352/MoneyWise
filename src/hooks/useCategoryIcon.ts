@@ -9,9 +9,7 @@ import { useMemo } from 'react';
 import {
   getCategoryIcon,
   getCategorySuggestions,
-  searchCategoryPatterns,
-  getCategoryIconConfig,
-  type CategoryPattern,
+  getCategoryColorScheme,
 } from '../services/categoryIconService';
 import type { LucideIcon } from 'lucide-react';
 
@@ -30,58 +28,18 @@ export const useCategoryIcon = () => {
   };
 
   /**
-   * Get icon configuration with props
+   * Get color scheme for a category name
    */
-  const getIconConfig = (
-    categoryName: string,
-    size?: number,
-    className?: string
-  ) => {
-    return getCategoryIconConfig(categoryName, size, className);
-  };
-
-  /**
-   * Search for category patterns
-   */
-  const searchPatterns = (searchTerm: string): CategoryPattern[] => {
-    return searchCategoryPatterns(searchTerm);
-  };
-
-  /**
-   * Check if a category name matches any known patterns
-   */
-  const hasKnownIcon = (categoryName: string): boolean => {
-    const patterns = searchCategoryPatterns(categoryName);
-    return patterns.length > 0;
-  };
-  /**
-   * Get category suggestions as an array of translated names only
-   */
-  const getSuggestionNames = (): string[] => {
-    return suggestions.map(s => s.translationKey);
-  };
-
-  /**
-   * Get a random category suggestion
-   */
-  const getRandomSuggestion = () => {
-    const randomIndex = Math.floor(Math.random() * suggestions.length);
-    return suggestions[randomIndex];
+  const getColorScheme = (categoryName: string) => {
+    return getCategoryColorScheme(categoryName);
   };
 
   return {
     // Core functions
     getIcon,
-    getIconConfig,
-    searchPatterns,
-    hasKnownIcon,
+    getColorScheme,
 
     // Suggestions
     suggestions,
-    getSuggestionNames,
-    getRandomSuggestion,
-
-    // Utilities
-    totalSuggestions: suggestions.length,
   };
 };

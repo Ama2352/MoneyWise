@@ -9,8 +9,8 @@ import {
   CategoriesPage,
 } from '../pages';
 import { PlaceholderPage } from '../components/ui';
-import '../styles/pages.css';
 import { ROUTES } from '../constants';
+import '../styles/pages.css';
 
 /**
  * Main router component for the dashboard application
