@@ -1,97 +1,51 @@
 /**
  * Money Management related type definitions
  */
-
-export interface Category {
-  categoryId: string;
-  name: string;
-  createdAt: string;
-}
-
-
 export type TransactionType = 'income' | 'expense';
 
 export interface Transaction {
-  id: number;
+  transactionId: string;
+  categoryId: string;
+  walletId: string;
+  type: TransactionType;
   amount: number;
   description: string;
-  date: string;
-  type: 'INCOME' | 'EXPENSE';
-  categoryId: number;
-  accountId: number;
-  userId: number;
-  createdAt: string;
-  updatedAt: string;
+  transactionDate: string;
+}
+
+export type CreateTransactionRequest = Omit<Transaction, 'transactionId'>;
+
+export interface SearchTransactionRequest {
+  startDate?: string;
+  endDate?: string;
+  type?: TransactionType;
+  categoryName?: string;
+  walletName?: string;
+  amountRange?: string; // e.g. "100-500"
+  keyword?: string; // e.g. "grocery"
+  timeRange?: string; // e.g. "18:00-20:00"
+  dayOfWeek?: string; // e.g. "Monday"
 }
 
 export interface Category {
-  categoryId: string; // UUID as string
-  name: string;
-  createdAt: string;
-}
-
-export interface CreateCategoryRequest {
-  name: string;
-}
-
-export interface UpdateCategoryRequest {
   categoryId: string;
   name: string;
+  createdAt: string;
 }
 
-export interface Account {
-  id: number;
-  name: string;
-  type: 'CHECKING' | 'SAVINGS' | 'CREDIT' | 'CASH';
+export type CreateCategoryRequest = Pick<Category, 'name'>;
+export type UpdateCategoryRequest = Pick<Category, 'categoryId' | 'name'>;
+
+export interface Wallet {
+  walletId: string;
+  walletName: string;
   balance: number;
-  currency: string;
-  userId: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
-export interface Budget {
-  id: number;
-  name: string;
-  amount: number;
-  spent: number;
-  categoryId: number;
-  period: 'WEEKLY' | 'MONTHLY' | 'YEARLY';
-  startDate: string;
-  endDate: string;
-  userId: number;
-  createdAt: string;
-  updatedAt: string;
-}
+export type CreateWalletRequest = Omit<Wallet, 'walletId'>;
 
-export interface TransactionSummary {
+export interface CashFlow {
   totalIncome: number;
-  totalExpense: number;
+  totalExpenses: number;
   balance: number;
-  period: string;
-}
-
-export interface CreateTransactionRequest {
-  amount: number;
-  description: string;
-  date: string;
-  type: 'INCOME' | 'EXPENSE';
-  categoryId: number;
-  accountId: number;
-}
-
-export interface CreateAccountRequest {
-  name: string;
-  type: 'CHECKING' | 'SAVINGS' | 'CREDIT' | 'CASH';
-  balance: number;
-  currency: string;
-}
-
-export interface CreateBudgetRequest {
-  name: string;
-  amount: number;
-  categoryId: number;
-  period: 'WEEKLY' | 'MONTHLY' | 'YEARLY';
-  startDate: string;
-  endDate: string;
 }

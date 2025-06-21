@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Plus,
   Search,
@@ -6,129 +6,427 @@ import {
   Download,
   Calendar,
   TrendingUp,
-  TrendingDown,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  ChevronDown,
 } from 'lucide-react';
-import '../styles/pages.css';
+import {
+  useTransactions,
+  useTransactionMutations,
+  useCategories,
+  useWallets,
+  useCashFlow,
+} from '../hooks/useFinanceData';
+import { useLanguageContext, useToastContext } from '../contexts';
+import { Loading, ConfirmDialog } from '../components/ui';
+import { formatCurrency } from '../utils/formatUtils';
+import { TransactionForm } from '../components/forms/TransactionForm';
+import { TransactionItem } from '../components/TransactionItem';
+import type { Transaction, CreateTransactionRequest } from '../types';
+import './TransactionsPage.css';
 
 const TransactionsPage: React.FC = () => {
-  const transactions = [
-    {
-      id: 1,
-      date: '2024-01-15',
-      description: 'Salary Deposit',
-      category: 'Income',
-      amount: 4500.0,
-      type: 'income',
-      account: 'Checking Account',
-    },
-    {
-      id: 2,
-      date: '2024-01-14',
-      description: 'Grocery Shopping - Whole Foods',
-      category: 'Food & Dining',
-      amount: -126.47,
-      type: 'expense',
-      account: 'Credit Card',
-    },
-    {
-      id: 3,
-      date: '2024-01-13',
-      description: 'Electric Bill Payment',
-      category: 'Utilities',
-      amount: -89.23,
-      type: 'expense',
-      account: 'Checking Account',
-    },
-    // Add more transactions...
-  ];
+  const { t } = useLanguageContext();
+  const { showSuccess, showError } = useToastContext();
+  const { transactions, isLoading, error } = useTransactions();
+  const { categories, isLoading: categoriesLoading } = useCategories();
+  const { wallets, isLoading: walletsLoading } = useWallets();
+  const { createTransaction, updateTransaction, deleteTransaction } =
+    useTransactionMutations();
+  // Cash flow statistics from API (full-time data)
+  const {
+    cashFlow,
+    isLoading: cashFlowLoading,
+    refresh: refreshCashFlow,
+  } = useCashFlow(null, null);
+
+  // Pagination constants - reduced for better performance
+  const ITEMS_PER_PAGE = 15;
+  const LOAD_MORE_INCREMENT = 10;
+
+  const [showForm, setShowForm] = useState(false);
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>(
+    'all'
+  );
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    show: boolean;
+    transactionId?: string;
+    description?: string;
+  }>({ show: false });
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+
+  // Filter transactions based on search and type (optimized with useMemo)
+  const filteredTransactions = useMemo(() => {
+    if (!transactions) return [];
+
+    return transactions.filter(transaction => {
+      const matchesSearch = transaction.description
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesType =
+        filterType === 'all' || transaction.type === filterType;
+      return matchesSearch && matchesType;
+    });
+  }, [transactions, searchTerm, filterType]);
+
+  // Get visible transactions for display (only show limited number)
+  const visibleTransactions = useMemo(() => {
+    return filteredTransactions.slice(0, visibleCount);
+  }, [filteredTransactions, visibleCount]);
+  // Calculate summary stats - Use API cash flow data with fallback to local calculation
+  const { totalIncome, totalExpenses, netAmount } = useMemo(() => {
+    // If cash flow data is available from API, use it
+    if (cashFlow && !cashFlowLoading) {
+      return {
+        totalIncome: cashFlow.totalIncome,
+        totalExpenses: cashFlow.totalExpenses,
+        netAmount: cashFlow.balance,
+      };
+    }
+
+    // Fallback to local calculation from filtered transactions
+    const income = filteredTransactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const expenses = filteredTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    return {
+      totalIncome: income,
+      totalExpenses: expenses,
+      netAmount: income - expenses,
+    };
+  }, [cashFlow, cashFlowLoading, filteredTransactions]);
+
+  const hasMoreTransactions = visibleCount < filteredTransactions.length;
+
+  const loadMoreTransactions = () => {
+    setVisibleCount(prev => prev + LOAD_MORE_INCREMENT);
+  };
+
+  // Reset visible count when search or filter changes
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setVisibleCount(ITEMS_PER_PAGE);
+  };
+
+  const handleFilterChange = (type: 'all' | 'income' | 'expense') => {
+    setFilterType(type);
+    setVisibleCount(ITEMS_PER_PAGE);
+  };
+  const handleCreateTransaction = async (data: CreateTransactionRequest) => {
+    try {
+      const result = await createTransaction(data);
+
+      if (result.success) {
+        setShowForm(false);
+        refreshCashFlow(); // Refresh cash flow statistics
+        showSuccess(t('transactions.notifications.createSuccess'));
+      } else {
+        console.error('Transaction creation failed:', result.error);
+        showError(result.error || t('transactions.notifications.createError'));
+      }
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      showError(t('transactions.notifications.createError'));
+    }
+  };
+  const handleUpdateTransaction = async (data: CreateTransactionRequest) => {
+    if (!editingTransaction) return;
+
+    try {
+      const updateData: Transaction = {
+        ...editingTransaction,
+        ...data,
+      };
+
+      const result = await updateTransaction(updateData);
+
+      if (result.success) {
+        setEditingTransaction(null);
+        setShowForm(false);
+        refreshCashFlow(); // Refresh cash flow statistics
+        showSuccess(t('transactions.notifications.updateSuccess'));
+      } else {
+        showError(result.error || t('transactions.notifications.updateError'));
+      }
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      showError(t('transactions.notifications.updateError'));
+    }
+  };
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirm.transactionId) return;
+
+    try {
+      const result = await deleteTransaction(deleteConfirm.transactionId);
+
+      if (result.success) {
+        refreshCashFlow(); // Refresh cash flow statistics
+        showSuccess(t('transactions.notifications.deleteSuccess'));
+      } else {
+        showError(result.error || t('transactions.notifications.deleteError'));
+      }
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      showError(t('transactions.notifications.deleteError'));
+    } finally {
+      setDeleteConfirm({ show: false });
+    }
+  };
+  const getCategoryById = (categoryId: string) => {
+    if (categoriesLoading) return null; // Still loading
+    return categories?.find(cat => cat.categoryId === categoryId);
+  };
+
+  const getWalletById = (walletId: string) => {
+    if (walletsLoading) return null; // Still loading
+    return wallets?.find(wallet => wallet.walletId === walletId);
+  };
+
+  const openEditForm = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setShowForm(true);
+  };
+
+  const openDeleteConfirm = (transaction: Transaction) => {
+    setDeleteConfirm({
+      show: true,
+      transactionId: transaction.transactionId,
+      description: transaction.description,
+    });
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingTransaction(null);
+  };
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <div className="error-state">
+          <p>Error loading transactions: {error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
+      {/* Page Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">Transactions</h1>
-          <p className="page-subtitle">
-            Manage all your financial transactions
-          </p>
+          <h1 className="page-title">{t('transactions.title')}</h1>
+          <p className="page-subtitle">{t('transactions.subtitle')}</p>
         </div>
         <div className="page-actions">
           <button className="btn btn--secondary">
-            <Filter size={18} />
-            Filter
-          </button>
-          <button className="btn btn--secondary">
             <Download size={18} />
-            Export
+            {t('transactions.export')}
           </button>
-          <button className="btn btn--primary">
+          <button
+            className="btn btn--primary"
+            onClick={() => setShowForm(true)}
+          >
             <Plus size={18} />
-            Add Transaction
+            {t('transactions.addTransaction')}
           </button>
         </div>
       </div>
-
-      <div className="page-content">
-        <div className="card">
-          <div className="card-header">
-            <div className="search-bar">
-              <Search size={18} />
-              <input type="text" placeholder="Search transactions..." />
-            </div>
-            <div className="filters">
-              <select className="select">
-                <option>All Categories</option>
-                <option>Income</option>
-                <option>Food & Dining</option>
-                <option>Utilities</option>
-              </select>
-              <select className="select">
-                <option>Last 30 days</option>
-                <option>Last 3 months</option>
-                <option>Last 6 months</option>
-              </select>
+      {/* Summary Stats */}
+      <div className="transactions-stats">
+        <div className="modern-dashboard__stat-card modern-dashboard__stat-card--success">
+          <div className="modern-dashboard__stat-header">
+            <div className="modern-dashboard__stat-icon">
+              <ArrowUpCircle size={24} />
             </div>
           </div>
-
-          <div className="transactions-table">
-            <div className="table-header">
-              <div>Date</div>
-              <div>Description</div>
-              <div>Category</div>
-              <div>Account</div>
-              <div>Amount</div>
+          <div className="modern-dashboard__stat-content">
+            <h3 className="modern-dashboard__stat-title">
+              {t('transactions.totalIncome')}
+            </h3>
+            <div className="modern-dashboard__stat-value">
+              {formatCurrency(totalIncome, 'USD')}
             </div>
-            {transactions.map(transaction => (
-              <div key={transaction.id} className="table-row">
-                <div className="transaction-date">
-                  <Calendar size={16} />
-                  {new Date(transaction.date).toLocaleDateString()}
-                </div>
-                <div className="transaction-description">
-                  {transaction.description}
-                </div>
-                <div className="transaction-category">
-                  <span className="category-badge">{transaction.category}</span>
-                </div>
-                <div className="transaction-account">{transaction.account}</div>
-                <div
-                  className={`transaction-amount amount--${transaction.type}`}
-                >
-                  {transaction.type === 'income' ? (
-                    <TrendingUp size={16} />
-                  ) : (
-                    <TrendingDown size={16} />
-                  )}
-                  $
-                  {Math.abs(transaction.amount).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </div>
-              </div>
-            ))}
+          </div>
+        </div>
+
+        <div className="modern-dashboard__stat-card modern-dashboard__stat-card--error">
+          <div className="modern-dashboard__stat-header">
+            <div className="modern-dashboard__stat-icon">
+              <ArrowDownCircle size={24} />
+            </div>
+          </div>
+          <div className="modern-dashboard__stat-content">
+            <h3 className="modern-dashboard__stat-title">
+              {t('transactions.totalExpenses')}
+            </h3>
+            <div className="modern-dashboard__stat-value">
+              {formatCurrency(totalExpenses, 'USD')}
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`modern-dashboard__stat-card ${
+            netAmount >= 0
+              ? 'modern-dashboard__stat-card--primary'
+              : 'modern-dashboard__stat-card--warning'
+          }`}
+        >
+          <div className="modern-dashboard__stat-header">
+            <div className="modern-dashboard__stat-icon">
+              <TrendingUp size={24} />
+            </div>
+          </div>
+          <div className="modern-dashboard__stat-content">
+            <h3 className="modern-dashboard__stat-title">
+              {t('transactions.netAmount')}
+            </h3>
+            <div className="modern-dashboard__stat-value">
+              {formatCurrency(netAmount, 'USD')}
+            </div>
           </div>
         </div>
       </div>
+      {/* Filters */}
+      <div className="modern-dashboard__card">
+        <div className="transactions-filters">
+          <div className="filter-group">
+            <div className="search-input">
+              <Search size={20} />{' '}
+              <input
+                type="text"
+                placeholder={t('transactions.searchPlaceholder')}
+                value={searchTerm}
+                onChange={e => handleSearchChange(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="filter-group">
+            <button className="filter-btn">
+              <Calendar size={18} />
+              {t('transactions.dateRange')}
+            </button>
+            <button className="filter-btn">
+              <Filter size={18} />
+              {t('transactions.category')}
+            </button>{' '}
+            <select
+              value={filterType}
+              onChange={e => handleFilterChange(e.target.value as any)}
+              className="filter-select"
+            >
+              <option value="all">{t('transactions.allTypes')}</option>
+              <option value="income">{t('transactions.income')}</option>
+              <option value="expense">{t('transactions.expense')}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      {/* Transactions List */}
+      <div className="modern-dashboard__card">
+        {' '}
+        <div className="modern-dashboard__card-header">
+          <h2 className="modern-dashboard__card-title">
+            {t('transactions.recentTransactions')} (
+            {filteredTransactions.length})
+          </h2>
+          {filteredTransactions.length > 0 && (
+            <p className="transaction-count-info">
+              {t('common.showing')} {visibleTransactions.length}{' '}
+              {t('common.of')} {filteredTransactions.length}
+            </p>
+          )}
+        </div>{' '}
+        {isLoading ? (
+          <div className="transactions-loading">
+            <Loading />
+            <p>{t('common.loading')}</p>
+          </div>
+        ) : (
+          <div className="transactions-list">
+            {filteredTransactions.length === 0 ? (
+              <div className="transactions-empty">
+                <p>{t('transactions.noTransactions')}</p>
+                <button
+                  className="btn btn--primary"
+                  onClick={() => setShowForm(true)}
+                >
+                  <Plus size={18} />
+                  {t('transactions.addFirstTransaction')}
+                </button>
+              </div>
+            ) : (
+              <>
+                {' '}
+                {visibleTransactions.map(transaction => {
+                  const category = getCategoryById(transaction.categoryId);
+                  const wallet = getWalletById(transaction.walletId);
+
+                  return (
+                    <TransactionItem
+                      key={transaction.transactionId}
+                      transaction={transaction}
+                      category={category || undefined}
+                      wallet={wallet || undefined}
+                      categoriesLoading={categoriesLoading}
+                      walletsLoading={walletsLoading}
+                      onEdit={openEditForm}
+                      onDelete={openDeleteConfirm}
+                    />
+                  );
+                })}
+                {/* Load More Button */}
+                {hasMoreTransactions && (
+                  <div className="load-more-container">
+                    <button
+                      className="btn btn--secondary load-more-btn"
+                      onClick={loadMoreTransactions}
+                    >
+                      <ChevronDown size={18} />
+                      {t('transactions.loadMore')} (
+                      {filteredTransactions.length - visibleCount}{' '}
+                      {t('transactions.remaining')})
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>{' '}
+      {/* Transaction Form Modal */}
+      {showForm && (
+        <TransactionForm
+          onSubmit={
+            editingTransaction
+              ? handleUpdateTransaction
+              : handleCreateTransaction
+          }
+          onCancel={closeForm}
+          initialData={editingTransaction}
+          isLoading={categoriesLoading || walletsLoading}
+        />
+      )}
+      {/* Delete Confirmation Dialog */}{' '}
+      <ConfirmDialog
+        isOpen={deleteConfirm.show}
+        title={t('transactions.deleteConfirmTitle')}
+        message={`${t('transactions.deleteConfirmMessage')} "${deleteConfirm.description || ''}"`}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteConfirm({ show: false })}
+        type="danger"
+      />
     </div>
   );
 };

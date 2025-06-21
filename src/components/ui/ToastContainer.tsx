@@ -11,6 +11,8 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
   toasts,
   onRemoveToast,
 }) => {
+  console.log('ToastContainer rendered with toasts:', toasts);
+
   return (
     <>
       {toasts.map(toast => (

@@ -34,25 +34,18 @@ export const API_ENDPOINTS = {
 
   // Money Management specific endpoints
   TRANSACTIONS: {
-    BASE: '/transactions',
-    BY_USER: '/transactions/user',
-    BY_CATEGORY: '/transactions/category',
-    SUMMARY: '/transactions/summary',
+    BASE: '/Transactions',
+    SEARCH: '/Transactions/search',
   },
   CATEGORIES: {
     BASE: '/Categories',
-    BY_USER: '/Categories/user',
   },
 
-  BUDGETS: {
-    BASE: '/budgets',
-    BY_USER: '/budgets/user',
-    SUMMARY: '/budgets/summary',
+  WALLETS: {
+    BASE: '/Wallets',
   },
 
-  ACCOUNTS: {
-    BASE: '/accounts',
-    BY_USER: '/accounts/user',
-    BALANCE: '/accounts/balance',
+  STATISTICS: {
+    CASH_FLOW: '/Statistics/cash-flow',
   },
 } as const;

@@ -3,5 +3,5 @@
  */
 
 export { authApi } from './authApi';
-export { transactionApi, categoryApi, accountApi, budgetApi } from './financeApi';
+export { transactionApi, categoryApi } from './financeApi';
 export { default as httpClient } from './httpClient';

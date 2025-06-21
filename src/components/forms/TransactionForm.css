@@ -1,0 +1,513 @@
+/* TransactionForm.css - High Performance Modal */
+
+.transaction-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.transaction-form-container {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: none;
+  border: 1px solid var(--gray-100);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideUp 0.2s ease-out;
+}
+
+.transaction-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.transaction-form-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.transaction-form-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.transaction-form-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.transaction-form-close:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.transaction-form {
+  padding: 2rem;
+  max-height: calc(90vh - 80px);
+  overflow-y: auto;
+  background: #ffffff !important;
+}
+
+/* Force bright theme styles */
+.transaction-form * {
+  color: inherit;
+}
+
+.transaction-form .form-group {
+  margin-bottom: 1.5rem;
+  background: transparent;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--primary-700);
+  margin-bottom: var(--space-2);
+}
+
+.form-label svg {
+  color: var(--primary-500);
+}
+
+.transaction-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.type-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--gray-50);
+  color: var(--gray-600);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.type-btn:focus {
+  outline: none;
+}
+
+.type-btn--income {
+  border: none;
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.type-btn--income:focus {
+  border: 2px solid #22c55e;
+  box-shadow: none;
+}
+
+.type-btn--expense {
+  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.type-btn--expense:focus {
+  border: 2px solid #ef4444;
+  box-shadow: none;
+}
+
+.type-btn:hover {
+  transform: translateY(-1px);
+}
+
+.type-btn--income:hover {
+  background: rgba(34, 197, 94, 0.2);
+  color: #15803d;
+}
+
+.type-btn--expense:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+}
+
+.type-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.type-btn--active {
+  color: #ffffff;
+}
+
+.type-btn--active.type-btn--income {
+  background: #22c55e;
+  border: 2px solid #22c55e;
+  color: var(--white);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.type-btn--active.type-btn--expense {
+  background: #ef4444;
+  border: 2px solid #ef4444;
+  color: var(--white);
+  box-shadow: none;
+  transform: translateY(-1px);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4) !important;
+  border: 2px solid var(--gray-200) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--gray-50) !important;
+  color: var(--gray-900) !important;
+  font-size: 0.875rem;
+  transition: var(--transition-fast);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-500) !important;
+  box-shadow: none !important;
+  background: var(--white) !important;
+  transform: translateY(-1px);
+}
+
+.form-input--error {
+  border-color: var(--error-500) !important;
+  box-shadow: none !important;
+}
+
+.form-input::placeholder {
+  color: var(--gray-400) !important;
+}
+
+.form-select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4) !important;
+  border: 2px solid var(--gray-200) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--gray-50) !important;
+  background-image: none !important;
+  color: var(--gray-900) !important;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary-500) !important;
+  box-shadow: none !important;
+  background: var(--white) !important;
+  transform: translateY(-1px);
+}
+
+.form-select--error {
+  border-color: var(--error-500) !important;
+  box-shadow: none !important;
+}
+
+.selected-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.wallet-balance {
+  margin-left: auto;
+  font-weight: var(--font-weight-semibold);
+  color: var(--success-700);
+  background: var(--success-50);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+}
+
+.form-error {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--error-600);
+  margin-top: var(--space-1);
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: flex-end;
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--gray-100);
+}
+
+/* Custom button styling for TransactionForm */
+.transaction-form .btn-primary {
+  background: #22c55e !important;
+  background-image: none !important;
+  border: none !important;
+  color: var(--white) !important;
+  box-shadow: none !important;
+}
+
+.transaction-form .btn-primary:hover:not(.btn-disabled) {
+  background: #16a34a !important;
+  transform: translateY(-1px);
+  box-shadow: none !important;
+}
+
+.transaction-form .btn-primary:active {
+  background: #15803d !important;
+  transform: translateY(0);
+}
+
+.transaction-form .btn-primary:focus {
+  outline: none;
+  box-shadow: none !important;
+}
+
+/* Category field with inline icon indicator */
+.category-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.category-field-wrapper .form-select {
+  flex: 1;
+}
+
+.category-icon-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--gray-50) !important;
+  border: 2px solid var(--gray-200) !important;
+  transition: var(--transition-fast);
+}
+
+.category-icon-indicator:hover {
+  background: var(--gray-100) !important;
+  border-color: var(--gray-300) !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .transaction-form-overlay {
+    padding: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .transaction-form-container {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .transaction-form-header {
+    padding: 1rem;
+  }
+
+  .transaction-form-title {
+    font-size: 1.125rem;
+  }
+
+  .transaction-form {
+    padding: 1rem;
+    max-height: calc(95vh - 70px);
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .transaction-type-selector {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* Optimized Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Force bright theme using app color palette - disable dark mode */
+@media (prefers-color-scheme: dark) {
+  .transaction-form-container {
+    background: var(--white) !important;
+    border-color: var(--gray-100) !important;
+  }
+
+  .transaction-form-header {
+    background: var(--gradient-primary) !important;
+    border-color: var(--gray-100) !important;
+  }
+
+  .transaction-form-title {
+    color: var(--white) !important;
+  }
+
+  .transaction-form {
+    background: var(--white) !important;
+  }
+
+  .form-label {
+    color: var(--primary-700) !important;
+  }
+
+  .form-input,
+  .form-select {
+    background: var(--gray-50) !important;
+    background-image: none !important;
+    border-color: var(--gray-200) !important;
+    color: var(--gray-900) !important;
+  }
+
+  .form-input::placeholder {
+    color: var(--gray-400) !important;
+  }
+
+  .type-btn--income {
+    border: none !important;
+    background: rgba(34, 197, 94, 0.1) !important;
+    color: #16a34a !important;
+  }
+
+  .type-btn--expense {
+    border: none !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #dc2626 !important;
+  }
+
+  .type-btn--income:hover {
+    background: rgba(34, 197, 94, 0.2) !important;
+    color: #15803d !important;
+  }
+
+  .type-btn--expense:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #b91c1c !important;
+  }
+
+  .selected-item {
+    color: var(--gray-600) !important;
+  }
+
+  .form-error {
+    color: var(--error-600) !important;
+  }
+
+  .form-actions {
+    border-color: var(--gray-100) !important;
+  }
+
+  .form-select {
+    background-image: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+  }
+
+  .type-btn--active.type-btn--income {
+    background: #22c55e !important;
+    border: 2px solid #22c55e !important;
+    color: var(--white) !important;
+  }
+
+  .type-btn--active.type-btn--expense {
+    background: #ef4444 !important;
+    border: 2px solid #ef4444 !important;
+    color: var(--white) !important;
+  }
+
+  .type-btn--income:focus {
+    border: 2px solid #22c55e !important;
+  }
+
+  .type-btn--expense:focus {
+    border: 2px solid #ef4444 !important;
+  }
+
+  .category-icon-indicator {
+    background: var(--gray-50) !important;
+    border-color: var(--gray-200) !important;
+  }
+
+  .category-icon-indicator:hover {
+    background: var(--gray-100) !important;
+    border-color: var(--gray-300) !important;
+  }
+}

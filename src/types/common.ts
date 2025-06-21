@@ -2,16 +2,6 @@
  * Common type definitions used across the application
  */
 
-export interface PaginatedResponse<T> {
-  data: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  last: boolean;
-  first: boolean;
-}
-
 export interface SelectOption {
   value: string | number;
   label: string;
@@ -33,7 +23,8 @@ export interface LanguageOption {
   flag: string;
 }
 
-export interface TranslationKeys {  // Common
+export interface TranslationKeys {
+  // Common
   common: {
     loading: string;
     error: string;
@@ -71,6 +62,11 @@ export interface TranslationKeys {  // Common
     settings: string;
     helpSupport: string;
     signOut: string;
+    showing: string;
+    of: string;
+    actions: string;
+    view: string;
+    clear: string;
   };
 
   // Navigation
@@ -157,13 +153,15 @@ export interface TranslationKeys {  // Common
       salaryDeposit: string;
       coffeeShop: string;
     };
-  };
-  // Transactions
+  }; // Transactions
   transactions: {
     title: string;
+    subtitle: string;
     addTransaction: string;
     editTransaction: string;
     deleteTransaction: string;
+    addFirstTransaction: string;
+    recentTransactions: string;
     description: string;
     amount: string;
     date: string;
@@ -172,10 +170,48 @@ export interface TranslationKeys {  // Common
     type: string;
     income: string;
     expense: string;
+    totalIncome: string;
+    totalExpenses: string;
+    netAmount: string;
+    export: string;
+    dateRange: string;
+    allTypes: string;
+    unknownCategory: string;
+    unknownWallet: string;
+    searchPlaceholder: string;
     noTransactions: string;
+    loadMore: string;
+    remaining: string;
     deleteConfirm: string;
-  };
-  // Category  
+    deleteConfirmTitle: string;
+    deleteConfirmMessage: string;
+    form: {
+      type: string;
+      amount: string;
+      description: string;
+      category: string;
+      wallet: string;
+      date: string;
+      dateTime: string;
+      descriptionPlaceholder: string;
+      selectCategory: string;
+      selectWallet: string;
+      amountRequired: string;
+      descriptionRequired: string;
+      categoryRequired: string;
+      walletRequired: string;
+      dateRequired: string;
+    };
+    notifications: {
+      createSuccess: string;
+      createError: string;
+      updateSuccess: string;
+      updateError: string;
+      deleteSuccess: string;
+      deleteError: string;
+      searchError: string;
+    };
+  }; // Category
   category: {
     title: string;
     add: string;
@@ -203,7 +239,68 @@ export interface TranslationKeys {  // Common
     deleteTitle: string;
     deleteMessage: string;
   };
-  
+  // Categories (page-level)
+  categories: {
+    title: string;
+    subtitle: string;
+    addNewCategory: string;
+    createDescription: string;
+    categoryName: string;
+    categoryNamePlaceholder: string;
+    examplesTitle: string;
+    iconPreview: string;
+    createButton: string;
+    creating: string;
+    yourCategories: string;
+    categoryCount: string;
+    categoriesCount: string;
+    refresh: string;
+    noCategoriesTitle: string;
+    noCategoriesDescription: string;
+    createdOn: string;
+    edit: string;
+    delete: string;
+    save: string;
+    cancel: string;
+    deleteConfirm: string;
+    errorLoad: string;
+    retry: string;
+    invalidCategoryId: string;
+    errorPrefix: string;
+    notifications: {
+      categoryCreated: string;
+      categoryUpdated: string;
+      categoryDeleted: string;
+      createError: string;
+      updateError: string;
+      deleteError: string;
+    };
+    confirmDelete: {
+      title: string;
+      message: string;
+      confirm: string;
+      cancel: string;
+    };
+    suggestions: {
+      foodDining: string;
+      transportation: string;
+      shopping: string;
+      entertainment: string;
+      healthFitness: string;
+      salary: string;
+      coffee: string;
+      travel: string;
+      education: string;
+      housing: string;
+      utilities: string;
+      gifts: string;
+      investment: string;
+      savings: string;
+      bills: string;
+      maintenance: string;
+    };
+  };
+
   // Validation
   validation: {
     required: string;
@@ -229,14 +326,18 @@ export interface TranslationKeys {  // Common
     vietnamese: string;
     switchTo: string;
     selectLanguage: string;
-  };
-
-  // Errors
+  }; // Errors
   errors: {
     networkError: string;
     serverError: string;
     unauthorized: string;
     notFound: string;
     unexpected: string;
+    transactions: {
+      createError: string;
+      updateError: string;
+      deleteError: string;
+      searchError: string;
+    };
   };
 }

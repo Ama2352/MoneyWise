@@ -1,6 +1,7 @@
 import type { TranslationKeys } from '../types';
 
-export const vi: TranslationKeys = {  common: {
+export const vi: TranslationKeys = {
+  common: {
     loading: 'Đang tải...',
     error: 'Đã xảy ra lỗi',
     success: 'Thành công',
@@ -37,6 +38,11 @@ export const vi: TranslationKeys = {  common: {
     settings: 'Cài đặt',
     helpSupport: 'Trợ giúp & Hỗ trợ',
     signOut: 'Đăng xuất',
+    showing: 'Hiển thị',
+    of: 'trong',
+    actions: 'Hành động',
+    view: 'Xem',
+    clear: 'Xóa',
   },
   validation: {
     required: 'Trường này là bắt buộc',
@@ -140,9 +146,12 @@ export const vi: TranslationKeys = {  common: {
   },
   transactions: {
     title: 'Giao dịch',
+    subtitle: 'Theo dõi và quản lý thu nhập và chi tiêu của bạn',
     addTransaction: 'Thêm giao dịch',
     editTransaction: 'Chỉnh sửa giao dịch',
     deleteTransaction: 'Xóa giao dịch',
+    addFirstTransaction: 'Thêm giao dịch đầu tiên',
+    recentTransactions: 'Giao dịch gần đây',
     description: 'Mô tả',
     amount: 'Số tiền',
     date: 'Ngày',
@@ -151,9 +160,51 @@ export const vi: TranslationKeys = {  common: {
     type: 'Loại',
     income: 'Thu nhập',
     expense: 'Chi tiêu',
+    totalIncome: 'Tổng thu nhập',
+    totalExpenses: 'Tổng chi tiêu',
+    netAmount: 'Số tiền ròng',
+    export: 'Xuất dữ liệu',
+    dateRange: 'Khoảng thời gian',
+    allTypes: 'Tất cả loại',
+    unknownCategory: 'Danh mục không xác định',
+    unknownWallet: 'Ví không xác định',
+    searchPlaceholder: 'Tìm kiếm giao dịch...',
     noTransactions: 'Không tìm thấy giao dịch',
+    loadMore: 'Tải thêm',
+    remaining: 'còn lại',
     deleteConfirm: 'Bạn có chắc chắn muốn xóa giao dịch này?',
-  },  category: {
+    deleteConfirmTitle: 'Xóa giao dịch',
+    deleteConfirmMessage: 'Bạn có chắc chắn muốn xóa giao dịch này?',
+    form: {
+      type: 'Loại giao dịch',
+      amount: 'Số tiền',
+      description: 'Mô tả',
+      category: 'Danh mục',
+      wallet: 'Ví',
+      date: 'Ngày',
+      dateTime: 'Ngày & Giờ',
+      time: 'Thời gian',
+      descriptionPlaceholder: 'Nhập mô tả giao dịch',
+      selectCategory: 'Chọn danh mục',
+      selectWallet: 'Chọn ví',
+      amountRequired: 'Số tiền phải lớn hơn 0',
+      descriptionRequired: 'Mô tả là bắt buộc',
+      categoryRequired: 'Danh mục là bắt buộc',
+      walletRequired: 'Ví là bắt buộc',
+      dateRequired: 'Ngày là bắt buộc',
+      timeRequired: 'Thời gian là bắt buộc',
+    },
+    notifications: {
+      createSuccess: 'Tạo giao dịch thành công',
+      createError: 'Không thể tạo giao dịch',
+      updateSuccess: 'Cập nhật giao dịch thành công',
+      updateError: 'Không thể cập nhật giao dịch',
+      deleteSuccess: 'Xóa giao dịch thành công',
+      deleteError: 'Không thể xóa giao dịch',
+      searchError: 'Không thể tìm kiếm giao dịch',
+    },
+  },
+  category: {
     title: 'Danh mục',
     add: 'Thêm danh mục',
     create: 'Tạo danh mục',
@@ -174,11 +225,13 @@ export const vi: TranslationKeys = {  common: {
     creating: 'Đang tạo...',
     updating: 'Đang cập nhật...',
     noCategories: 'Không tìm thấy danh mục',
-    noCategoriesDesc: 'Bắt đầu bằng cách tạo danh mục đầu tiên để phân loại giao dịch của bạn.',
+    noCategoriesDesc:
+      'Bắt đầu bằng cách tạo danh mục đầu tiên để phân loại giao dịch của bạn.',
     createFirst: 'Tạo danh mục đầu tiên',
     deleteConfirm: 'Bạn có chắc chắn muốn xóa danh mục này?',
     deleteTitle: 'Xóa danh mục',
-    deleteMessage: 'Hành động này không thể hoàn tác. Tất cả giao dịch liên quan đến danh mục này sẽ không còn được phân loại.',
+    deleteMessage:
+      'Hành động này không thể hoàn tác. Tất cả giao dịch liên quan đến danh mục này sẽ không còn được phân loại.',
   },
 
   categories: {
@@ -249,12 +302,17 @@ export const vi: TranslationKeys = {  common: {
     switchTo: 'Chuyển sang',
     selectLanguage: 'Chọn Ngôn Ngữ',
   },
-
   errors: {
     networkError: 'Lỗi mạng. Vui lòng kiểm tra kết nối.',
     serverError: 'Lỗi máy chủ. Vui lòng thử lại sau.',
     unauthorized: 'Bạn không có quyền thực hiện hành động này.',
     notFound: 'Không tìm thấy tài nguyên được yêu cầu.',
     unexpected: 'Đã xảy ra lỗi không mong muốn.',
+    transactions: {
+      createError: 'Không thể tạo giao dịch',
+      updateError: 'Không thể cập nhật giao dịch',
+      deleteError: 'Không thể xóa giao dịch',
+      searchError: 'Không thể tìm kiếm giao dịch',
+    },
   },
 };

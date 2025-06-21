@@ -1,6 +1,7 @@
 import type { TranslationKeys } from '../types';
 
-export const en: TranslationKeys = {  common: {
+export const en: TranslationKeys = {
+  common: {
     loading: 'Loading...',
     error: 'Something went wrong',
     success: 'Success',
@@ -37,6 +38,11 @@ export const en: TranslationKeys = {  common: {
     settings: 'Settings',
     helpSupport: 'Help & Support',
     signOut: 'Sign Out',
+    showing: 'Showing',
+    of: 'of',
+    actions: 'Actions',
+    view: 'View',
+    clear: 'Clear',
   },
   validation: {
     required: 'This field is required',
@@ -143,9 +149,12 @@ export const en: TranslationKeys = {  common: {
   },
   transactions: {
     title: 'Transactions',
+    subtitle: 'Track and manage your income and expenses',
     addTransaction: 'Add Transaction',
     editTransaction: 'Edit Transaction',
     deleteTransaction: 'Delete Transaction',
+    addFirstTransaction: 'Add Your First Transaction',
+    recentTransactions: 'Recent Transactions',
     description: 'Description',
     amount: 'Amount',
     date: 'Date',
@@ -154,9 +163,51 @@ export const en: TranslationKeys = {  common: {
     type: 'Type',
     income: 'Income',
     expense: 'Expense',
+    totalIncome: 'Total Income',
+    totalExpenses: 'Total Expenses',
+    netAmount: 'Net Amount',
+    export: 'Export',
+    dateRange: 'Date Range',
+    allTypes: 'All Types',
+    unknownCategory: 'Unknown Category',
+    unknownWallet: 'Unknown Wallet',
+    searchPlaceholder: 'Search transactions...',
     noTransactions: 'No transactions found',
+    loadMore: 'Load More',
+    remaining: 'remaining',
     deleteConfirm: 'Are you sure you want to delete this transaction?',
-  },  category: {
+    deleteConfirmTitle: 'Delete Transaction',
+    deleteConfirmMessage: 'Are you sure you want to delete this transaction?',
+    form: {
+      type: 'Transaction Type',
+      amount: 'Amount',
+      description: 'Description',
+      category: 'Category',
+      wallet: 'Wallet',
+      date: 'Date',
+      dateTime: 'Date & Time',
+      time: 'Time',
+      descriptionPlaceholder: 'Enter transaction description',
+      selectCategory: 'Select a category',
+      selectWallet: 'Select a wallet',
+      amountRequired: 'Amount must be greater than 0',
+      descriptionRequired: 'Description is required',
+      categoryRequired: 'Category is required',
+      walletRequired: 'Wallet is required',
+      dateRequired: 'Date is required',
+      timeRequired: 'Time is required',
+    },
+    notifications: {
+      createSuccess: 'Transaction created successfully',
+      createError: 'Failed to create transaction',
+      updateSuccess: 'Transaction updated successfully',
+      updateError: 'Failed to update transaction',
+      deleteSuccess: 'Transaction deleted successfully',
+      deleteError: 'Failed to delete transaction',
+      searchError: 'Failed to search transactions',
+    },
+  },
+  category: {
     title: 'Categories',
     add: 'Add Category',
     create: 'Create Category',
@@ -177,11 +228,13 @@ export const en: TranslationKeys = {  common: {
     creating: 'Creating...',
     updating: 'Updating...',
     noCategories: 'No Categories Found',
-    noCategoriesDesc: 'Start by creating your first category to organize your transactions.',
+    noCategoriesDesc:
+      'Start by creating your first category to organize your transactions.',
     createFirst: 'Create First Category',
     deleteConfirm: 'Are you sure you want to delete this category?',
     deleteTitle: 'Delete Category',
-    deleteMessage: 'This action cannot be undone. All transactions associated with this category will no longer be categorized.',
+    deleteMessage:
+      'This action cannot be undone. All transactions associated with this category will no longer be categorized.',
   },
 
   categories: {
@@ -253,12 +306,17 @@ export const en: TranslationKeys = {  common: {
     switchTo: 'Switch to',
     selectLanguage: 'Select Language',
   },
-
   errors: {
     networkError: 'Network error. Please check your connection.',
     serverError: 'Server error. Please try again later.',
     unauthorized: 'You are not authorized to perform this action.',
     notFound: 'The requested resource was not found.',
     unexpected: 'An unexpected error occurred.',
+    transactions: {
+      createError: 'Failed to create transaction',
+      updateError: 'Failed to update transaction',
+      deleteError: 'Failed to delete transaction',
+      searchError: 'Failed to search transactions',
+    },
   },
 };

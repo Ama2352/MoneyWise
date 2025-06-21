@@ -54,22 +54,19 @@ export const swrConfig: SWRConfiguration = {
 export const SWR_KEYS = {
   CATEGORIES: {
     ALL: '/Categories',
-    BY_ID: (id: string) => `/Categories/${id}`,
+    BY_ID: (categoryId: string) => `/Categories/${categoryId}`,
   },
   TRANSACTIONS: {
-    ALL: '/transactions',
-    BY_USER: '/transactions/user',
-    BY_CATEGORY: (categoryId: string) => `/transactions/category/${categoryId}`,
-    SUMMARY: '/transactions/summary',
+    ALL: '/Transactions',
+    BY_ID: (transactionId: string) => `/Transactions/${transactionId}`,
+    SEARCH: '/Transactions/search',
   },
-  ACCOUNTS: {
-    ALL: '/accounts',
-    BY_USER: '/accounts/user',
-    BALANCE: (accountId: string) => `/accounts/${accountId}/balance`,
+  WALLETS: {
+    ALL: '/Wallets',
+    BY_ID: (walletId: string) => `/Wallets/${walletId}`,
   },
-  BUDGETS: {
-    ALL: '/budgets',
-    BY_USER: '/budgets/user',
-    SUMMARY: '/budgets/summary',
+  STATISTICS: {
+    CASH_FLOW: (startDate: string, endDate: string) =>
+      `/Statistics/cash-flow?startDate=${startDate}&endDate=${endDate}`,
   },
 } as const;
