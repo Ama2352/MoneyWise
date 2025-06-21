@@ -186,7 +186,6 @@ export const en: TranslationKeys = {
       wallet: 'Wallet',
       date: 'Date',
       dateTime: 'Date & Time',
-      time: 'Time',
       descriptionPlaceholder: 'Enter transaction description',
       selectCategory: 'Select a category',
       selectWallet: 'Select a wallet',
@@ -195,7 +194,6 @@ export const en: TranslationKeys = {
       categoryRequired: 'Category is required',
       walletRequired: 'Wallet is required',
       dateRequired: 'Date is required',
-      timeRequired: 'Time is required',
     },
     notifications: {
       createSuccess: 'Transaction created successfully',
@@ -305,6 +303,12 @@ export const en: TranslationKeys = {
     vietnamese: 'Vietnamese',
     switchTo: 'Switch to',
     selectLanguage: 'Select Language',
+  },
+  currency: {
+    usd: 'US Dollar',
+    vnd: 'Vietnamese Dong',
+    selectCurrency: 'Select Currency',
+    switchTo: 'Switch to',
   },
   errors: {
     networkError: 'Network error. Please check your connection.',

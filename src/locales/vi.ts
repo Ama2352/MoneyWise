@@ -183,7 +183,6 @@ export const vi: TranslationKeys = {
       wallet: 'Ví',
       date: 'Ngày',
       dateTime: 'Ngày & Giờ',
-      time: 'Thời gian',
       descriptionPlaceholder: 'Nhập mô tả giao dịch',
       selectCategory: 'Chọn danh mục',
       selectWallet: 'Chọn ví',
@@ -192,7 +191,6 @@ export const vi: TranslationKeys = {
       categoryRequired: 'Danh mục là bắt buộc',
       walletRequired: 'Ví là bắt buộc',
       dateRequired: 'Ngày là bắt buộc',
-      timeRequired: 'Thời gian là bắt buộc',
     },
     notifications: {
       createSuccess: 'Tạo giao dịch thành công',
@@ -301,6 +299,12 @@ export const vi: TranslationKeys = {
     vietnamese: 'Tiếng Việt',
     switchTo: 'Chuyển sang',
     selectLanguage: 'Chọn Ngôn Ngữ',
+  },
+  currency: {
+    usd: 'Đô la Mỹ',
+    vnd: 'Đồng Việt Nam',
+    selectCurrency: 'Chọn Tiền Tệ',
+    switchTo: 'Chuyển sang',
   },
   errors: {
     networkError: 'Lỗi mạng. Vui lòng kiểm tra kết nối.',

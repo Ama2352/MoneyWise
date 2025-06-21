@@ -319,13 +319,19 @@ export interface TranslationKeys {
     lastNameRequired: string;
     amountInvalid: string;
     dateInvalid: string;
-  };
-  // Language
+  }; // Language
   language: {
     english: string;
     vietnamese: string;
     switchTo: string;
     selectLanguage: string;
+  };
+  // Currency
+  currency: {
+    usd: string;
+    vnd: string;
+    selectCurrency: string;
+    switchTo: string;
   }; // Errors
   errors: {
     networkError: string;

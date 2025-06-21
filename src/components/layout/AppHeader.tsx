@@ -13,6 +13,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { useLanguageContext } from '../../contexts';
+import { CurrencySelector } from '../ui';
 import { LANGUAGE_OPTIONS } from '../../constants';
 import './AppHeader.css';
 
@@ -84,7 +85,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
           onClick={toggleTheme}
           aria-label="Toggle theme"
         >
-          {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+          {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}{' '}
         </button>{' '}
         {/* Language selector */}
         <div className="app-header__language">
@@ -106,7 +107,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
               }`}
             />
           </button>
-
           {/* Language dropdown menu */}
           {isLanguageMenuOpen && (
             <div className="app-header__language-dropdown">
@@ -151,8 +151,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
                 ))}
               </div>
             </div>
-          )}
+          )}{' '}
         </div>
+        {/* Currency selector */}
+        <CurrencySelector />
         {/* Notifications */}
         <button className="app-header__action app-header__notifications">
           <Bell size={18} />

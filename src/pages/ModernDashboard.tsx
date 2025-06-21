@@ -13,14 +13,18 @@ import {
   Filter,
   Download,
 } from 'lucide-react';
+import { useCurrencyContext } from '../contexts';
+import { formatCurrency } from '../utils/formatUtils';
 import './ModernDashboard.css';
 
 const ModernDashboard: React.FC = () => {
+  const { currency } = useCurrencyContext();
+
   const stats = [
     {
       id: 'balance',
       title: 'Total Balance',
-      value: '$24,680.42',
+      value: formatCurrency(24680420, currency), // 24,680,420 VND or $24,680.42 USD
       change: '+12.5%',
       trend: 'up',
       icon: DollarSign,
@@ -29,7 +33,7 @@ const ModernDashboard: React.FC = () => {
     {
       id: 'income',
       title: 'Monthly Income',
-      value: '$8,240.00',
+      value: formatCurrency(8240000, currency), // 8,240,000 VND or $8,240 USD
       change: '+8.2%',
       trend: 'up',
       icon: TrendingUp,
@@ -38,7 +42,7 @@ const ModernDashboard: React.FC = () => {
     {
       id: 'expenses',
       title: 'Monthly Expenses',
-      value: '$3,567.89',
+      value: formatCurrency(3567890, currency), // 3,567,890 VND or $3,567.89 USD
       change: '-3.1%',
       trend: 'down',
       icon: TrendingDown,
@@ -47,7 +51,7 @@ const ModernDashboard: React.FC = () => {
     {
       id: 'savings',
       title: 'Total Savings',
-      value: '$12,450.67',
+      value: formatCurrency(12450670, currency), // 12,450,670 VND or $12,450.67 USD
       change: '+15.3%',
       trend: 'up',
       icon: PiggyBank,
@@ -316,9 +320,10 @@ const ModernDashboard: React.FC = () => {
                     <div className="modern-dashboard__budget-header">
                       <span className="modern-dashboard__budget-category">
                         {budget.category}
-                      </span>
+                      </span>{' '}
                       <span className="modern-dashboard__budget-amount">
-                        ${budget.spent.toFixed(2)} / ${budget.limit.toFixed(2)}
+                        {formatCurrency(budget.spent, currency)} /{' '}
+                        {formatCurrency(budget.limit, currency)}
                       </span>
                     </div>
                     <div className="modern-dashboard__budget-progress">

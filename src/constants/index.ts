@@ -19,6 +19,7 @@ export const STORAGE_KEYS = {
   USER_PREFERENCES: 'userPreferences',
   THEME: 'theme',
   LANGUAGE: 'language',
+  CURRENCY: 'currency',
 } as const;
 
 // Route paths
@@ -88,7 +89,7 @@ export const CURRENCY_INFO: Record<CurrencyCode, CurrencyInfo> = {
   vnd: {
     code: 'vnd',
     name: 'Vietnamese Dong',
-    symbol: '₫',
+    symbol: 'đ',
     locale: 'vi-VN',
   },
 } as const;
@@ -120,3 +121,5 @@ export const LANGUAGE_OPTIONS: LanguageOption[] = [
 ] as const;
 
 export const DEFAULT_LANGUAGE: Language = 'en';
+
+export const DEFAULT_CURRENCY: CurrencyCode = 'vnd';

@@ -18,8 +18,7 @@ import {
   useCashFlow,
 } from '../hooks/useFinanceData';
 import { useLanguageContext, useToastContext } from '../contexts';
-import { Loading, ConfirmDialog } from '../components/ui';
-import { formatCurrency } from '../utils/formatUtils';
+import { Loading, ConfirmDialog, CurrencyAmount } from '../components/ui';
 import { TransactionForm } from '../components/forms/TransactionForm';
 import { TransactionItem } from '../components/TransactionItem';
 import type { Transaction, CreateTransactionRequest } from '../types';
@@ -250,9 +249,9 @@ const TransactionsPage: React.FC = () => {
           <div className="modern-dashboard__stat-content">
             <h3 className="modern-dashboard__stat-title">
               {t('transactions.totalIncome')}
-            </h3>
+            </h3>{' '}
             <div className="modern-dashboard__stat-value">
-              {formatCurrency(totalIncome, 'USD')}
+              <CurrencyAmount amountInVnd={totalIncome} />
             </div>
           </div>
         </div>
@@ -266,9 +265,9 @@ const TransactionsPage: React.FC = () => {
           <div className="modern-dashboard__stat-content">
             <h3 className="modern-dashboard__stat-title">
               {t('transactions.totalExpenses')}
-            </h3>
+            </h3>{' '}
             <div className="modern-dashboard__stat-value">
-              {formatCurrency(totalExpenses, 'USD')}
+              <CurrencyAmount amountInVnd={totalExpenses} />
             </div>
           </div>
         </div>
@@ -288,9 +287,9 @@ const TransactionsPage: React.FC = () => {
           <div className="modern-dashboard__stat-content">
             <h3 className="modern-dashboard__stat-title">
               {t('transactions.netAmount')}
-            </h3>
+            </h3>{' '}
             <div className="modern-dashboard__stat-value">
-              {formatCurrency(netAmount, 'USD')}
+              <CurrencyAmount amountInVnd={netAmount} />
             </div>
           </div>
         </div>

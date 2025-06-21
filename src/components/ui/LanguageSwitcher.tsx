@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguageContext } from '../../contexts';
-import { LANGUAGES } from '../../constants';
+import { LANGUAGE_OPTIONS } from '../../constants';
 import type { Language } from '../../types';
 import './LanguageSwitcher.css';
 
@@ -40,12 +40,12 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           <>
             {showFlag && (
               <span className="language-switcher__flag">
-                {LANGUAGES.find(lang => lang.code === language)?.flag}
+                {LANGUAGE_OPTIONS.find(lang => lang.code === language)?.flag}
               </span>
             )}
             {showText && (
               <span className="language-switcher__text">
-                {LANGUAGES.find(lang => lang.code === language)?.name}
+                {LANGUAGE_OPTIONS.find(lang => lang.code === language)?.name}
               </span>
             )}
           </>
@@ -59,7 +59,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       <div
         className={`language-switcher language-switcher--buttons ${className}`}
       >
-        {LANGUAGES.map(lang => (
+        {LANGUAGE_OPTIONS.map(lang => (
           <button
             key={lang.code}
             className={`language-switcher__button ${
@@ -93,7 +93,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         className="language-switcher__select"
         aria-label="Select language"
       >
-        {LANGUAGES.map(lang => (
+        {LANGUAGE_OPTIONS.map(lang => (
           <option key={lang.code} value={lang.code}>
             {showFlag ? `${lang.flag} ` : ''}
             {showText ? lang.name : lang.code}

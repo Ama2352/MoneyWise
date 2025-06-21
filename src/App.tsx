@@ -9,8 +9,12 @@ import { useToastContext } from './contexts';
 import { useAuthContext } from './contexts';
 import { LoginPage, RegisterPage } from './pages';
 import { Loading, ToastContainer, TokenExpiryDialog } from './components/ui';
-import { ToastProvider, AuthProvider, LanguageProvider } from './contexts';
-import { CurrencyExample } from './components/examples/CurrencyExample';
+import {
+  ToastProvider,
+  AuthProvider,
+  LanguageProvider,
+  CurrencyProvider,
+} from './contexts';
 import { ROUTES } from './constants';
 import { STORAGE_KEYS } from './constants';
 import { swrConfig } from './config/swr';
@@ -86,17 +90,6 @@ function AppContent() {
         />
         {/* Default Route */}
         <Route
-          path="/currency-test"
-          element={
-            isAuthenticated ? (
-              <CurrencyExample />
-            ) : (
-              <Navigate to={ROUTES.LOGIN} replace />
-            )
-          }
-        />
-        {/* Default Route */}
-        <Route
           path={ROUTES.HOME}
           element={
             <Navigate
@@ -121,15 +114,17 @@ function App() {
   return (
     <div className="app">
       <LanguageProvider>
-        <ToastProvider>
-          <AuthProvider>
-            <Router>
-              <SWRConfig value={swrConfig}>
-                <AppContent />
-              </SWRConfig>
-            </Router>
-          </AuthProvider>
-        </ToastProvider>
+        <CurrencyProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <Router>
+                <SWRConfig value={swrConfig}>
+                  <AppContent />
+                </SWRConfig>
+              </Router>
+            </AuthProvider>
+          </ToastProvider>
+        </CurrencyProvider>
       </LanguageProvider>
     </div>
   );

@@ -1,8 +1,7 @@
 import React from 'react';
 import { Edit3, Trash2, MoreHorizontal } from 'lucide-react';
 import { useLanguageContext } from '../contexts';
-import { CategoryIcon } from './ui';
-import { formatAmountWithSign } from '../utils/formatUtils';
+import { CategoryIcon, CurrencyAmountWithSign } from './ui';
 import type { Transaction, Category, Wallet } from '../types';
 
 interface TransactionItemProps {
@@ -41,10 +40,9 @@ export const TransactionItem: React.FC<TransactionItemProps> = React.memo(
               <MoreHorizontal size={24} />
             </div>
           )}
-        </div>
-
+        </div>{' '}
         <div className="transaction-details">
-          <h4 className="transaction-description">{transaction.description}</h4>{' '}
+          <h4 className="transaction-description">{transaction.description}</h4>
           <div className="transaction-meta">
             <span className="transaction-category">
               {categoriesLoading
@@ -60,18 +58,21 @@ export const TransactionItem: React.FC<TransactionItemProps> = React.memo(
             <span className="transaction-separator">•</span>
             <span className="transaction-date">
               {new Date(transaction.transactionDate).toLocaleDateString()}
-            </span>
+            </span>{' '}
           </div>
         </div>
-
         <div className="transaction-amount-section">
+          {' '}
           <div
             className={`transaction-amount transaction-amount--${transaction.type}`}
           >
-            {formatAmountWithSign(transaction.amount, 'USD', transaction.type)}
+            {' '}
+            <CurrencyAmountWithSign
+              amountInVnd={transaction.amount}
+              type={transaction.type as 'income' | 'expense'}
+            />
           </div>
         </div>
-
         <div className="transaction-actions">
           <button
             className="action-btn"
