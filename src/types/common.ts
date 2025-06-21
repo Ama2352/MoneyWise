@@ -67,6 +67,19 @@ export interface TranslationKeys {
     actions: string;
     view: string;
     clear: string;
+    all: string;
+    allCategories: string;
+    allWallets: string;
+    anyDay: string;
+    days: {
+      monday: string;
+      tuesday: string;
+      wednesday: string;
+      thursday: string;
+      friday: string;
+      saturday: string;
+      sunday: string;
+    };
   };
 
   // Navigation
@@ -182,6 +195,17 @@ export interface TranslationKeys {
     noTransactions: string;
     loadMore: string;
     remaining: string;
+    advancedSearch: string;
+    keyword: string;
+    keywordPlaceholder: string;
+    wallet: string;
+    startDate: string;
+    endDate: string;
+    minAmount: string;
+    maxAmount: string;
+    startTime: string;
+    endTime: string;
+    dayOfWeek: string;
     deleteConfirm: string;
     deleteConfirmTitle: string;
     deleteConfirmMessage: string;

@@ -1894,6 +1894,8 @@ To avoid confusion, we use distinct naming conventions:
 **Utility Hooks:**
 
 - `useCurrency()` - Currency formatting and conversion
+- `useCurrencyFormatter()` - Advanced currency formatting, parsing, and validation
+- `useAmountInput()` - Currency-aware amount input with real-time formatting and validation
 - `useApi()` - Legacy hook (deprecated, use SWR hooks instead)
 - `useToast()` - Toast notification management
 
@@ -2338,11 +2340,20 @@ The application includes several **educational examples** that you can access fo
 - **Purpose**: Side-by-side comparison of old `useApi` vs modern SWR hooks
 - **Learn**: Cache behavior, performance benefits, background updates
 
-#### Currency System Demo (`/currency-example`)
+#### Currency System Demo
 
-- **Component**: `src/components/examples/CurrencyExample.tsx`
-- **Purpose**: Demonstrates currency formatting and conversion features
-- **Learn**: Multi-currency support, formatting patterns, conversion rates
+- **Components**: `src/components/forms/TransactionForm.tsx`, `src/components/ui/AdvancedSearch.tsx`
+- **Hooks**: `src/hooks/useAmountInput.ts`, `src/hooks/useCurrencyFormatter.ts`
+- **Purpose**: Demonstrates currency-aware amount input with real-time formatting and validation
+- **Learn**: Currency input patterns, format/parse logic, validation handling
+
+**Key Features Demonstrated:**
+
+- **Real-time formatting**: Amount fields auto-format as users type
+- **Currency awareness**: Display currency symbols and appropriate decimal places
+- **Input validation**: Real-time and on-blur validation with user-friendly error messages
+- **Parse/format separation**: Clean separation between display and raw values
+- **Reusable logic**: Centralized currency logic in custom hooks
 
 #### UI Component Showcase
 
@@ -2352,6 +2363,57 @@ The application includes several **educational examples** that you can access fo
 - **Layout Responsive**: Mobile and desktop layout behavior
 
 These examples serve as **live documentation** and help developers understand implementation patterns before building new features.
+
+### 6. Currency-Aware Input Pattern
+
+The **Currency Input Hooks** demonstrate the modern approach to handling currency input with real-time formatting and validation:
+
+**Key Features Demonstrated:**
+
+- **Real-time formatting**: Amount fields format as users type
+- **Currency awareness**: Display appropriate currency symbols and decimal places
+- **Input validation**: Real-time and on-blur validation with error messages
+- **Parse/format separation**: Clean separation between display and raw values
+- **Reusable logic**: Centralized currency handling in custom hooks
+
+**Example Implementation:**
+
+```typescript
+// Modern currency input with hooks
+import { useAmountInput } from '../hooks';
+
+const MyForm = () => {
+  const amountInput = useAmountInput({
+    initialValue: 0,
+    onAmountChange: (amount) => {
+      console.log('Raw amount:', amount); // Always in base currency (VND)
+    },
+    onError: (error) => {
+      console.log('Validation error:', error);
+    },
+  });
+
+  return (
+    <TextField
+      label={`Amount (${currency.toUpperCase()})`}
+      value={amountInput.displayAmount}        // Formatted for display
+      onChange={e => amountInput.handleInputChange(e.target.value)}
+      onFocus={amountInput.handleFocus}        // Clear formatting for editing
+      onBlur={amountInput.handleBlur}          // Apply formatting
+      error={!!amountInput.error}
+      helperText={amountInput.error}
+      placeholder={amountInput.placeholder}    // e.g., "0.00 USD"
+    />
+  );
+};
+```
+
+**Files to Study:**
+
+- `src/hooks/useAmountInput.ts` - Complete amount input state management
+- `src/hooks/useCurrencyFormatter.ts` - Currency formatting and parsing logic
+- `src/components/forms/TransactionForm.tsx` - Real implementation example
+- `src/components/ui/AdvancedSearch.tsx` - Min/max amount input example
 
 ## 🚀 Migration Guide
 
@@ -2467,6 +2529,50 @@ import { CategoryIcon } from '../components/ui';
 }
 ```
 
+#### 7. Currency Input Migration
+
+```typescript
+// OLD: Manual currency formatting and parsing
+const [amount, setAmount] = useState('');
+const [rawAmount, setRawAmount] = useState(0);
+
+const handleAmountChange = (value: string) => {
+  setAmount(value);
+  const parsed = parseFloat(value.replace(/[^0-9.]/g, ''));
+  setRawAmount(isNaN(parsed) ? 0 : parsed);
+};
+
+const formatAmount = (value: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(value);
+};
+
+// NEW: Currency-aware hooks with automatic formatting
+const amountInput = useAmountInput({
+  initialValue: editingTransaction?.amount || 0,
+  onAmountChange: (amount) => {
+    // Handle the raw amount change
+    console.log('Raw amount:', amount);
+  },
+  onError: (error) => {
+    // Handle validation errors
+    console.log('Error:', error);
+  },
+});
+
+// Usage in JSX
+<TextField
+  value={amountInput.displayAmount}      // Auto-formatted display
+  onChange={e => amountInput.handleInputChange(e.target.value)}
+  onFocus={amountInput.handleFocus}      // Clear formatting for editing
+  onBlur={amountInput.handleBlur}        // Apply formatting
+  error={!!amountInput.error}
+  helperText={amountInput.error}
+/>
+```
+
 ### Best Practices Summary
 
 **✅ DO:**
@@ -2500,6 +2606,7 @@ When updating or creating new features:
 - [ ] **Confirmations**: Use `ConfirmDialog` instead of browser confirms
 - [ ] **Icons**: Use `CategoryIcon` component and service with color schemes
 - [ ] **Translations**: Use `useLanguageContext()` and translation keys
+- [ ] **Currency Input**: Use `useAmountInput()` and `useCurrencyFormatter()` hooks
 - [ ] **CSS Architecture**: Separate component styles from shared patterns
 - [ ] **UI Patterns**: Use dialog-based forms for complex creation
 - [ ] **Button Styling**: Use soft, muted color schemes instead of bright colors

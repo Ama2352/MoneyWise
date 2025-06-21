@@ -8,6 +8,8 @@ export { useAuthentication } from './useAuth';
 export { useTranslations } from './useLanguage';
 export { useCurrency } from './useCurrency';
 export { useCurrencyDisplay } from './useCurrencyDisplay';
+export { useCurrencyFormatter } from './useCurrencyFormatter';
+export { useAmountInput } from './useAmountInput';
 export {
   useCategories,
   useCategory,

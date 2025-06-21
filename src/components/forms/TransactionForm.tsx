@@ -1,8 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { X, DollarSign, Calendar, Tag, Wallet } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  ToggleButton,
+  ToggleButtonGroup,
+  IconButton,
+  Box,
+  Stack,
+  Typography,
+  FormHelperText,
+  InputAdornment,
+} from '@mui/material';
+import {
+  Close,
+  TrendingUp,
+  TrendingDown,
+  MonetizationOn,
+  Description,
+  Label,
+  AccountBalanceWallet,
+} from '@mui/icons-material';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { useCategories, useWallets } from '../../hooks/useFinanceData';
-import { useLanguageContext } from '../../contexts';
-import { CategoryIcon, Button, Input } from '../ui';
+import { useAmountInput, useCurrencyFormatter } from '../../hooks';
+import { useLanguageContext, useCurrencyContext } from '../../contexts';
+import { CategoryIcon, Button, WalletBalance } from '../ui';
 import type { CreateTransactionRequest, Transaction } from '../../types';
 import './TransactionForm.css';
 
@@ -16,37 +48,87 @@ interface TransactionFormProps {
 export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
   ({ onSubmit, onCancel, isLoading = false, initialData }) => {
     const { t } = useLanguageContext();
+    const { currency, convertFromDisplay, convertAndFormat } =
+      useCurrencyContext();
+    const { parseAmountFromDisplay } = useCurrencyFormatter();
     const { categories, isLoading: categoriesLoading } = useCategories();
     const { wallets, isLoading: walletsLoading } = useWallets();
-    const [formData, setFormData] = useState<CreateTransactionRequest>({
+
+    // Convert initial date to dayjs if available
+    const initialDate = initialData?.transactionDate
+      ? dayjs(initialData.transactionDate)
+      : dayjs();
+
+    const [formData, setFormData] = useState<
+      Omit<CreateTransactionRequest, 'transactionDate'>
+    >({
       categoryId: initialData?.categoryId || '',
       walletId: initialData?.walletId || '',
       type: initialData?.type || 'expense',
       amount: initialData?.amount || 0,
       description: initialData?.description || '',
-      transactionDate: initialData?.transactionDate
-        ? new Date(initialData.transactionDate).toISOString().slice(0, 16)
-        : (() => {
-            // Get current local date and time in YYYY-MM-DDTHH:mm format
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day}T${hours}:${minutes}`;
-          })(),
     });
-
+    const [transactionDate, setTransactionDate] = useState<Dayjs>(initialDate);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Use the amount input hook for currency handling
+    const amountInput = useAmountInput({
+      initialValue: 0,
+      onAmountChange: (_rawValue: number) => {
+        // Clear amount error when user starts typing
+        if (errors.amount) {
+          setErrors(prev => ({ ...prev, amount: '' }));
+        }
+      },
+      onError: (error: string | null) => {
+        if (error) {
+          setErrors(prev => ({ ...prev, amount: error }));
+        } else {
+          setErrors(prev => ({ ...prev, amount: '' }));
+        }
+      },
+    });
+
+    // Initialize amount when editing - use a ref to track initialization
+    const initializationRef = useRef<number | null>(null);
+
+    useEffect(() => {
+      // Only initialize if we have initial data and haven't initialized this amount yet
+      if (
+        initialData?.amount &&
+        initializationRef.current !== initialData.amount
+      ) {
+        initializationRef.current = initialData.amount;
+
+        // Convert VND amount to display currency as a number
+        if (currency === 'vnd') {
+          // No conversion needed, amount is already in VND
+          amountInput.setAmount(initialData.amount);
+        } else {
+          // Convert VND to USD, extract the numeric value from formatted result
+          convertAndFormat(initialData.amount).then(formatted => {
+            // Extract the numeric value from the formatted string (e.g., "$123.45" -> 123.45)
+            const numericValue = parseAmountFromDisplay(formatted);
+            amountInput.setAmount(numericValue);
+          });
+        }
+      }
+    }, [
+      initialData?.amount,
+      currency,
+      convertAndFormat,
+      parseAmountFromDisplay,
+      amountInput.setAmount,
+    ]);
+
     const validateForm = (): boolean => {
       const newErrors: Record<string, string> = {};
 
       if (!formData.description.trim()) {
         newErrors.description = t('transactions.form.descriptionRequired');
       }
-      if (formData.amount <= 0) {
+      if (!amountInput.rawAmount || amountInput.rawAmount <= 0) {
         newErrors.amount = t('transactions.form.amountRequired');
       }
       if (!formData.categoryId) {
@@ -55,13 +137,14 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
       if (!formData.walletId) {
         newErrors.walletId = t('transactions.form.walletRequired');
       }
-      if (!formData.transactionDate) {
+      if (!transactionDate || !transactionDate.isValid()) {
         newErrors.transactionDate = t('transactions.form.dateRequired');
       }
 
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
     };
+
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
 
@@ -69,10 +152,14 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
 
       setIsSubmitting(true);
       try {
-        // Convert datetime-local format to backend format
+        // Convert display amount back to VND for storage
+        const amountInVnd = await convertFromDisplay(amountInput.rawAmount);
+
+        // Convert dayjs to backend format
         const submissionData: CreateTransactionRequest = {
           ...formData,
-          transactionDate: formData.transactionDate.replace('T', ' ') + ':00', // Convert to "YYYY-MM-DD HH:mm:ss"
+          amount: amountInVnd,
+          transactionDate: transactionDate.format('YYYY-MM-DD HH:mm:ss'),
         };
 
         await onSubmit(submissionData);
@@ -86,7 +173,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
     };
 
     const handleInputChange = (
-      field: keyof CreateTransactionRequest,
+      field: keyof Omit<CreateTransactionRequest, 'transactionDate'>,
       value: any
     ) => {
       setFormData(prev => ({ ...prev, [field]: value }));
@@ -95,188 +182,267 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
         setErrors(prev => ({ ...prev, [field]: '' }));
       }
     };
+    const handleDateChange = (newDate: Dayjs | null) => {
+      if (newDate) {
+        setTransactionDate(newDate);
+        // Clear date error when user selects a date
+        if (errors.transactionDate) {
+          setErrors(prev => ({ ...prev, transactionDate: '' }));
+        }
+      }
+    };
 
-    const selectedCategory = categories?.find(
-      cat => cat.categoryId === formData.categoryId
-    );
-
-    // Prevent background scroll when modal is open
-    useEffect(() => {
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = 'unset';
-      };
-    }, []);
-
+    // No need to prevent scroll since MUI Dialog handles this
     return (
-      <div
-        className="transaction-form-overlay"
-        onClick={e => e.target === e.currentTarget && onCancel()}
-      >
-        <div className="transaction-form-container">
-          <div className="transaction-form-header">
-            <h2 className="transaction-form-title">
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Dialog
+          open={true}
+          onClose={onCancel}
+          maxWidth="xs"
+          fullWidth
+          PaperProps={{
+            sx: { borderRadius: 2 },
+          }}
+        >
+          <DialogTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              pb: 1,
+            }}
+          >
+            <Typography variant="h6">
               {initialData
                 ? t('transactions.editTransaction')
                 : t('transactions.addTransaction')}
-            </h2>{' '}
-            <button
-              type="button"
+            </Typography>
+            <IconButton
               onClick={onCancel}
-              className="transaction-form-close"
               disabled={isLoading || isSubmitting}
+              size="small"
             >
-              <X size={20} />
-            </button>
-          </div>
+              <Close />
+            </IconButton>
+          </DialogTitle>
 
-          <form onSubmit={handleSubmit} className="transaction-form">
-            {/* Transaction Type */}
-            <div className="form-group">
-              <label className="form-label">
-                {t('transactions.form.type')}
-              </label>
-              <div className="transaction-type-selector">
-                <button
-                  type="button"
-                  className={`type-btn ${formData.type === 'income' ? 'type-btn--active type-btn--income' : ''}`}
-                  onClick={() => handleInputChange('type', 'income')}
-                  disabled={isLoading || isSubmitting}
-                >
-                  {t('transactions.income')}
-                </button>
-                <button
-                  type="button"
-                  className={`type-btn ${formData.type === 'expense' ? 'type-btn--active type-btn--expense' : ''}`}
-                  onClick={() => handleInputChange('type', 'expense')}
-                  disabled={isLoading || isSubmitting}
-                >
-                  {t('transactions.expense')}
-                </button>
-              </div>
-            </div>{' '}
-            {/* Amount */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="amount">
-                <DollarSign size={16} />
-                {t('transactions.form.amount')}
-              </label>
-              <Input
-                type="number"
-                value={formData.amount.toString()}
-                onChange={value =>
-                  handleInputChange('amount', parseFloat(value) || 0)
-                }
-                error={errors.amount}
-                placeholder="0.00"
-                disabled={isLoading || isSubmitting}
-                className="form-input"
-              />
-            </div>{' '}
-            {/* Description */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="description">
-                {t('transactions.form.description')}
-              </label>
-              <Input
-                type="text"
-                value={formData.description}
-                onChange={value => handleInputChange('description', value)}
-                error={errors.description}
-                placeholder={t('transactions.form.descriptionPlaceholder')}
-                disabled={isLoading || isSubmitting}
-                className="form-input"
-              />
-            </div>{' '}
-            {/* Category */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="category">
-                <Tag size={16} />
-                {t('transactions.form.category')}
-              </label>
-              <div className="category-field-wrapper">
-                <select
-                  id="category"
-                  value={formData.categoryId}
-                  onChange={e =>
-                    handleInputChange('categoryId', e.target.value)
-                  }
-                  className={`form-select ${errors.categoryId ? 'form-select--error' : ''}`}
-                  disabled={isLoading || isSubmitting || categoriesLoading}
-                >
-                  <option value="">
-                    {t('transactions.form.selectCategory')}
-                  </option>
-                  {categories?.map(category => (
-                    <option
-                      key={category.categoryId}
-                      value={category.categoryId}
+          <form onSubmit={handleSubmit}>
+            <DialogContent sx={{ pt: 2 }}>
+              <Stack spacing={2.5}>
+                {/* Transaction Type */}
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    {t('transactions.form.type')}
+                  </Typography>
+                  <ToggleButtonGroup
+                    value={formData.type}
+                    exclusive
+                    onChange={(_, value) =>
+                      value && handleInputChange('type', value)
+                    }
+                    fullWidth
+                    size="small"
+                  >
+                    <ToggleButton
+                      value="income"
+                      disabled={isLoading || isSubmitting}
+                      sx={{
+                        '&.Mui-selected': {
+                          backgroundColor: 'success.light',
+                          color: 'success.contrastText',
+                          '&:hover': {
+                            backgroundColor: 'success.main',
+                          },
+                        },
+                      }}
                     >
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                {selectedCategory && (
-                  <div className="category-icon-indicator">
-                    <CategoryIcon
-                      categoryName={selectedCategory.name}
-                      size={20}
-                      withWrapper={true}
-                      useColorScheme={true}
-                    />
-                  </div>
-                )}
-              </div>
-              {errors.categoryId && (
-                <span className="form-error">{errors.categoryId}</span>
-              )}
-            </div>
-            {/* Wallet */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="wallet">
-                <Wallet size={16} />
-                {t('transactions.form.wallet')}
-              </label>{' '}
-              <select
-                id="wallet"
-                value={formData.walletId}
-                onChange={e => handleInputChange('walletId', e.target.value)}
-                className={`form-select ${errors.walletId ? 'form-select--error' : ''}`}
-                disabled={isLoading || isSubmitting || walletsLoading}
-              >
-                <option value="">{t('transactions.form.selectWallet')}</option>
-                {wallets?.map(wallet => (
-                  <option key={wallet.walletId} value={wallet.walletId}>
-                    {wallet.walletName} (${wallet.balance.toFixed(2)})
-                  </option>
-                ))}
-              </select>
-              {errors.walletId && (
-                <span className="form-error">{errors.walletId}</span>
-              )}
-            </div>{' '}
-            {/* Date and Time */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="datetime">
-                <Calendar size={16} />
-                {t('transactions.form.dateTime')}
-              </label>
-              <input
-                type="datetime-local"
-                id="datetime"
-                value={formData.transactionDate}
-                onChange={e =>
-                  handleInputChange('transactionDate', e.target.value)
-                }
-                disabled={isLoading || isSubmitting}
-                className={`form-input ${errors.transactionDate ? 'form-input--error' : ''}`}
-              />
-              {errors.transactionDate && (
-                <span className="form-error">{errors.transactionDate}</span>
-              )}
-            </div>{' '}
-            {/* Form Actions */}
-            <div className="form-actions">
+                      <TrendingUp sx={{ mr: 1 }} />
+                      {t('transactions.income')}
+                    </ToggleButton>
+                    <ToggleButton
+                      value="expense"
+                      disabled={isLoading || isSubmitting}
+                      sx={{
+                        '&.Mui-selected': {
+                          backgroundColor: 'error.light',
+                          color: 'error.contrastText',
+                          '&:hover': {
+                            backgroundColor: 'error.main',
+                          },
+                        },
+                      }}
+                    >
+                      <TrendingDown sx={{ mr: 1 }} />
+                      {t('transactions.expense')}
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>{' '}
+                {/* Amount */}
+                <TextField
+                  label={`${t('transactions.form.amount')} (${currency.toUpperCase()})`}
+                  type="text"
+                  value={amountInput.displayAmount}
+                  onChange={e => amountInput.handleInputChange(e.target.value)}
+                  onFocus={amountInput.handleFocus}
+                  onBlur={amountInput.handleBlur}
+                  error={!!errors.amount}
+                  helperText={errors.amount}
+                  disabled={isLoading || isSubmitting}
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MonetizationOn />
+                      </InputAdornment>
+                    ),
+                  }}
+                  placeholder={amountInput.placeholder}
+                />
+                {/* Description */}
+                <TextField
+                  label={t('transactions.form.description')}
+                  value={formData.description}
+                  onChange={e =>
+                    handleInputChange('description', e.target.value)
+                  }
+                  error={!!errors.description}
+                  helperText={errors.description}
+                  disabled={isLoading || isSubmitting}
+                  fullWidth
+                  placeholder={t('transactions.form.descriptionPlaceholder')}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Description />
+                      </InputAdornment>
+                    ),
+                  }}
+                />{' '}
+                {/* Category */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <FormControl fullWidth error={!!errors.categoryId}>
+                    <InputLabel>{t('transactions.form.category')}</InputLabel>
+                    <Select
+                      value={formData.categoryId}
+                      label={t('transactions.form.category')}
+                      onChange={e =>
+                        handleInputChange('categoryId', e.target.value)
+                      }
+                      disabled={isLoading || isSubmitting || categoriesLoading}
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <Label />
+                        </InputAdornment>
+                      }
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 300,
+                          },
+                        },
+                      }}
+                    >
+                      <MenuItem value="">
+                        <em>{t('transactions.form.selectCategory')}</em>
+                      </MenuItem>{' '}
+                      {categories?.map(category => (
+                        <MenuItem
+                          key={category.categoryId}
+                          value={category.categoryId}
+                          sx={{ py: 0.5, minHeight: 36 }}
+                        >
+                          <Typography variant="body2">
+                            {category.name}
+                          </Typography>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.categoryId && (
+                      <FormHelperText>{errors.categoryId}</FormHelperText>
+                    )}
+                  </FormControl>
+
+                  {/* Selected Category Icon - positioned outside to the right */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      ml: 1,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {formData.categoryId &&
+                      categories?.find(
+                        cat => cat.categoryId === formData.categoryId
+                      ) && (
+                        <CategoryIcon
+                          categoryName={
+                            categories.find(
+                              cat => cat.categoryId === formData.categoryId
+                            )?.name || ''
+                          }
+                          size={24}
+                          withWrapper={true}
+                          useColorScheme={true}
+                        />
+                      )}
+                  </Box>
+                </Box>
+                {/* Wallet */}
+                <FormControl fullWidth error={!!errors.walletId}>
+                  <InputLabel>{t('transactions.form.wallet')}</InputLabel>
+                  <Select
+                    value={formData.walletId}
+                    label={t('transactions.form.wallet')}
+                    onChange={e =>
+                      handleInputChange('walletId', e.target.value)
+                    }
+                    disabled={isLoading || isSubmitting || walletsLoading}
+                    startAdornment={
+                      <InputAdornment position="start">
+                        <AccountBalanceWallet />
+                      </InputAdornment>
+                    }
+                  >
+                    {' '}
+                    <MenuItem value="">
+                      <em>{t('transactions.form.selectWallet')}</em>
+                    </MenuItem>
+                    {wallets?.map((wallet: any) => (
+                      <MenuItem key={wallet.walletId} value={wallet.walletId}>
+                        <Box>
+                          <Typography variant="body2">
+                            {wallet.walletName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            <WalletBalance balance={wallet.balance} />
+                          </Typography>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.walletId && (
+                    <FormHelperText>{errors.walletId}</FormHelperText>
+                  )}
+                </FormControl>
+                {/* Date and Time */}
+                <DateTimePicker
+                  label={t('transactions.form.dateTime')}
+                  value={transactionDate}
+                  onChange={handleDateChange}
+                  disabled={isLoading || isSubmitting}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!errors.transactionDate,
+                      helperText: errors.transactionDate,
+                    },
+                  }}
+                />
+              </Stack>
+            </DialogContent>
+
+            <DialogActions sx={{ px: 3, pb: 3 }}>
               <Button
                 type="button"
                 onClick={onCancel}
@@ -301,12 +467,12 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                     ? t('common.loading')
                     : initialData
                       ? t('common.update')
-                      : t('common.create')}{' '}
+                      : t('common.create')}
               </Button>
-            </div>
+            </DialogActions>
           </form>
-        </div>
-      </div>
+        </Dialog>
+      </LocalizationProvider>
     );
   }
 );

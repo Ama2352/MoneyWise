@@ -178,23 +178,10 @@ export const useTransactionMutations = () => {
     }
   };
 
-  const searchTransactions = async (params: SearchTransactionRequest) => {
-    try {
-      const results = await transactionApi.search(params);
-      return { success: true, data: results };
-    } catch (error: any) {
-      return {
-        success: false,
-        error:
-          error.response?.data?.message || t('errors.transactions.searchError'),
-      };
-    }
-  };
   return {
     createTransaction,
     updateTransaction,
     deleteTransaction,
-    searchTransactions,
   };
 };
 
@@ -332,5 +319,23 @@ export const useCashFlow = (
       startDate &&
       endDate &&
       mutate(SWR_KEYS.STATISTICS.CASH_FLOW(startDate, endDate)),
+  };
+};
+
+export const useTransactionSearch = (filters?: SearchTransactionRequest) => {
+  const cacheKey =
+    filters && Object.keys(filters).length > 0
+      ? `${SWR_KEYS.TRANSACTIONS.SEARCH}?${JSON.stringify(filters)}`
+      : null;
+
+  const { data, error, isLoading } = useSWR<Transaction[]>(cacheKey, () =>
+    transactionApi.search(filters!)
+  );
+
+  return {
+    transactions: data?.reverse() || [],
+    isLoading,
+    error,
+    refresh: () => cacheKey && mutate(cacheKey),
   };
 };

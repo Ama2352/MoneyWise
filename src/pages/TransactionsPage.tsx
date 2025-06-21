@@ -1,10 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
   Plus,
-  Search,
-  Filter,
-  Download,
-  Calendar,
   TrendingUp,
   ArrowUpCircle,
   ArrowDownCircle,
@@ -16,22 +12,57 @@ import {
   useCategories,
   useWallets,
   useCashFlow,
+  useTransactionSearch,
 } from '../hooks/useFinanceData';
 import { useLanguageContext, useToastContext } from '../contexts';
-import { Loading, ConfirmDialog, CurrencyAmount } from '../components/ui';
+import {
+  Loading,
+  ConfirmDialog,
+  CurrencyAmount,
+  AdvancedSearch,
+} from '../components/ui';
 import { TransactionForm } from '../components/forms/TransactionForm';
 import { TransactionItem } from '../components/TransactionItem';
-import type { Transaction, CreateTransactionRequest } from '../types';
+import type {
+  Transaction,
+  CreateTransactionRequest,
+  SearchTransactionRequest,
+} from '../types';
 import './TransactionsPage.css';
 
 const TransactionsPage: React.FC = () => {
   const { t } = useLanguageContext();
   const { showSuccess, showError } = useToastContext();
-  const { transactions, isLoading, error } = useTransactions();
+
+  // State for search filters
+  const [searchFilters, setSearchFilters] = useState<SearchTransactionRequest>(
+    {}
+  );
+
+  // Use search hook if filters are active, otherwise use regular transactions
+  const hasActiveFilters = Object.keys(searchFilters).length > 0;
+  const {
+    transactions: searchTransactions,
+    isLoading: searchLoading,
+    error: searchError,
+  } = useTransactionSearch(hasActiveFilters ? searchFilters : undefined);
+
+  const {
+    transactions: allTransactions,
+    isLoading: allLoading,
+    error: allError,
+  } = useTransactions();
+
+  // Use search results if we have active filters, otherwise use all transactions
+  const transactions = hasActiveFilters ? searchTransactions : allTransactions;
+  const isLoading = hasActiveFilters ? searchLoading : allLoading;
+  const error = hasActiveFilters ? searchError : allError;
+
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { wallets, isLoading: walletsLoading } = useWallets();
   const { createTransaction, updateTransaction, deleteTransaction } =
     useTransactionMutations();
+
   // Cash flow statistics from API (full-time data)
   const {
     cashFlow,
@@ -46,10 +77,6 @@ const TransactionsPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>(
-    'all'
-  );
   const [deleteConfirm, setDeleteConfirm] = useState<{
     show: boolean;
     transactionId?: string;
@@ -57,25 +84,11 @@ const TransactionsPage: React.FC = () => {
   }>({ show: false });
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-  // Filter transactions based on search and type (optimized with useMemo)
-  const filteredTransactions = useMemo(() => {
-    if (!transactions) return [];
-
-    return transactions.filter(transaction => {
-      const matchesSearch = transaction.description
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesType =
-        filterType === 'all' || transaction.type === filterType;
-      return matchesSearch && matchesType;
-    });
-  }, [transactions, searchTerm, filterType]);
-
   // Get visible transactions for display (only show limited number)
   const visibleTransactions = useMemo(() => {
-    return filteredTransactions.slice(0, visibleCount);
-  }, [filteredTransactions, visibleCount]);
-  // Calculate summary stats - Use API cash flow data with fallback to local calculation
+    if (!transactions) return [];
+    return transactions.slice(0, visibleCount);
+  }, [transactions, visibleCount]); // Calculate summary stats - Use API cash flow data with fallback to local calculation
   const { totalIncome, totalExpenses, netAmount } = useMemo(() => {
     // If cash flow data is available from API, use it
     if (cashFlow && !cashFlowLoading) {
@@ -86,36 +99,37 @@ const TransactionsPage: React.FC = () => {
       };
     }
 
-    // Fallback to local calculation from filtered transactions
-    const income = filteredTransactions
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0);
+    // Fallback to local calculation from current transactions
+    const income = (transactions || [])
+      .filter((t: Transaction) => t.type === 'income')
+      .reduce((sum: number, t: Transaction) => sum + t.amount, 0);
 
-    const expenses = filteredTransactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
+    const expenses = (transactions || [])
+      .filter((t: Transaction) => t.type === 'expense')
+      .reduce((sum: number, t: Transaction) => sum + t.amount, 0);
 
     return {
       totalIncome: income,
       totalExpenses: expenses,
       netAmount: income - expenses,
     };
-  }, [cashFlow, cashFlowLoading, filteredTransactions]);
+  }, [cashFlow, cashFlowLoading, transactions]);
 
-  const hasMoreTransactions = visibleCount < filteredTransactions.length;
+  const hasMoreTransactions = visibleCount < (transactions?.length || 0);
 
   const loadMoreTransactions = () => {
     setVisibleCount(prev => prev + LOAD_MORE_INCREMENT);
   };
 
-  // Reset visible count when search or filter changes
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
+  // Handle advanced search
+  const handleAdvancedSearch = (filters: SearchTransactionRequest) => {
+    setSearchFilters(filters);
     setVisibleCount(ITEMS_PER_PAGE);
   };
 
-  const handleFilterChange = (type: 'all' | 'income' | 'expense') => {
-    setFilterType(type);
+  // Handle clear search
+  const handleClearSearch = () => {
+    setSearchFilters({});
     setVisibleCount(ITEMS_PER_PAGE);
   };
   const handleCreateTransaction = async (data: CreateTransactionRequest) => {
@@ -223,12 +237,8 @@ const TransactionsPage: React.FC = () => {
         <div>
           <h1 className="page-title">{t('transactions.title')}</h1>
           <p className="page-subtitle">{t('transactions.subtitle')}</p>
-        </div>
+        </div>{' '}
         <div className="page-actions">
-          <button className="btn btn--secondary">
-            <Download size={18} />
-            {t('transactions.export')}
-          </button>
           <button
             className="btn btn--primary"
             onClick={() => setShowForm(true)}
@@ -293,55 +303,27 @@ const TransactionsPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-      {/* Filters */}
-      <div className="modern-dashboard__card">
-        <div className="transactions-filters">
-          <div className="filter-group">
-            <div className="search-input">
-              <Search size={20} />{' '}
-              <input
-                type="text"
-                placeholder={t('transactions.searchPlaceholder')}
-                value={searchTerm}
-                onChange={e => handleSearchChange(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="filter-group">
-            <button className="filter-btn">
-              <Calendar size={18} />
-              {t('transactions.dateRange')}
-            </button>
-            <button className="filter-btn">
-              <Filter size={18} />
-              {t('transactions.category')}
-            </button>{' '}
-            <select
-              value={filterType}
-              onChange={e => handleFilterChange(e.target.value as any)}
-              className="filter-select"
-            >
-              <option value="all">{t('transactions.allTypes')}</option>
-              <option value="income">{t('transactions.income')}</option>
-              <option value="expense">{t('transactions.expense')}</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      </div>{' '}
+      {/* Advanced Search */}
+      <AdvancedSearch
+        onSearch={handleAdvancedSearch}
+        onClear={handleClearSearch}
+        categories={categories || []}
+        wallets={wallets || []}
+        isLoading={categoriesLoading || walletsLoading}
+      />
       {/* Transactions List */}
       <div className="modern-dashboard__card">
         {' '}
         <div className="modern-dashboard__card-header">
+          {' '}
           <h2 className="modern-dashboard__card-title">
-            {t('transactions.recentTransactions')} (
-            {filteredTransactions.length})
+            {t('transactions.recentTransactions')} ({transactions?.length || 0})
           </h2>
-          {filteredTransactions.length > 0 && (
+          {(transactions?.length || 0) > 0 && (
             <p className="transaction-count-info">
               {t('common.showing')} {visibleTransactions.length}{' '}
-              {t('common.of')} {filteredTransactions.length}
+              {t('common.of')} {transactions?.length || 0}
             </p>
           )}
         </div>{' '}
@@ -352,7 +334,7 @@ const TransactionsPage: React.FC = () => {
           </div>
         ) : (
           <div className="transactions-list">
-            {filteredTransactions.length === 0 ? (
+            {(transactions?.length || 0) === 0 ? (
               <div className="transactions-empty">
                 <p>{t('transactions.noTransactions')}</p>
                 <button
@@ -392,7 +374,7 @@ const TransactionsPage: React.FC = () => {
                     >
                       <ChevronDown size={18} />
                       {t('transactions.loadMore')} (
-                      {filteredTransactions.length - visibleCount}{' '}
+                      {(transactions?.length || 0) - visibleCount}{' '}
                       {t('transactions.remaining')})
                     </button>
                   </div>

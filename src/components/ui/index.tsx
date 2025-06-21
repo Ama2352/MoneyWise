@@ -15,3 +15,5 @@ export { CurrencyAmount, CurrencyAmountWithSign } from './CurrencyAmount';
 export { default as PlaceholderPage } from './PlaceholderPage';
 export { ConfirmDialog } from './ConfirmDialog';
 export { CategoryIcon } from './CategoryIcon';
+export { default as AdvancedSearch } from './AdvancedSearch';
+export { WalletBalance } from './WalletBalance';

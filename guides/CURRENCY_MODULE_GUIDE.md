@@ -124,7 +124,70 @@ const MyComponent = () => {
     </div>
   );
 };
-````
+```
+
+### 5. Currency-Aware Input Fields
+
+For forms that need currency-aware amount inputs (like transaction forms or search filters), use the specialized hooks:
+
+```typescript
+import { useAmountInput, useCurrencyFormatter } from '../hooks';
+
+const TransactionForm = () => {
+  // Currency-aware amount input with validation and formatting
+  const amountInput = useAmountInput({
+    initialValue: 0,
+    onAmountChange: (rawValue) => console.log('Amount changed:', rawValue),
+    onError: (error) => console.log('Validation error:', error),
+  });
+
+  return (
+    <TextField
+      label={`Amount (${currency.toUpperCase()})`}
+      type="text"
+      value={amountInput.displayAmount}
+      onChange={e => amountInput.handleInputChange(e.target.value)}
+      onFocus={amountInput.handleFocus}
+      onBlur={amountInput.handleBlur}
+      placeholder={amountInput.placeholder}
+      error={!!errors.amount}
+      helperText={errors.amount}
+    />
+  );
+};
+```
+
+#### Currency Formatter Hook
+
+```typescript
+import { useCurrencyFormatter } from '../hooks';
+
+const MyComponent = () => {
+  const {
+    formatAmountForDisplay,
+    parseAmountFromDisplay,
+    getAmountPlaceholder,
+  } = useCurrencyFormatter();
+
+  // Format amount for display
+  const formatted = formatAmountForDisplay(1000); // "1.000₫" or "$10.00"
+
+  // Parse user input back to number
+  const rawValue = parseAmountFromDisplay("1.000₫"); // 1000
+
+  // Get placeholder for input
+  const placeholder = getAmountPlaceholder(); // "0₫" or "$0.00"
+};
+```
+
+#### Amount Input Features
+
+- **Currency-aware formatting**: Auto-formats based on selected currency (VND/USD)
+- **Natural typing experience**: No interference while typing, formats on blur
+- **Smart validation**: Real-time validation with user-friendly error messages
+- **Easy deletion**: Backspace and delete work naturally without cursor jumping
+- **Focus/blur behavior**: Shows raw numbers for editing, formatted display when done
+- **Placeholder support**: Dynamic placeholders based on currency selection`
 
 ## Architecture Overview
 
@@ -157,15 +220,18 @@ src/
 ├── components/
 │   ├── TransactionItem.tsx            # Domain component (uses CurrencyAmountWithSign)
 │   ├── forms/
-│   │   └── TransactionForm.tsx        # Form component (handles currency input)
+│   │   └── TransactionForm.tsx        # Form component (uses useAmountInput)
 │   └── ui/
+│       ├── AdvancedSearch.tsx         # Search component (uses useAmountInput)
 │       ├── CurrencyAmount.tsx         # Pure UI components for currency display
 │       └── CurrencySelector.tsx       # Pure UI component for currency selection
 ├── contexts/
 │   └── CurrencyContext.tsx            # Context provider for currency state
 ├── hooks/
 │   ├── useCurrency.ts                 # Basic currency operations
-│   └── useCurrencyDisplay.ts          # Display hook for conversion
+│   ├── useCurrencyDisplay.ts          # Display hook for conversion
+│   ├── useCurrencyFormatter.ts        # NEW: Formatting and parsing utilities
+│   └── useAmountInput.ts              # NEW: Currency-aware input management
 ├── services/
 │   └── currencyService.ts             # Business logic and API calls
 ├── constants/
@@ -555,3 +621,4 @@ console.log('Display amount:', displayAmount, 'Error:', error);
 ---
 
 **For questions or support, refer to the main development team or check the component implementations in the codebase.**
+````
