@@ -40,7 +40,7 @@ const navigationItems: NavigationItem[] = [
     label: 'Transactions',
     icon: ArrowUpDown,
     path: ROUTES.TRANSACTIONS,
-    badge: '24',
+    badge: '',
   },
   {
     id: 'wallets',

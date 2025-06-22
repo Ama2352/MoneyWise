@@ -15,7 +15,7 @@ const httpClient: AxiosInstance = axios.create({
   headers: DEFAULT_HEADERS,
 });
 
-// Request interceptor - Add auth token to requests
+// Request interceptor - Add auth token and language header to requests
 httpClient.interceptors.request.use(
   config => {
     // Get token from localStorage
@@ -23,6 +23,19 @@ httpClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Add current app language to Accept-Language header
+    const currentLanguage = localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'en';
+    config.headers['Accept-Language'] = currentLanguage;
+
+    // // Log Accept-Language header being sent
+    // console.log('🌐 [HTTP] Sending Accept-Language:', {
+    //   url: config.url,
+    //   method: config.method?.toUpperCase(),
+    //   acceptLanguage: currentLanguage,
+    //   storageValue: localStorage.getItem(STORAGE_KEYS.LANGUAGE),
+    //   fallbackUsed: !localStorage.getItem(STORAGE_KEYS.LANGUAGE),
+    // });
 
     return config;
   },
