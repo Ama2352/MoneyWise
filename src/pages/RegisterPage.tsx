@@ -20,7 +20,7 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const { register, isLoading } = useAuthContext();
   const { showSuccess, showError } = useToastContext();
-  const { t } = useLanguageContext();
+  const { translations } = useLanguageContext();
   const [formData, setFormData] = useState<RegisterFormData>({
     firstName: '',
     lastName: '',
@@ -45,38 +45,37 @@ const RegisterPage = () => {
   };
   const validateForm = (): boolean => {
     const newErrors: Partial<RegisterFormData> = {};
-
     if (!validateRequired(formData.firstName)) {
-      newErrors.firstName = t('validation.firstNameRequired');
+      newErrors.firstName = translations.validation.firstNameRequired;
     }
 
     if (!validateRequired(formData.lastName)) {
-      newErrors.lastName = t('validation.lastNameRequired');
+      newErrors.lastName = translations.validation.lastNameRequired;
     }
 
     if (!validateRequired(formData.email)) {
-      newErrors.email = t('validation.emailRequired');
+      newErrors.email = translations.validation.emailRequired;
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = t('validation.emailInvalid');
+      newErrors.email = translations.validation.emailInvalid;
     }
 
     if (!validateRequired(formData.password)) {
-      newErrors.password = t('validation.passwordRequired');
+      newErrors.password = translations.validation.passwordRequired;
     } else {
       const passwordValidation = validatePassword(formData.password);
       if (!passwordValidation.isValid) {
         // Map the first error to appropriate translation key
         const firstError = passwordValidation.errors[0];
         if (firstError.includes('6 characters')) {
-          newErrors.password = t('validation.passwordTooShort');
+          newErrors.password = translations.validation.passwordTooShort;
         } else if (firstError.includes('uppercase')) {
-          newErrors.password = t('validation.passwordMissingUppercase');
+          newErrors.password = translations.validation.passwordMissingUppercase;
         } else if (firstError.includes('lowercase')) {
-          newErrors.password = t('validation.passwordMissingLowercase');
+          newErrors.password = translations.validation.passwordMissingLowercase;
         } else if (firstError.includes('number')) {
-          newErrors.password = t('validation.passwordMissingNumber');
+          newErrors.password = translations.validation.passwordMissingNumber;
         } else if (firstError.includes('special')) {
-          newErrors.password = t('validation.passwordMissingSpecial');
+          newErrors.password = translations.validation.passwordMissingSpecial;
         } else {
           newErrors.password = firstError; // Fallback to original error
         }
@@ -84,9 +83,10 @@ const RegisterPage = () => {
     }
 
     if (!validateRequired(formData.confirmPassword)) {
-      newErrors.confirmPassword = t('validation.confirmPasswordRequired');
+      newErrors.confirmPassword =
+        translations.validation.confirmPasswordRequired;
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = t('validation.passwordsNotMatch');
+      newErrors.confirmPassword = translations.validation.passwordsNotMatch;
     }
 
     setErrors(newErrors);
@@ -109,17 +109,17 @@ const RegisterPage = () => {
       });
       if (result.success) {
         // Registration successful, show toast and then navigate
-        showSuccess(t('auth.registerSuccess'));
+        showSuccess(translations.auth.registerSuccess);
         // Add a small delay to ensure toast is displayed and state is updated
         setTimeout(() => {
           navigate(ROUTES.LOGIN, { replace: true });
         }, 100);
       } else {
-        showError(result.error || t('auth.registerFailed'));
+        showError(result.error || translations.auth.registerFailed);
       }
     } catch (error) {
       console.error('Registration error:', error);
-      showError(t('auth.registerFailed'));
+      showError(translations.auth.registerFailed);
     }
   };
   return (
@@ -129,13 +129,15 @@ const RegisterPage = () => {
         {' '}
         <div className="auth-form-container">
           <div className="auth-brand">
-            <div className="auth-brand-icon">💰</div>
-            <h1 className="auth-brand-title">{t('app.title')}</h1>
+            <div className="auth-brand-icon">💰</div>{' '}
+            <h1 className="auth-brand-title">{translations.app.title}</h1>
           </div>
 
           <div className="auth-header">
-            <h2 className="auth-title">{t('auth.registerTitle')}</h2>
-            <p className="auth-subtitle">{t('auth.registerSubtitle')}</p>
+            <h2 className="auth-title">{translations.auth.registerTitle}</h2>
+            <p className="auth-subtitle">
+              {translations.auth.registerSubtitle}
+            </p>
           </div>
 
           <Card className="auth-card">
@@ -146,7 +148,7 @@ const RegisterPage = () => {
                   {' '}
                   <Input
                     type="text"
-                    placeholder={t('auth.firstNamePlaceholder')}
+                    placeholder={translations.auth.firstNamePlaceholder}
                     value={formData.firstName}
                     onChange={(value: string) =>
                       handleInputChange('firstName', value)
@@ -172,7 +174,7 @@ const RegisterPage = () => {
                   {' '}
                   <Input
                     type="text"
-                    placeholder={t('auth.lastNamePlaceholder')}
+                    placeholder={translations.auth.lastNamePlaceholder}
                     value={formData.lastName}
                     onChange={(value: string) =>
                       handleInputChange('lastName', value)
@@ -199,7 +201,7 @@ const RegisterPage = () => {
                 {' '}
                 <Input
                   type="email"
-                  placeholder={t('auth.emailAddressPlaceholder')}
+                  placeholder={translations.auth.emailAddressPlaceholder}
                   value={formData.email}
                   onChange={(value: string) =>
                     handleInputChange('email', value)
@@ -225,7 +227,7 @@ const RegisterPage = () => {
                 {' '}
                 <Input
                   type="password"
-                  placeholder={t('auth.passwordPlaceholder')}
+                  placeholder={translations.auth.passwordPlaceholder}
                   value={formData.password}
                   onChange={(value: string) =>
                     handleInputChange('password', value)
@@ -253,7 +255,7 @@ const RegisterPage = () => {
                 {' '}
                 <Input
                   type="password"
-                  placeholder={t('auth.confirmPasswordPlaceholder')}
+                  placeholder={translations.auth.confirmPasswordPlaceholder}
                   value={formData.confirmPassword}
                   onChange={(value: string) =>
                     handleInputChange('confirmPassword', value)
@@ -285,14 +287,17 @@ const RegisterPage = () => {
                   disabled={isLoading}
                   className="auth-submit-btn"
                 >
-                  {isLoading ? t('auth.registering') : t('auth.registerButton')}
+                  {isLoading
+                    ? translations.auth.registering
+                    : translations.auth.registerButton}
                 </Button>
               </div>{' '}
               <div className="auth-footer">
                 <p className="auth-switch">
-                  {t('auth.hasAccount')}{' '}
+                  {' '}
+                  {translations.auth.hasAccount}{' '}
                   <Link to={ROUTES.LOGIN} className="auth-link">
-                    {t('auth.signIn')}
+                    {translations.auth.signIn}
                   </Link>
                 </p>
               </div>

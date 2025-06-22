@@ -2,6 +2,7 @@ import React from 'react';
 import { Edit3, Trash2, MoreHorizontal } from 'lucide-react';
 import { useLanguageContext } from '../contexts';
 import { CategoryIcon, CurrencyAmountWithSign } from './ui';
+import { formatDateForLanguage } from '../utils/dateUtils';
 import type { Transaction, Category, Wallet } from '../types';
 
 interface TransactionItemProps {
@@ -24,7 +25,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = React.memo(
     categoriesLoading,
     walletsLoading,
   }) => {
-    const { t } = useLanguageContext();
+    const { translations, language } = useLanguageContext();
 
     return (
       <div className="transaction-item">
@@ -46,18 +47,18 @@ export const TransactionItem: React.FC<TransactionItemProps> = React.memo(
           <div className="transaction-meta">
             <span className="transaction-category">
               {categoriesLoading
-                ? t('common.loading')
-                : category?.name || t('transactions.unknownCategory')}
+                ? translations.common.loading
+                : category?.name || translations.transactions.unknownCategory}
             </span>
             <span className="transaction-separator">•</span>
             <span className="transaction-wallet">
               {walletsLoading
-                ? t('common.loading')
-                : wallet?.walletName || t('transactions.unknownWallet')}
+                ? translations.common.loading
+                : wallet?.walletName || translations.transactions.unknownWallet}
             </span>
             <span className="transaction-separator">•</span>
             <span className="transaction-date">
-              {new Date(transaction.transactionDate).toLocaleDateString()}
+              {formatDateForLanguage(transaction.transactionDate, language)}
             </span>{' '}
           </div>
         </div>
@@ -77,14 +78,14 @@ export const TransactionItem: React.FC<TransactionItemProps> = React.memo(
           <button
             className="action-btn"
             onClick={() => onEdit(transaction)}
-            title={t('common.edit')}
+            title={translations.common.edit}
           >
             <Edit3 size={16} />
           </button>
           <button
             className="action-btn action-btn--danger"
             onClick={() => onDelete(transaction)}
-            title={t('common.delete')}
+            title={translations.common.delete}
           >
             <Trash2 size={16} />
           </button>

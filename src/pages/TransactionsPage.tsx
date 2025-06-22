@@ -76,7 +76,7 @@ TransactionList.displayName = 'TransactionList';
 
 // Memoized component to prevent unnecessary re-renders
 const TransactionsPage: React.FC = memo(() => {
-  const { t } = useLanguageContext();
+  const { translations } = useLanguageContext();
   const { showSuccess, showError } = useToastContext();
 
   // State for search filters
@@ -186,19 +186,19 @@ const TransactionsPage: React.FC = memo(() => {
         if (result.success) {
           setShowForm(false);
           refreshTransactions(); // Refresh transactions to update statistics
-          showSuccess(t('transactions.notifications.createSuccess'));
+          showSuccess(translations.transactions.notifications.createSuccess);
         } else {
           console.error('Transaction creation failed:', result.error);
           showError(
-            result.error || t('transactions.notifications.createError')
+            result.error || translations.transactions.notifications.createError
           );
         }
       } catch (error) {
         console.error('Error creating transaction:', error);
-        showError(t('transactions.notifications.createError'));
+        showError(translations.transactions.notifications.createError);
       }
     },
-    [createTransaction, refreshTransactions, showSuccess, showError, t]
+    [createTransaction, refreshTransactions, showSuccess, showError]
   );
 
   const handleUpdateTransaction = useCallback(
@@ -216,15 +216,15 @@ const TransactionsPage: React.FC = memo(() => {
           setEditingTransaction(null);
           setShowForm(false);
           refreshTransactions(); // Refresh transactions to update statistics
-          showSuccess(t('transactions.notifications.updateSuccess'));
+          showSuccess(translations.transactions.notifications.updateSuccess);
         } else {
           showError(
-            result.error || t('transactions.notifications.updateError')
+            result.error || translations.transactions.notifications.updateError
           );
         }
       } catch (error) {
         console.error('Error updating transaction:', error);
-        showError(t('transactions.notifications.updateError'));
+        showError(translations.transactions.notifications.updateError);
       }
     },
     [
@@ -233,7 +233,6 @@ const TransactionsPage: React.FC = memo(() => {
       refreshTransactions,
       showSuccess,
       showError,
-      t,
     ]
   );
 
@@ -244,13 +243,15 @@ const TransactionsPage: React.FC = memo(() => {
       const result = await deleteTransaction(deleteConfirm.transactionId);
       if (result.success) {
         refreshTransactions(); // Refresh transactions to update statistics
-        showSuccess(t('transactions.notifications.deleteSuccess'));
+        showSuccess(translations.transactions.notifications.deleteSuccess);
       } else {
-        showError(result.error || t('transactions.notifications.deleteError'));
+        showError(
+          result.error || translations.transactions.notifications.deleteError
+        );
       }
     } catch (error) {
       console.error('Error deleting transaction:', error);
-      showError(t('transactions.notifications.deleteError'));
+      showError(translations.transactions.notifications.deleteError);
     } finally {
       setDeleteConfirm({ show: false });
     }
@@ -260,7 +261,6 @@ const TransactionsPage: React.FC = memo(() => {
     refreshTransactions,
     showSuccess,
     showError,
-    t,
   ]); // Memoize helper functions to prevent recreation on every render
   const getCategoryById = useCallback(
     (categoryId: string) => {
@@ -316,11 +316,12 @@ const TransactionsPage: React.FC = memo(() => {
     return (
       <div className="page-container">
         <div className="page-header">
-          <h1 className="page-title">{t('transactions.title')}</h1>
+          {' '}
+          <h1 className="page-title">{translations.transactions.title}</h1>
         </div>
         <div className="transactions-loading">
           <Loading />
-          <p>{t('common.loading')}</p>
+          <p>{translations.common.loading}</p>
         </div>
       </div>
     );
@@ -331,8 +332,9 @@ const TransactionsPage: React.FC = memo(() => {
       {/* Page Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">{t('transactions.title')}</h1>
-          <p className="page-subtitle">{t('transactions.subtitle')}</p>
+          {' '}
+          <h1 className="page-title">{translations.transactions.title}</h1>
+          <p className="page-subtitle">{translations.transactions.subtitle}</p>
         </div>{' '}
         <div className="page-actions">
           <button
@@ -340,7 +342,7 @@ const TransactionsPage: React.FC = memo(() => {
             onClick={() => setShowForm(true)}
           >
             <Plus size={18} />
-            {t('transactions.addTransaction')}
+            {translations.transactions.addTransaction}
           </button>
         </div>
       </div>
@@ -353,8 +355,9 @@ const TransactionsPage: React.FC = memo(() => {
             </div>
           </div>
           <div className="modern-dashboard__stat-content">
+            {' '}
             <h3 className="modern-dashboard__stat-title">
-              {t('transactions.totalIncome')}
+              {translations.transactions.totalIncome}
             </h3>{' '}
             <div className="modern-dashboard__stat-value">
               <CurrencyAmount amountInVnd={totalIncome} />
@@ -370,7 +373,7 @@ const TransactionsPage: React.FC = memo(() => {
           </div>
           <div className="modern-dashboard__stat-content">
             <h3 className="modern-dashboard__stat-title">
-              {t('transactions.totalExpenses')}
+              {translations.transactions.totalExpenses}
             </h3>{' '}
             <div className="modern-dashboard__stat-value">
               <CurrencyAmount amountInVnd={totalExpenses} />
@@ -392,7 +395,7 @@ const TransactionsPage: React.FC = memo(() => {
           </div>
           <div className="modern-dashboard__stat-content">
             <h3 className="modern-dashboard__stat-title">
-              {t('transactions.netAmount')}
+              {translations.transactions.netAmount}
             </h3>{' '}
             <div className="modern-dashboard__stat-value">
               <CurrencyAmount amountInVnd={netAmount} />
@@ -414,31 +417,34 @@ const TransactionsPage: React.FC = memo(() => {
         <div className="modern-dashboard__card-header">
           {' '}
           <h2 className="modern-dashboard__card-title">
-            {t('transactions.recentTransactions')} ({stableTransactions.length})
+            {' '}
+            {translations.transactions.recentTransactions} (
+            {stableTransactions.length})
           </h2>
           {stableTransactions.length > 0 && (
             <p className="transaction-count-info">
-              {t('common.showing')} {visibleTransactions.length}{' '}
-              {t('common.of')} {stableTransactions.length}
+              {translations.common.showing} {visibleTransactions.length}{' '}
+              {translations.common.of} {stableTransactions.length}
             </p>
           )}
         </div>{' '}
         {isLoading ? (
           <div className="transactions-loading">
             <Loading />
-            <p>{t('common.loading')}</p>
+            <p>{translations.common.loading}</p>
           </div>
         ) : (
           <div className="transactions-list">
             {stableTransactions.length === 0 ? (
               <div className="transactions-empty">
-                <p>{t('transactions.noTransactions')}</p>
+                {' '}
+                <p>{translations.transactions.noTransactions}</p>
                 <button
                   className="btn btn--primary"
                   onClick={() => setShowForm(true)}
                 >
                   <Plus size={18} />
-                  {t('transactions.addFirstTransaction')}
+                  {translations.transactions.addFirstTransaction}
                 </button>
               </div>
             ) : (
@@ -459,10 +465,10 @@ const TransactionsPage: React.FC = memo(() => {
                       className="btn btn--secondary load-more-btn"
                       onClick={loadMoreTransactions}
                     >
-                      <ChevronDown size={18} />
-                      {t('transactions.loadMore')} (
+                      <ChevronDown size={18} />{' '}
+                      {translations.transactions.loadMore} (
                       {stableTransactions.length - visibleCount}{' '}
-                      {t('transactions.remaining')})
+                      {translations.transactions.remaining})
                     </button>
                   </div>
                 )}
@@ -487,10 +493,10 @@ const TransactionsPage: React.FC = memo(() => {
       {/* Delete Confirmation Dialog */}{' '}
       <ConfirmDialog
         isOpen={deleteConfirm.show}
-        title={t('transactions.deleteConfirmTitle')}
-        message={`${t('transactions.deleteConfirmMessage')} "${deleteConfirm.description || ''}"`}
-        confirmText={t('common.delete')}
-        cancelText={t('common.cancel')}
+        title={translations.transactions.deleteConfirmTitle}
+        message={`${translations.transactions.deleteConfirmMessage} "${deleteConfirm.description || ''}"`}
+        confirmText={translations.common.delete}
+        cancelText={translations.common.cancel}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteConfirm({ show: false })}
         type="danger"

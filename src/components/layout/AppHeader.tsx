@@ -27,7 +27,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
-  const { language, setLanguage, t } = useLanguageContext();
+  const { language, setLanguage, translations } = useLanguageContext();
   const { logout } = useAuthContext();
 
   // Close dropdowns when clicking outside
@@ -69,11 +69,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
           <Search size={18} className="app-header__search-icon" />{' '}
           <input
             type="text"
-            placeholder={
-              t
-                ? t('common.searchPlaceholder')
-                : 'Search transactions, categories...'
-            }
+            placeholder={translations.common.searchPlaceholder}
             className="app-header__search-input"
           />
           <kbd className="app-header__search-kbd">âŒ˜K</kbd>
@@ -91,10 +87,11 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
         </button>{' '}
         {/* Language selector */}
         <div className="app-header__language">
+          {' '}
           <button
             className="app-header__language-trigger"
             onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-            aria-label={t ? t('language.switchTo') : 'Change language'}
+            aria-label={translations.language.switchTo}
           >
             {' '}
             <div className="app-header__language-display">
@@ -116,9 +113,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
                 <Globe
                   size={16}
                   className="app-header__language-dropdown-icon"
-                />
+                />{' '}
                 <span className="app-header__language-dropdown-title">
-                  {t ? t('language.selectLanguage') : 'Select Language'}
+                  {translations.language.selectLanguage}
                 </span>
               </div>
               <div className="app-header__language-options">
@@ -207,15 +204,15 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
               <div className="app-header__dropdown-section">
                 <button className="app-header__dropdown-item">
                   <User size={16} />
-                  <span>{t ? t('common.profile') : 'Profile'}</span>
+                  <span>{translations.common.profile}</span>
                 </button>
                 <button className="app-header__dropdown-item">
                   <Settings size={16} />
-                  <span>{t ? t('common.settings') : 'Settings'}</span>
+                  <span>{translations.common.settings}</span>
                 </button>
                 <button className="app-header__dropdown-item">
                   <HelpCircle size={16} />
-                  <span>{t ? t('common.helpSupport') : 'Help & Support'}</span>
+                  <span>{translations.common.helpSupport}</span>
                 </button>
               </div>
               <div className="app-header__dropdown-section">
@@ -224,7 +221,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
                   onClick={() => logout(true)}
                 >
                   <LogOut size={16} />
-                  <span>{t ? t('common.signOut') : 'Sign Out'}</span>
+                  <span>{translations.common.signOut}</span>
                 </button>
               </div>
             </div>

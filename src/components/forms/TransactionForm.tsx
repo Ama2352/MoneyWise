@@ -47,7 +47,7 @@ interface TransactionFormProps {
 
 export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
   ({ onSubmit, onCancel, isLoading = false, initialData }) => {
-    const { t } = useLanguageContext();
+    const { translations } = useLanguageContext();
     const { currency, convertFromDisplay, convertAndFormat } =
       useCurrencyContext();
     const { parseAmountFromDisplay } = useCurrencyFormatter();
@@ -124,21 +124,21 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
 
     const validateForm = (): boolean => {
       const newErrors: Record<string, string> = {};
-
       if (!formData.description.trim()) {
-        newErrors.description = t('transactions.form.descriptionRequired');
+        newErrors.description =
+          translations.transactions.form.descriptionRequired;
       }
       if (!amountInput.rawAmount || amountInput.rawAmount <= 0) {
-        newErrors.amount = t('transactions.form.amountRequired');
+        newErrors.amount = translations.transactions.form.amountRequired;
       }
       if (!formData.categoryId) {
-        newErrors.categoryId = t('transactions.form.categoryRequired');
+        newErrors.categoryId = translations.transactions.form.categoryRequired;
       }
       if (!formData.walletId) {
-        newErrors.walletId = t('transactions.form.walletRequired');
+        newErrors.walletId = translations.transactions.form.walletRequired;
       }
       if (!transactionDate || !transactionDate.isValid()) {
-        newErrors.transactionDate = t('transactions.form.dateRequired');
+        newErrors.transactionDate = translations.transactions.form.dateRequired;
       }
 
       setErrors(newErrors);
@@ -212,10 +212,11 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
               pb: 1,
             }}
           >
+            {' '}
             <Typography variant="h6">
               {initialData
-                ? t('transactions.editTransaction')
-                : t('transactions.addTransaction')}
+                ? translations.transactions.editTransaction
+                : translations.transactions.addTransaction}
             </Typography>
             <IconButton
               onClick={onCancel}
@@ -231,8 +232,9 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
               <Stack spacing={2.5}>
                 {/* Transaction Type */}
                 <Box>
+                  {' '}
                   <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                    {t('transactions.form.type')}
+                    {translations.transactions.form.type}
                   </Typography>
                   <ToggleButtonGroup
                     value={formData.type}
@@ -257,7 +259,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                       }}
                     >
                       <TrendingUp sx={{ mr: 1 }} />
-                      {t('transactions.income')}
+                      {translations.transactions.income}
                     </ToggleButton>
                     <ToggleButton
                       value="expense"
@@ -273,13 +275,13 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                       }}
                     >
                       <TrendingDown sx={{ mr: 1 }} />
-                      {t('transactions.expense')}
+                      {translations.transactions.expense}
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Box>{' '}
-                {/* Amount */}
+                {/* Amount */}{' '}
                 <TextField
-                  label={`${t('transactions.form.amount')} (${currency.toUpperCase()})`}
+                  label={`${translations.transactions.form.amount} (${currency.toUpperCase()})`}
                   type="text"
                   value={amountInput.displayAmount}
                   onChange={e => amountInput.handleInputChange(e.target.value)}
@@ -300,7 +302,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                 />
                 {/* Description */}
                 <TextField
-                  label={t('transactions.form.description')}
+                  label={translations.transactions.form.description}
                   value={formData.description}
                   onChange={e =>
                     handleInputChange('description', e.target.value)
@@ -309,7 +311,9 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                   helperText={errors.description}
                   disabled={isLoading || isSubmitting}
                   fullWidth
-                  placeholder={t('transactions.form.descriptionPlaceholder')}
+                  placeholder={
+                    translations.transactions.form.descriptionPlaceholder
+                  }
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -320,11 +324,14 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                 />{' '}
                 {/* Category */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {' '}
                   <FormControl fullWidth error={!!errors.categoryId}>
-                    <InputLabel>{t('transactions.form.category')}</InputLabel>
+                    <InputLabel>
+                      {translations.transactions.form.category}
+                    </InputLabel>
                     <Select
                       value={formData.categoryId}
-                      label={t('transactions.form.category')}
+                      label={translations.transactions.form.category}
                       onChange={e =>
                         handleInputChange('categoryId', e.target.value)
                       }
@@ -343,7 +350,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                       }}
                     >
                       <MenuItem value="">
-                        <em>{t('transactions.form.selectCategory')}</em>
+                        <em>{translations.transactions.form.selectCategory}</em>
                       </MenuItem>{' '}
                       {categories?.map(category => (
                         <MenuItem
@@ -361,7 +368,6 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                       <FormHelperText>{errors.categoryId}</FormHelperText>
                     )}
                   </FormControl>
-
                   {/* Selected Category Icon - positioned outside to the right */}
                   <Box
                     sx={{
@@ -388,12 +394,14 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                       )}
                   </Box>
                 </Box>
-                {/* Wallet */}
+                {/* Wallet */}{' '}
                 <FormControl fullWidth error={!!errors.walletId}>
-                  <InputLabel>{t('transactions.form.wallet')}</InputLabel>
+                  <InputLabel>
+                    {translations.transactions.form.wallet}
+                  </InputLabel>
                   <Select
                     value={formData.walletId}
-                    label={t('transactions.form.wallet')}
+                    label={translations.transactions.form.wallet}
                     onChange={e =>
                       handleInputChange('walletId', e.target.value)
                     }
@@ -406,7 +414,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                   >
                     {' '}
                     <MenuItem value="">
-                      <em>{t('transactions.form.selectWallet')}</em>
+                      <em>{translations.transactions.form.selectWallet}</em>
                     </MenuItem>
                     {wallets?.map((wallet: any) => (
                       <MenuItem key={wallet.walletId} value={wallet.walletId}>
@@ -425,9 +433,9 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                     <FormHelperText>{errors.walletId}</FormHelperText>
                   )}
                 </FormControl>
-                {/* Date and Time */}
+                {/* Date and Time */}{' '}
                 <DateTimePicker
-                  label={t('transactions.form.dateTime')}
+                  label={translations.transactions.form.dateTime}
                   value={transactionDate}
                   onChange={handleDateChange}
                   disabled={isLoading || isSubmitting}
@@ -443,13 +451,14 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
             </DialogContent>
 
             <DialogActions sx={{ px: 3, pb: 3 }}>
+              {' '}
               <Button
                 type="button"
                 onClick={onCancel}
                 variant="secondary"
                 disabled={isLoading || isSubmitting}
               >
-                {t('common.cancel')}
+                {translations.common.cancel}
               </Button>
               <Button
                 type="submit"
@@ -462,12 +471,12 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                 }
               >
                 {isSubmitting
-                  ? t('common.loading')
+                  ? translations.common.loading
                   : isLoading
-                    ? t('common.loading')
+                    ? translations.common.loading
                     : initialData
-                      ? t('common.update')
-                      : t('common.create')}
+                      ? translations.common.update
+                      : translations.common.create}
               </Button>
             </DialogActions>
           </form>

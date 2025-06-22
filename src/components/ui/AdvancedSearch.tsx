@@ -52,7 +52,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   wallets,
   isLoading = false,
 }) => {
-  const { t } = useLanguageContext();
+  const { translations } = useLanguageContext();
   const { currency, convertFromDisplay } = useCurrencyContext();
   const [expanded, setExpanded] = useState(false);
   const [filters, setFilters] = useState<SearchTransactionRequest>({});
@@ -175,9 +175,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
             onClick={() => setExpanded(!expanded)}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FilterList color="primary" />
+              <FilterList color="primary" />{' '}
               <Typography variant="h6" color="primary">
-                {t('transactions.advancedSearch')}
+                {translations.transactions.advancedSearch}
               </Typography>
               {hasActiveFilters() && (
                 <Chip
@@ -200,10 +200,10 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                 <TextField
                   fullWidth
                   size="small"
-                  label={t('transactions.keyword')}
+                  label={translations.transactions.keyword}
                   value={filters.keywords || ''}
                   onChange={e => handleFilterChange('keywords', e.target.value)}
-                  placeholder={t('transactions.keywordPlaceholder')}
+                  placeholder={translations.transactions.keywordPlaceholder}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -213,10 +213,10 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   }}
                 />{' '}
                 <FormControl fullWidth size="small">
-                  <InputLabel>{t('transactions.type')}</InputLabel>
+                  <InputLabel>{translations.transactions.type}</InputLabel>
                   <Select
                     value={filters.type || ''}
-                    label={t('transactions.type')}
+                    label={translations.transactions.type}
                     onChange={e => handleFilterChange('type', e.target.value)}
                     startAdornment={
                       <InputAdornment position="start">
@@ -241,21 +241,21 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                     }}
                   >
                     <MenuItem value="">
-                      <em>{t('common.all')}</em>
+                      <em>{translations.common.all}</em>
                     </MenuItem>
                     <MenuItem value="income">
-                      {t('transactions.income')}
+                      {translations.transactions.income}
                     </MenuItem>
                     <MenuItem value="expense">
-                      {t('transactions.expense')}
+                      {translations.transactions.expense}
                     </MenuItem>
                   </Select>
                 </FormControl>{' '}
                 <FormControl fullWidth size="small">
-                  <InputLabel>{t('transactions.category')}</InputLabel>
+                  <InputLabel>{translations.transactions.category}</InputLabel>
                   <Select
                     value={filters.categoryName || ''}
-                    label={t('transactions.category')}
+                    label={translations.transactions.category}
                     onChange={e =>
                       handleFilterChange('categoryName', e.target.value)
                     }
@@ -281,8 +281,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                       },
                     }}
                   >
+                    {' '}
                     <MenuItem value="">
-                      <em>{t('common.allCategories')}</em>
+                      <em>{translations.common.allCategories}</em>
                     </MenuItem>
                     {categories.map(category => (
                       <MenuItem key={category.categoryId} value={category.name}>
@@ -294,8 +295,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
               </Stack>{' '}
               {/* Row 2: Start Date, End Date, and Wallet */}
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                {' '}
                 <DatePicker
-                  label={t('transactions.startDate')}
+                  label={translations.transactions.startDate}
                   value={startDate}
                   onChange={setStartDate}
                   slotProps={{
@@ -330,9 +332,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                       ],
                     },
                   }}
-                />
+                />{' '}
                 <DatePicker
-                  label={t('transactions.endDate')}
+                  label={translations.transactions.endDate}
                   value={endDate}
                   onChange={setEndDate}
                   minDate={startDate || undefined}
@@ -370,10 +372,10 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   }}
                 />{' '}
                 <FormControl fullWidth size="small">
-                  <InputLabel>{t('transactions.wallet')}</InputLabel>
+                  <InputLabel>{translations.transactions.wallet}</InputLabel>
                   <Select
                     value={filters.walletName || ''}
-                    label={t('transactions.wallet')}
+                    label={translations.transactions.wallet}
                     onChange={e =>
                       handleFilterChange('walletName', e.target.value)
                     }
@@ -399,8 +401,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                       },
                     }}
                   >
+                    {' '}
                     <MenuItem value="">
-                      <em>{t('common.allWallets')}</em>
+                      <em>{translations.common.allWallets}</em>
                     </MenuItem>
                     {wallets.map(wallet => (
                       <MenuItem key={wallet.walletId} value={wallet.walletName}>
@@ -416,7 +419,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                 <TextField
                   fullWidth
                   size="small"
-                  label={`${t('transactions.minAmount')} (${currency.toUpperCase()})`}
+                  label={`${translations.transactions.minAmount} (${currency.toUpperCase()})`}
                   type="text"
                   value={minAmountInput.displayAmount}
                   onChange={e =>
@@ -436,7 +439,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                 <TextField
                   fullWidth
                   size="small"
-                  label={`${t('transactions.maxAmount')} (${currency.toUpperCase()})`}
+                  label={`${translations.transactions.maxAmount} (${currency.toUpperCase()})`}
                   type="text"
                   value={maxAmountInput.displayAmount}
                   onChange={e =>
@@ -454,10 +457,10 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   }}
                 />{' '}
                 <FormControl fullWidth size="small">
-                  <InputLabel>{t('transactions.dayOfWeek')}</InputLabel>
+                  <InputLabel>{translations.transactions.dayOfWeek}</InputLabel>
                   <Select
                     value={filters.dayOfWeek || ''}
-                    label={t('transactions.dayOfWeek')}
+                    label={translations.transactions.dayOfWeek}
                     onChange={e =>
                       handleFilterChange('dayOfWeek', e.target.value)
                     }
@@ -483,12 +486,17 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                       },
                     }}
                   >
+                    {' '}
                     <MenuItem value="">
-                      <em>{t('common.anyDay')}</em>
-                    </MenuItem>
+                      <em>{translations.common.anyDay}</em>
+                    </MenuItem>{' '}
                     {daysOfWeek.map(day => (
                       <MenuItem key={day} value={day}>
-                        {t(`common.days.${day.toLowerCase()}`)}
+                        {
+                          translations.common.days[
+                            day.toLowerCase() as keyof typeof translations.common.days
+                          ]
+                        }
                       </MenuItem>
                     ))}
                   </Select>
@@ -496,8 +504,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
               </Stack>{' '}
               {/* Row 4: Start Time and End Time (2 columns) */}
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                {' '}
                 <MobileTimePicker
-                  label={t('transactions.startTime')}
+                  label={translations.transactions.startTime}
                   value={startTime}
                   onChange={setStartTime}
                   ampm={false}
@@ -508,9 +517,8 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                     },
                   }}
                 />
-
                 <MobileTimePicker
-                  label={t('transactions.endTime')}
+                  label={translations.transactions.endTime}
                   value={endTime}
                   onChange={setEndTime}
                   minTime={startTime || undefined}
@@ -522,7 +530,6 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                     },
                   }}
                 />
-
                 {/* Empty box to balance the row */}
                 <Box
                   sx={{ display: { xs: 'none', md: 'block' }, width: '100%' }}
@@ -537,6 +544,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   pt: 1,
                 }}
               >
+                {' '}
                 <Button
                   variant="outlined"
                   size="small"
@@ -544,7 +552,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   onClick={handleClear}
                   disabled={!hasActiveFilters() || isLoading}
                 >
-                  {t('common.clear')}
+                  {translations.common.clear}
                 </Button>
                 <Button
                   variant="contained"
@@ -553,7 +561,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   onClick={handleSearch}
                   disabled={isLoading}
                 >
-                  {t('common.search')}
+                  {translations.common.search}
                 </Button>
               </Box>
             </Stack>

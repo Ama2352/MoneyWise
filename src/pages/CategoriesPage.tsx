@@ -14,6 +14,7 @@ import {
   CategoryIcon,
   ConfirmDialog,
 } from '../components/ui';
+import { formatDateForLanguage } from '../utils/dateUtils';
 import '../styles/pages.css';
 import './CategoriesPage.css';
 
@@ -22,7 +23,7 @@ export const CategoriesPage: React.FC = () => {
   const { createCategory, updateCategory, deleteCategory } =
     useCategoryMutations();
   const { suggestions } = useCategoryIcon();
-  const { t } = useLanguageContext();
+  const { translations, language } = useLanguageContext();
   const { showSuccess, showError } = useToastContext();
 
   const [isCreating, setIsCreating] = useState(false);
@@ -47,11 +48,11 @@ export const CategoriesPage: React.FC = () => {
     if (result.success) {
       setFormData({ name: '' });
       setShowCreateDialog(false); // Close dialog on success
-      showSuccess(t('categories.notifications.categoryCreated'));
+      showSuccess(translations.categories.notifications.categoryCreated);
       // SWR automatically refreshes the list
     } else {
       showError(
-        `${t('categories.notifications.createError')}: ${result.error}`
+        `${translations.categories.notifications.createError}: ${result.error}`
       );
     }
     setIsCreating(false);
@@ -66,11 +67,11 @@ export const CategoriesPage: React.FC = () => {
     });
     if (result.success) {
       setEditingId(null);
-      showSuccess(t('categories.notifications.categoryUpdated'));
+      showSuccess(translations.categories.notifications.categoryUpdated);
       // SWR automatically refreshes the data
     } else {
       showError(
-        `${t('categories.notifications.updateError')}: ${result.error}`
+        `${translations.categories.notifications.updateError}: ${result.error}`
       );
     }
   };
@@ -93,18 +94,18 @@ export const CategoriesPage: React.FC = () => {
       categoryId === 'null' ||
       categoryId === 'NaN'
     ) {
-      showError(t('categories.invalidCategoryId'));
+      showError(translations.categories.invalidCategoryId);
       setConfirmDialog({ isOpen: false, categoryId: '', categoryName: '' });
       return;
     }
 
     const result = await deleteCategory(categoryId);
     if (result.success) {
-      showSuccess(t('categories.notifications.categoryDeleted'));
+      showSuccess(translations.categories.notifications.categoryDeleted);
       // SWR automatically refreshes the list
     } else {
       showError(
-        `${t('categories.notifications.deleteError')}: ${result.error}`
+        `${translations.categories.notifications.deleteError}: ${result.error}`
       );
     }
 
@@ -123,9 +124,10 @@ export const CategoriesPage: React.FC = () => {
         {' '}
         <Card>
           <div className="error-state">
-            <h3>{t('categories.errorLoad')}</h3>
+            {' '}
+            <h3>{translations.categories.errorLoad}</h3>
             <p>{error.message}</p>
-            <Button onClick={refresh}>{t('categories.retry')}</Button>
+            <Button onClick={refresh}>{translations.categories.retry}</Button>
           </div>
         </Card>
       </div>
@@ -135,15 +137,16 @@ export const CategoriesPage: React.FC = () => {
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1 className="page-title">{t('categories.title')}</h1>
-          <p className="page-subtitle">{t('categories.subtitle')}</p>
+          {' '}
+          <h1 className="page-title">{translations.categories.title}</h1>
+          <p className="page-subtitle">{translations.categories.subtitle}</p>
         </div>
         <div className="page-actions">
           <button
             className="btn btn--primary"
             onClick={() => setShowCreateDialog(true)}
           >
-            {t('categories.addNewCategory')}
+            {translations.categories.addNewCategory}
           </button>
         </div>
       </div>{' '}
@@ -161,8 +164,9 @@ export const CategoriesPage: React.FC = () => {
           <div className="dialog-content">
             <div className="dialog-header">
               <div>
-                <h2>{t('categories.addNewCategory')}</h2>
-                <p>{t('categories.createDescription')}</p>
+                {' '}
+                <h2>{translations.categories.addNewCategory}</h2>
+                <p>{translations.categories.createDescription}</p>
               </div>
               <button
                 className="dialog-close"
@@ -180,11 +184,27 @@ export const CategoriesPage: React.FC = () => {
                 {/* Icon Examples */}
                 <div className="icon-examples">
                   <p className="examples-title">
-                    {t('categories.examplesTitle')}
-                  </p>
+                    {translations.categories.examplesTitle}
+                  </p>{' '}
                   <div className="example-tags">
                     {suggestions.map(({ translationKey }) => {
-                      const translatedName = t(translationKey);
+                      // Parse the translation key path (e.g., 'categories.suggestions.foodDining')
+                      const keyParts = translationKey.split('.');
+                      let translatedName = translationKey; // fallback
+
+                      // Navigate the nested translation object
+                      if (
+                        keyParts.length === 3 &&
+                        keyParts[0] === 'categories' &&
+                        keyParts[1] === 'suggestions'
+                      ) {
+                        const suggestionKey =
+                          keyParts[2] as keyof typeof translations.categories.suggestions;
+                        translatedName =
+                          translations.categories.suggestions[suggestionKey] ||
+                          translationKey;
+                      }
+
                       return (
                         <span
                           key={translationKey}
@@ -200,11 +220,13 @@ export const CategoriesPage: React.FC = () => {
                 <div className="input-group">
                   <Input
                     type="text"
-                    placeholder={t('categories.categoryNamePlaceholder')}
+                    placeholder={
+                      translations.categories.categoryNamePlaceholder
+                    }
                     value={formData.name}
                     onChange={value => setFormData({ name: value })}
                     disabled={isCreating}
-                    label={t('categories.categoryName')}
+                    label={translations.categories.categoryName}
                   />
                 </div>{' '}
                 <div className="form-bottom">
@@ -219,7 +241,7 @@ export const CategoriesPage: React.FC = () => {
                         wrapperClassName="preview-icon-wrapper"
                       />
                       <span className="preview-text">
-                        {t('categories.iconPreview')}
+                        {translations.categories.iconPreview}
                       </span>
                     </div>
                   )}
@@ -230,8 +252,8 @@ export const CategoriesPage: React.FC = () => {
                       className="primary-btn"
                     >
                       {isCreating
-                        ? t('categories.creating')
-                        : t('categories.createButton')}
+                        ? translations.categories.creating
+                        : translations.categories.createButton}
                     </Button>
                   </div>
                 </div>
@@ -245,16 +267,17 @@ export const CategoriesPage: React.FC = () => {
         <div className="card">
           <div className="card-header">
             <div>
-              <h2>{t('categories.yourCategories')}</h2>
+              {' '}
+              <h2>{translations.categories.yourCategories}</h2>
               <p className="category-count">
                 {categories?.length || 0}{' '}
                 {categories?.length === 1
-                  ? t('categories.categoryCount')
-                  : t('categories.categoriesCount')}
+                  ? translations.categories.categoryCount
+                  : translations.categories.categoriesCount}
               </p>
             </div>
             <button onClick={refresh} className="btn btn--secondary">
-              {t('categories.refresh')}
+              {translations.categories.refresh}
             </button>
           </div>
 
@@ -276,9 +299,9 @@ export const CategoriesPage: React.FC = () => {
             </div>
           ) : (
             <div className="empty-state">
-              <div className="empty-icon">📁</div>
-              <h3>{t('categories.noCategoriesTitle')}</h3>{' '}
-              <p>{t('categories.noCategoriesDescription')}</p>
+              <div className="empty-icon">📁</div>{' '}
+              <h3>{translations.categories.noCategoriesTitle}</h3>{' '}
+              <p>{translations.categories.noCategoriesDescription}</p>
             </div>
           )}
         </div>
@@ -286,10 +309,10 @@ export const CategoriesPage: React.FC = () => {
       {/* Confirmation Dialog */}
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
-        title={t('categories.confirmDelete.title')}
-        message={`${t('categories.confirmDelete.message')} "${confirmDialog.categoryName}"`}
-        confirmText={t('categories.confirmDelete.confirm')}
-        cancelText={t('categories.confirmDelete.cancel')}
+        title={translations.categories.confirmDelete.title}
+        message={`${translations.categories.confirmDelete.message} "${confirmDialog.categoryName}"`}
+        confirmText={translations.categories.confirmDelete.confirm}
+        cancelText={translations.categories.confirmDelete.cancel}
         type="danger"
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
@@ -316,7 +339,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   onDelete,
 }) => {
   const [editName, setEditName] = useState(category.name);
-  const { t } = useLanguageContext();
+  const { translations, language } = useLanguageContext();
 
   const handleSave = () => {
     onUpdate(editName);
@@ -326,13 +349,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     setEditName(category.name);
     onCancelEdit();
   };
-
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return formatDateForLanguage(dateString, language);
   };
 
   return (
@@ -344,7 +362,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
             <Input
               value={editName}
               onChange={value => setEditName(value)}
-              placeholder={t('categories.categoryName')}
+              placeholder={translations.categories.categoryName}
             />
             <div className="edit-actions">
               {' '}
@@ -353,10 +371,11 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
                 disabled={!editName.trim()}
                 className="save-btn"
               >
-                {t('categories.save')}
+                {' '}
+                {translations.categories.save}
               </Button>
               <Button onClick={handleCancel} className="cancel-btn">
-                {t('categories.cancel')}
+                {translations.categories.cancel}
               </Button>
             </div>
           </div>
@@ -374,16 +393,18 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
               <div className="category-info">
                 <h3 className="category-name">{category.name}</h3>{' '}
                 <p className="category-date">
-                  {t('categories.createdOn')} {formatDate(category.createdAt)}
+                  {translations.categories.createdOn}{' '}
+                  {formatDate(category.createdAt)}
                 </p>
               </div>
             </div>{' '}
             <div className="category-actions">
               <Button onClick={onEdit} className="edit-btn">
-                {t('categories.edit')}
+                {' '}
+                {translations.categories.edit}
               </Button>
               <Button onClick={onDelete} className="delete-btn">
-                {t('categories.delete')}
+                {translations.categories.delete}
               </Button>
             </div>
           </div>

@@ -13,7 +13,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { currency, setCurrency } = useCurrencyContext();
-  const { t } = useLanguageContext();
+  const { translations } = useLanguageContext();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -35,10 +35,11 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
 
   return (
     <div className={`currency-selector ${className}`}>
+      {' '}
       <button
         className="currency-selector__trigger"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        aria-label={t ? t('currency.switchTo') : 'Change currency'}
+        aria-label={translations.currency.switchTo}
       >
         <div className="currency-selector__display">
           <span className="currency-selector__code">
@@ -52,7 +53,6 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
           }`}
         />
       </button>
-
       {/* Currency dropdown menu */}
       {isDropdownOpen && (
         <div className="currency-selector__dropdown">
@@ -62,7 +62,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
               className="currency-selector__dropdown-icon"
             />{' '}
             <span className="currency-selector__dropdown-title">
-              {t ? t('currency.selectCurrency') : 'Select Currency'}
+              {translations.currency.selectCurrency}
             </span>
           </div>
           <div className="currency-selector__options">

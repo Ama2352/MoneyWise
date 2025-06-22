@@ -7,9 +7,12 @@ import {
   TrendingUp,
   MoreHorizontal,
 } from 'lucide-react';
+import { useLanguageContext } from '../contexts';
 import '../styles/pages.css';
 
 const WalletsPage: React.FC = () => {
+  const { translations } = useLanguageContext();
+
   const wallets = [
     {
       id: 1,
@@ -45,6 +48,7 @@ const WalletsPage: React.FC = () => {
 
   return (
     <div className="page-container">
+      {' '}
       <div className="page-header">
         <div>
           <h1 className="page-title">Wallets & Accounts</h1>
@@ -55,11 +59,10 @@ const WalletsPage: React.FC = () => {
         <div className="page-actions">
           <button className="btn btn--primary">
             <Plus size={18} />
-            Add Wallet
+            {translations.common.add}
           </button>
         </div>
       </div>
-
       <div className="page-content">
         <div className="wallets-grid">
           {wallets.map(wallet => {
@@ -101,9 +104,10 @@ const WalletsPage: React.FC = () => {
                 </div>
 
                 <div className="wallet-actions">
+                  {' '}
                   <button className="wallet-action-btn">
                     <TrendingUp size={16} />
-                    View Details
+                    {translations.common.view} Details
                   </button>
                 </div>
               </div>

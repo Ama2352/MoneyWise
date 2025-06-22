@@ -26,7 +26,7 @@ import {
 } from '../types/finance';
 
 export const useWalletMutations = () => {
-  const { t } = useLanguageContext();
+  const { translations } = useLanguageContext();
 
   const createWallet = async (data: CreateWalletRequest) => {
     try {
@@ -36,7 +36,7 @@ export const useWalletMutations = () => {
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.message || t('errors.wallets.createError'),
+        error: error.response?.data?.message || translations.errors.unexpected,
       };
     }
   };
@@ -49,7 +49,7 @@ export const useWalletMutations = () => {
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.message || t('errors.wallets.updateError'),
+        error: error.response?.data?.message || translations.errors.unexpected,
       };
     }
   };
@@ -62,7 +62,7 @@ export const useWalletMutations = () => {
     } catch (error: any) {
       return {
         success: false,
-        error: error.response?.data?.message || t('errors.wallets.deleteError'),
+        error: error.response?.data?.message || translations.errors.unexpected,
       };
     }
   };
@@ -154,7 +154,7 @@ export const useTransaction = (transactionId: string | null) => {
 };
 
 export const useTransactionMutations = () => {
-  const { t } = useLanguageContext();
+  const { translations } = useLanguageContext();
 
   const createTransaction = async (data: CreateTransactionRequest) => {
     try {
@@ -165,7 +165,8 @@ export const useTransactionMutations = () => {
       return {
         success: false,
         error:
-          error.response?.data?.message || t('errors.transactions.createError'),
+          error.response?.data?.message ||
+          translations.errors.transactions.createError,
       };
     }
   };
@@ -179,7 +180,8 @@ export const useTransactionMutations = () => {
       return {
         success: false,
         error:
-          error.response?.data?.message || t('errors.transactions.updateError'),
+          error.response?.data?.message ||
+          translations.errors.transactions.updateError,
       };
     }
   };
@@ -193,7 +195,8 @@ export const useTransactionMutations = () => {
       return {
         success: false,
         error:
-          error.response?.data?.message || t('errors.transactions.deleteError'),
+          error.response?.data?.message ||
+          translations.errors.transactions.deleteError,
       };
     }
   };
@@ -253,7 +256,7 @@ export const useCategory = (categoryId: string | null) => {
  * Automatically refreshes SWR cache after mutations
  */
 export const useCategoryMutations = () => {
-  const { t } = useLanguageContext();
+  const { translations } = useLanguageContext();
 
   const createCategory = async (data: CreateCategoryRequest) => {
     try {
@@ -268,7 +271,7 @@ export const useCategoryMutations = () => {
         success: false,
         error:
           error.response?.data?.message ||
-          t('category.notifications.createError'),
+          translations.categories.notifications.createError,
       };
     }
   };
@@ -286,7 +289,7 @@ export const useCategoryMutations = () => {
         success: false,
         error:
           error.response?.data?.message ||
-          t('category.notifications.updateError'),
+          translations.categories.notifications.updateError,
       };
     }
   };
@@ -303,7 +306,7 @@ export const useCategoryMutations = () => {
         success: false,
         error:
           error.response?.data?.message ||
-          t('category.notifications.deleteError'),
+          translations.categories.notifications.deleteError,
       };
     }
   };

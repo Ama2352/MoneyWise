@@ -653,6 +653,7 @@ export const getCategoryIcon = (categoryName: string): LucideIcon => {
 
 /**
  * Get all available category suggestions with their icons and translation keys
+ * Note: Only includes suggestions that have corresponding translations defined
  *
  * @returns Array of category suggestions with translation keys
  */
@@ -677,18 +678,6 @@ export const getCategorySuggestions = (): Array<{
     { translationKey: 'categories.suggestions.savings', icon: PiggyBank },
     { translationKey: 'categories.suggestions.bills', icon: Building2 },
     { translationKey: 'categories.suggestions.maintenance', icon: Wrench },
-    { translationKey: 'categories.suggestions.electronics', icon: Smartphone },
-    { translationKey: 'categories.suggestions.sports', icon: Trophy },
-    { translationKey: 'categories.suggestions.automotive', icon: Car },
-    { translationKey: 'categories.suggestions.beauty', icon: Sparkles },
-    { translationKey: 'categories.suggestions.gaming', icon: Gamepad2 },
-    { translationKey: 'categories.suggestions.business', icon: Briefcase },
-    { translationKey: 'categories.suggestions.finance', icon: Banknote },
-    { translationKey: 'categories.suggestions.social', icon: Users },
-    { translationKey: 'categories.suggestions.art', icon: Palette },
-    { translationKey: 'categories.suggestions.photography', icon: Camera },
-    { translationKey: 'categories.suggestions.tools', icon: Settings },
-    { translationKey: 'categories.suggestions.pets', icon: PawPrint },
   ];
 };
 

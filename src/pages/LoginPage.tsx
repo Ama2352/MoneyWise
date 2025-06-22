@@ -12,7 +12,7 @@ import './LoginPage.css';
 const LoginPage = () => {
   const { login, isLoading } = useAuthContext();
   const { showError } = useToastContext();
-  const { t } = useLanguageContext();
+  const { translations } = useLanguageContext();
 
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -35,17 +35,16 @@ const LoginPage = () => {
   };
   const validateForm = (): boolean => {
     const newErrors: Partial<LoginFormData> = {};
-
     if (!validateRequired(formData.email)) {
-      newErrors.email = t('validation.emailRequired');
+      newErrors.email = translations.validation.emailRequired;
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = t('validation.emailInvalid');
+      newErrors.email = translations.validation.emailInvalid;
     }
 
     if (!validateRequired(formData.password)) {
-      newErrors.password = t('validation.passwordRequired');
+      newErrors.password = translations.validation.passwordRequired;
     } else if (formData.password.length < 6) {
-      newErrors.password = t('validation.passwordTooShort');
+      newErrors.password = translations.validation.passwordTooShort;
     }
 
     setErrors(newErrors);
@@ -65,14 +64,14 @@ const LoginPage = () => {
       });
       if (result.success) {
         // Store success message for dashboard to show
-        sessionStorage.setItem('loginSuccess', t('auth.loginSuccess'));
+        sessionStorage.setItem('loginSuccess', translations.auth.loginSuccess);
         // React Router will handle navigation automatically when isAuthenticated becomes true
       } else {
-        showError(result.error || t('auth.loginFailed'));
+        showError(result.error || translations.auth.loginFailed);
       }
     } catch (error) {
       console.error('Login error:', error);
-      showError(t('auth.loginFailed'));
+      showError(translations.auth.loginFailed);
     }
   };
   return (
@@ -83,11 +82,11 @@ const LoginPage = () => {
           {' '}
           <div className="auth-brand">
             <div className="auth-brand-icon">💰</div>
-            <h1 className="auth-brand-title">{t('app.title')}</h1>
+            <h1 className="auth-brand-title">{translations.app.title}</h1>
           </div>
           <div className="auth-header">
-            <h2 className="auth-title">{t('auth.loginTitle')}</h2>
-            <p className="auth-subtitle">{t('auth.loginSubtitle')}</p>
+            <h2 className="auth-title">{translations.auth.loginTitle}</h2>
+            <p className="auth-subtitle">{translations.auth.loginSubtitle}</p>
           </div>
           <Card className="auth-card">
             <form onSubmit={handleSubmit} className="auth-form" noValidate>
@@ -96,7 +95,7 @@ const LoginPage = () => {
                 {' '}
                 <Input
                   type="email"
-                  placeholder={t('auth.emailPlaceholder')}
+                  placeholder={translations.auth.emailPlaceholder}
                   value={formData.email}
                   onChange={(value: string) =>
                     handleInputChange('email', value)
@@ -122,7 +121,7 @@ const LoginPage = () => {
                 {' '}
                 <Input
                   type="password"
-                  placeholder={t('auth.passwordPlaceholder')}
+                  placeholder={translations.auth.passwordPlaceholder}
                   value={formData.password}
                   onChange={(value: string) =>
                     handleInputChange('password', value)
@@ -154,14 +153,16 @@ const LoginPage = () => {
                   disabled={isLoading}
                   className="auth-submit-btn"
                 >
-                  {isLoading ? t('auth.loggingIn') : t('auth.loginButton')}
+                  {isLoading
+                    ? translations.auth.loggingIn
+                    : translations.auth.loginButton}
                 </Button>
               </div>{' '}
               <div className="auth-footer">
                 <p className="auth-switch">
-                  {t('auth.noAccount')}{' '}
+                  {translations.auth.noAccount}{' '}
                   <Link to={ROUTES.REGISTER} className="auth-link">
-                    {t('auth.signUp')}
+                    {translations.auth.signUp}
                   </Link>
                 </p>
               </div>
