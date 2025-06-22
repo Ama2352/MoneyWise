@@ -5,9 +5,6 @@ import {
   DollarSign,
   PiggyBank,
   Target,
-  ArrowUpRight,
-  ArrowDownRight,
-  MoreHorizontal,
   Plus,
   Calendar,
   Filter,
@@ -15,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useCurrencyContext } from '../contexts';
 import { useToastContext } from '../contexts';
+import { StatCard } from '../components/ui';
 import { formatCurrency } from '../utils/formatUtils';
 import './ModernDashboard.css';
 
@@ -31,43 +29,42 @@ const ModernDashboard: React.FC = () => {
       sessionStorage.removeItem('loginSuccess');
     }
   }, [showSuccess]);
-
   const stats = [
     {
       id: 'balance',
       title: 'Total Balance',
       value: formatCurrency(24680420, currency), // 24,680,420 VND or $24,680.42 USD
       change: '+12.5%',
-      trend: 'up',
+      trend: 'up' as const,
       icon: DollarSign,
-      color: 'primary',
+      color: 'primary' as const,
     },
     {
       id: 'income',
       title: 'Monthly Income',
       value: formatCurrency(8240000, currency), // 8,240,000 VND or $8,240 USD
       change: '+8.2%',
-      trend: 'up',
+      trend: 'up' as const,
       icon: TrendingUp,
-      color: 'success',
+      color: 'success' as const,
     },
     {
       id: 'expenses',
       title: 'Monthly Expenses',
       value: formatCurrency(3567890, currency), // 3,567,890 VND or $3,567.89 USD
       change: '-3.1%',
-      trend: 'down',
+      trend: 'down' as const,
       icon: TrendingDown,
-      color: 'error',
+      color: 'error' as const,
     },
     {
       id: 'savings',
       title: 'Total Savings',
       value: formatCurrency(12450670, currency), // 12,450,670 VND or $12,450.67 USD
       change: '+15.3%',
-      trend: 'up',
+      trend: 'up' as const,
       icon: PiggyBank,
-      color: 'info',
+      color: 'info' as const,
     },
   ];
 
@@ -175,44 +172,21 @@ const ModernDashboard: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
-
+      </div>{' '}
       {/* Stats Grid */}
       <div className="modern-dashboard__stats">
-        {stats.map(stat => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.id}
-              className={`modern-dashboard__stat-card modern-dashboard__stat-card--${stat.color}`}
-            >
-              <div className="modern-dashboard__stat-header">
-                <div className="modern-dashboard__stat-icon">
-                  <Icon size={24} />
-                </div>
-                <button className="modern-dashboard__stat-menu">
-                  <MoreHorizontal size={16} />
-                </button>
-              </div>
-              <div className="modern-dashboard__stat-content">
-                <h3 className="modern-dashboard__stat-title">{stat.title}</h3>
-                <div className="modern-dashboard__stat-value">{stat.value}</div>
-                <div
-                  className={`modern-dashboard__stat-change modern-dashboard__stat-change--${stat.trend}`}
-                >
-                  {stat.trend === 'up' ? (
-                    <ArrowUpRight size={16} />
-                  ) : (
-                    <ArrowDownRight size={16} />
-                  )}
-                  <span>{stat.change} from last month</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {stats.map(stat => (
+          <StatCard
+            key={stat.id}
+            title={stat.title}
+            value={stat.value}
+            change={stat.change}
+            trend={stat.trend}
+            icon={stat.icon}
+            color={stat.color}
+          />
+        ))}
       </div>
-
       {/* Main Content Grid */}
       <div className="modern-dashboard__content">
         {/* Chart Section */}
@@ -358,7 +332,6 @@ const ModernDashboard: React.FC = () => {
           </div>
         </div>
       </div>
-
       {/* Quick Actions */}
       <div className="modern-dashboard__quick-actions">
         <div className="modern-dashboard__card">

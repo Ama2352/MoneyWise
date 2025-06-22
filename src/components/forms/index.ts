@@ -3,3 +3,4 @@
  */
 
 export { TransactionForm } from './TransactionForm';
+export * from './AuthInput';

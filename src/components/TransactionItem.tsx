@@ -2,7 +2,7 @@ import React from 'react';
 import { Edit3, Trash2, MoreHorizontal } from 'lucide-react';
 import { useLanguageContext } from '../contexts';
 import { CategoryIcon, CurrencyAmountWithSign } from './ui';
-import { formatDateForLanguage } from '../utils/dateUtils';
+import { useDateFormatter } from '../hooks/useDateFormatter';
 import type { Transaction, Category, Wallet } from '../types';
 
 interface TransactionItemProps {
@@ -25,7 +25,8 @@ export const TransactionItem: React.FC<TransactionItemProps> = React.memo(
     categoriesLoading,
     walletsLoading,
   }) => {
-    const { translations, language } = useLanguageContext();
+    const { translations } = useLanguageContext();
+    const { formatDate } = useDateFormatter();
 
     return (
       <div className="transaction-item">
@@ -58,7 +59,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = React.memo(
             </span>
             <span className="transaction-separator">•</span>
             <span className="transaction-date">
-              {formatDateForLanguage(transaction.transactionDate, language)}
+              {formatDate(transaction.transactionDate)}
             </span>{' '}
           </div>
         </div>

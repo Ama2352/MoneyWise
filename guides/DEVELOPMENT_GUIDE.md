@@ -10,9 +10,10 @@ A comprehensive guide for building features in the MoneyWise React + TypeScript 
 - [🛣️ Routing Architecture](#️-routing-architecture)
 - [📊 Data Fetching with SWR](#-data-fetching-with-swr)
 - [🎯 Step-by-Step Feature Development](#-step-by-step-feature-development)
+- [🔄 DRY Patterns & Reusable Components](#-dry-patterns--reusable-components)
 - [🧩 Component Development Guidelines](#-component-development-guidelines)
-- [� CSS Architecture & Styling Guidelines](#-css-architecture--styling-guidelines)
-- [�🔔 Notification & Dialog Systems](#-notification--dialog-systems)
+- [🎨 CSS Architecture & Styling Guidelines](#-css-architecture--styling-guidelines)
+- [🔔 Notification & Dialog Systems](#-notification--dialog-systems)
 - [🎨 Category Icon System](#-category-icon-system)
 - [🔌 API Integration Best Practices](#-api-integration-best-practices)
 - [🪝 Custom Hooks Guidelines](#-custom-hooks-guidelines)
@@ -98,6 +99,15 @@ Our frontend follows a **layered architecture** with clear separation of concern
 
 - **TokenExpiryDialog**: Graceful session expiry handling with user choice
 - **Automatic token refresh**: Background token renewal and expiry detection
+
+#### DRY Refactoring & Component Architecture
+
+- **Centralized CRUD operations**: `useCrudOperations` hook provides consistent error handling and notifications
+- **Universal page layout**: `PageLayout` component standardizes page structure, loading states, and error handling
+- **Reusable components**: `StatCard`, `Modal`, `AuthLayout` eliminate code duplication
+- **Form management**: `useForm` hook and validation services centralize form logic
+- **Date formatting**: `useDateFormatter` provides language-aware date display
+- **Code reduction**: 20-67% reduction in duplicate code across major components
 - **Global dialog integration**: Centralized session management in App.tsx
 
 #### Example Components & Learning Resources
@@ -834,6 +844,285 @@ export { default as TransactionsPage } from './TransactionsPage';
 // src/api/index.ts
 export { transactionApi } from './transactionApi';
 ```
+
+## 🔄 DRY Patterns & Reusable Components
+
+Our codebase follows DRY (Don't Repeat Yourself) principles through a comprehensive set of reusable components and hooks. **Always check for existing patterns before creating new functionality.**
+
+### 📋 Core DRY Components
+
+#### 1. PageLayout - Universal Page Structure
+
+**Use for**: All main application pages that need consistent headers, loading states, and error handling.
+
+```tsx
+import { PageLayout } from '../components/layout/PageLayout';
+
+export const MyPage: React.FC = () => {
+  const { data, isLoading, error, refresh } = useMyData();
+
+  return (
+    <PageLayout
+      title="Page Title"
+      subtitle="Optional description"
+      isLoading={isLoading}
+      error={error}
+      onRetry={refresh}
+      action={
+        <button className="btn btn--primary" onClick={handleAdd}>
+          Add Item
+        </button>
+      }
+    >
+      {/* Your page content */}
+    </PageLayout>
+  );
+};
+```
+
+**Features**:
+
+- Automatic loading states with spinner
+- Error handling with retry functionality
+- Consistent page headers and styling
+- Action button placement
+- Responsive design
+
+#### 2. useCrudOperations - Centralized CRUD Logic
+
+**Use for**: Any page with create, update, delete operations.
+
+```tsx
+import { useCrudOperations } from '../hooks';
+
+export const MyPage: React.FC = () => {
+  const { handleCreate, handleUpdate, handleDelete } = useCrudOperations(
+    {
+      create: createItem, // Your API function
+      update: updateItem, // Your API function
+      delete: deleteItem, // Your API function
+    },
+    {
+      createSuccess: 'Item created successfully',
+      createError: 'Failed to create item',
+      updateSuccess: 'Item updated successfully',
+      updateError: 'Failed to update item',
+      deleteSuccess: 'Item deleted successfully',
+      deleteError: 'Failed to delete item',
+    },
+    refresh // Optional refresh function after operations
+  );
+
+  // Use handleCreate, handleUpdate, handleDelete instead of custom handlers
+};
+```
+
+**Benefits**:
+
+- Automatic error handling with toast notifications
+- Consistent loading states during operations
+- Centralized success/error messaging
+- Automatic data refresh after operations
+
+#### 3. StatCard - Statistics Display
+
+**Use for**: Displaying numerical statistics with trends and icons.
+
+```tsx
+import { StatCard } from '../components/ui';
+
+<StatCard
+  title="Total Income"
+  value="$2,450.00"
+  icon={ArrowUpCircle}
+  change="+12.5%"
+  trend="up"
+  color="success"
+/>;
+```
+
+**Features**:
+
+- Flexible value display (string or number)
+- Trend indicators with directional icons
+- Color theming (primary, success, error, info, warning)
+- Consistent styling across all statistics
+
+#### 4. Modal - Reusable Dialog Component
+
+**Use for**: Forms, confirmations, and content overlays.
+
+```tsx
+import { Modal } from '../components/ui';
+
+<Modal
+  isOpen={showModal}
+  onClose={() => setShowModal(false)}
+  title="Dialog Title"
+  subtitle="Optional description"
+>
+  {/* Modal content */}
+</Modal>;
+```
+
+#### 5. AuthLayout - Authentication Pages
+
+**Use for**: Login, register, and other authentication pages.
+
+```tsx
+import { AuthLayout } from '../components/layout';
+
+<AuthLayout
+  title="Sign In"
+  subtitle="Welcome back to MoneyWise"
+  footerText="Don't have an account?"
+  footerLinkText="Sign up"
+  footerLinkTo="/register"
+>
+  <form onSubmit={handleSubmit}>{/* Form content */}</form>
+</AuthLayout>;
+```
+
+### 🪝 DRY Hooks
+
+#### 1. useForm - Form State Management
+
+**Use for**: Any form with validation and submission handling.
+
+```tsx
+import { useForm } from '../hooks';
+
+const { values, errors, handleSubmit, setValue } = useForm({
+  initialValues: { name: '', email: '' },
+  validate: values => {
+    const errors = {};
+    if (!values.name) errors.name = 'Name is required';
+    if (!values.email) errors.email = 'Email is required';
+    return errors;
+  },
+  onSubmit: async values => {
+    // Handle form submission
+  },
+});
+```
+
+#### 2. useDateFormatter - Language-Aware Dates
+
+**Use for**: All date displays to ensure consistency and i18n support.
+
+```tsx
+import { useDateFormatter } from '../hooks';
+
+const { formatDate } = useDateFormatter();
+const displayDate = formatDate(dateString); // Respects current language
+```
+
+### 🛠️ Services for Complex Logic
+
+#### Form Validation Service
+
+**Use for**: Centralized validation logic across different forms.
+
+```tsx
+import { createFormValidationService } from '../services';
+
+const validationService = createFormValidationService(translations);
+const result = validationService.validateLoginForm(formData);
+
+if (!result.isValid) {
+  setErrors(result.errors);
+}
+```
+
+### 📏 DRY Development Rules
+
+#### ✅ DO: Check for Existing Patterns First
+
+```tsx
+// ✅ Good - Use existing CRUD operations
+const { handleCreate } = useCrudOperations(operations, messages, refresh);
+
+// ❌ Bad - Creating custom CRUD handlers
+const handleCreate = async data => {
+  setLoading(true);
+  try {
+    const result = await createItem(data);
+    if (result.success) {
+      showSuccess('Created successfully');
+      refresh();
+    } else {
+      showError(result.error);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+#### ✅ DO: Use PageLayout for All Main Pages
+
+```tsx
+// ✅ Good - Consistent page structure
+return (
+  <PageLayout title="My Page" isLoading={isLoading} error={error}>
+    {/* Content */}
+  </PageLayout>
+);
+
+// ❌ Bad - Manual page structure
+return (
+  <div className="page-container">
+    <div className="page-header">
+      <h1>My Page</h1>
+    </div>
+    {isLoading && <Loading />}
+    {error && <ErrorMessage error={error} />}
+    {/* Content */}
+  </div>
+);
+```
+
+#### ✅ DO: Use StatCard for Statistics
+
+```tsx
+// ✅ Good - Consistent statistics display
+<StatCard title="Total" value="$1,234" icon={DollarSign} color="primary" />
+
+// ❌ Bad - Custom stat implementation
+<div className="custom-stat-card">
+  <div className="stat-header">
+    <DollarSign />
+    <span>Total</span>
+  </div>
+  <div className="stat-value">$1,234</div>
+</div>
+```
+
+#### ✅ DO: Use Centralized Date Formatting
+
+```tsx
+// ✅ Good - Language-aware formatting
+const { formatDate } = useDateFormatter();
+return <span>{formatDate(transaction.createdAt)}</span>;
+
+// ❌ Bad - Manual date formatting
+return <span>{new Date(transaction.createdAt).toLocaleDateString()}</span>;
+```
+
+### 📖 Quick Reference
+
+| Need               | Use                     | Import From            |
+| ------------------ | ----------------------- | ---------------------- |
+| Page structure     | `PageLayout`            | `../components/layout` |
+| CRUD operations    | `useCrudOperations`     | `../hooks`             |
+| Statistics display | `StatCard`              | `../components/ui`     |
+| Modal/Dialog       | `Modal`                 | `../components/ui`     |
+| Form handling      | `useForm`               | `../hooks`             |
+| Date formatting    | `useDateFormatter`      | `../hooks`             |
+| Auth page layout   | `AuthLayout`            | `../components/layout` |
+| Form validation    | `formValidationService` | `../services`          |
+
+**💡 Pro Tip**: When adding new functionality, ask yourself: "Could this be useful elsewhere?" If yes, consider making it a reusable component or hook.
 
 ## 🧩 Component Development Guidelines
 
@@ -2630,6 +2919,13 @@ The MoneyWise project includes several specialized guides for different aspects 
 - Component usage and customization examples
 - Service architecture and extension guide
 
+### 🔄 [DRY Refactoring Guide](./DRY_REFACTORING_GUIDE.md)
+
+- **Complete DRY refactoring documentation**
+- Before/after code comparisons and benefits achieved
+- Reusable component and hook documentation
+- Best practices for maintaining DRY principles
+
 ### 🌐 [Internationalization Guide](./INTERNATIONALIZATION_GUIDE.md)
 
 - **Complete i18n system documentation**
@@ -2656,12 +2952,13 @@ The MoneyWise project includes several specialized guides for different aspects 
 **For new features**, follow this guide order:
 
 1. **Start here**: DEVELOPMENT_GUIDE.md (this guide)
-2. **Study reference**: CategoriesPage.tsx and CategoriesPage.css ⭐
-3. **For icons**: CATEGORY_ICON_SYSTEM_GUIDE.md
-4. **For text**: INTERNATIONALIZATION_GUIDE.md
-5. **For currency**: CURRENCY_MODULE_GUIDE.md
-6. **For layout**: APP_LAYOUT_GUIDE.md
+2. **Check DRY patterns**: DRY_REFACTORING_GUIDE.md (for reusable components)
+3. **Study reference**: CategoriesPage.tsx and CategoriesPage.css ⭐
+4. **For icons**: CATEGORY_ICON_SYSTEM_GUIDE.md
+5. **For text**: INTERNATIONALIZATION_GUIDE.md
+6. **For currency**: CURRENCY_MODULE_GUIDE.md
+7. **For layout**: APP_LAYOUT_GUIDE.md
 
-> 💡 **Quick Start**: Before reading specialized guides, study the **Categories Page implementation** (`src/pages/CategoriesPage.tsx` + `.css`) - it's the perfect reference implementation that demonstrates every pattern and principle in this guide.
+> 💡 **Quick Start**: Always check the **DRY Refactoring Guide** first to see if there are existing components or hooks that solve your needs. Then study the **Categories Page implementation** (`src/pages/CategoriesPage.tsx` + `.css`) - it's the perfect reference implementation that demonstrates every pattern and principle in this guide.
 
 Each guide complements this main development guide with specialized information for specific system components.

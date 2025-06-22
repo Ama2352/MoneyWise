@@ -17,3 +17,5 @@ export { ConfirmDialog } from './ConfirmDialog';
 export { CategoryIcon } from './CategoryIcon';
 export { default as AdvancedSearch } from './AdvancedSearch';
 export { WalletBalance } from './WalletBalance';
+export { StatCard } from './StatCard';
+export { Modal } from './Modal';

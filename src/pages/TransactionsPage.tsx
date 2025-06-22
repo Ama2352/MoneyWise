@@ -14,12 +14,9 @@ import {
   useTransactionSearch,
 } from '../hooks/useFinanceData';
 import { useLanguageContext, useToastContext } from '../contexts';
-import {
-  Loading,
-  ConfirmDialog,
-  CurrencyAmount,
-  AdvancedSearch,
-} from '../components/ui';
+import { Loading, ConfirmDialog, AdvancedSearch } from '../components/ui';
+import { StatCard } from '../components/ui/StatCard';
+import { PageLayout } from '../components/layout/PageLayout';
 import { TransactionForm } from '../components/forms/TransactionForm';
 import { TransactionItem } from '../components/TransactionItem';
 import type {
@@ -293,37 +290,27 @@ const TransactionsPage: React.FC = memo(() => {
   const closeForm = useCallback(() => {
     setShowForm(false);
     setEditingTransaction(null);
-  }, []);
-  // Early return for critical errors
-  if (error) {
+  }, []); // Early return for critical errors or loading
+  if (error || (isLoading && !transactions)) {
     return (
-      <div className="page-container">
-        <div className="error-state">
-          <p>Error loading transactions: {error.message}</p>
+      <PageLayout
+        title={translations.transactions.title}
+        subtitle={translations.transactions.subtitle}
+        isLoading={isLoading && !transactions}
+        error={error}
+        onRetry={() => window.location.reload()}
+        action={
           <button
             className="btn btn--primary"
-            onClick={() => window.location.reload()}
+            onClick={() => setShowForm(true)}
           >
-            Try Again
+            <Plus size={18} />
+            {translations.transactions.addTransaction}
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Show minimal loading state for initial load
-  if (isLoading && !transactions) {
-    return (
-      <div className="page-container">
-        <div className="page-header">
-          {' '}
-          <h1 className="page-title">{translations.transactions.title}</h1>
-        </div>
-        <div className="transactions-loading">
-          <Loading />
-          <p>{translations.common.loading}</p>
-        </div>
-      </div>
+        }
+      >
+        <div></div>
+      </PageLayout>
     );
   }
 
@@ -345,63 +332,27 @@ const TransactionsPage: React.FC = memo(() => {
             {translations.transactions.addTransaction}
           </button>
         </div>
-      </div>
+      </div>{' '}
       {/* Summary Stats */}
       <div className="transactions-stats">
-        <div className="modern-dashboard__stat-card modern-dashboard__stat-card--success">
-          <div className="modern-dashboard__stat-header">
-            <div className="modern-dashboard__stat-icon">
-              <ArrowUpCircle size={24} />
-            </div>
-          </div>
-          <div className="modern-dashboard__stat-content">
-            {' '}
-            <h3 className="modern-dashboard__stat-title">
-              {translations.transactions.totalIncome}
-            </h3>{' '}
-            <div className="modern-dashboard__stat-value">
-              <CurrencyAmount amountInVnd={totalIncome} />
-            </div>
-          </div>
-        </div>
-
-        <div className="modern-dashboard__stat-card modern-dashboard__stat-card--error">
-          <div className="modern-dashboard__stat-header">
-            <div className="modern-dashboard__stat-icon">
-              <ArrowDownCircle size={24} />
-            </div>
-          </div>
-          <div className="modern-dashboard__stat-content">
-            <h3 className="modern-dashboard__stat-title">
-              {translations.transactions.totalExpenses}
-            </h3>{' '}
-            <div className="modern-dashboard__stat-value">
-              <CurrencyAmount amountInVnd={totalExpenses} />
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`modern-dashboard__stat-card ${
-            netAmount >= 0
-              ? 'modern-dashboard__stat-card--primary'
-              : 'modern-dashboard__stat-card--warning'
-          }`}
-        >
-          <div className="modern-dashboard__stat-header">
-            <div className="modern-dashboard__stat-icon">
-              <TrendingUp size={24} />
-            </div>
-          </div>
-          <div className="modern-dashboard__stat-content">
-            <h3 className="modern-dashboard__stat-title">
-              {translations.transactions.netAmount}
-            </h3>{' '}
-            <div className="modern-dashboard__stat-value">
-              <CurrencyAmount amountInVnd={netAmount} />
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title={translations.transactions.totalIncome}
+          value={totalIncome}
+          icon={ArrowUpCircle}
+          color="success"
+        />
+        <StatCard
+          title={translations.transactions.totalExpenses}
+          value={totalExpenses}
+          icon={ArrowDownCircle}
+          color="error"
+        />
+        <StatCard
+          title={translations.transactions.netAmount}
+          value={netAmount}
+          icon={TrendingUp}
+          color={netAmount >= 0 ? 'primary' : 'warning'}
+        />
       </div>{' '}
       {/* Advanced Search */}{' '}
       <AdvancedSearch
