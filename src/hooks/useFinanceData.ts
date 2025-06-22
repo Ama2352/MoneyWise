@@ -3,6 +3,7 @@
  * Following the development guide patterns
  */
 
+import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 import {
   categoryApi,
@@ -91,9 +92,16 @@ export const useWallet = (walletId: string | null) => {
  * Hook to fetch all wallets using SWR
  */
 export const useWallets = () => {
+  console.log('💰 useWallets: Starting...');
+
   const { data, error, isLoading } = useSWR<Wallet[]>(
     SWR_KEYS.WALLETS.ALL,
-    () => walletApi.getAll()
+    async () => {
+      console.log('📡 API: Fetching wallets...');
+      const result = await walletApi.getAll();
+      console.log(`� API: Received ${result?.length || 0} wallets`);
+      return result;
+    }
   );
 
   return {
@@ -105,13 +113,25 @@ export const useWallets = () => {
 };
 
 export const useTransactions = () => {
+  console.log('🔄 useTransactions: Starting...');
+
   const { data, error, isLoading } = useSWR<Transaction[]>(
     SWR_KEYS.TRANSACTIONS.ALL,
-    () => transactionApi.getAll()
+    async () => {
+      console.log('📡 API: Fetching transactions...');
+      const result = await transactionApi.getAll();
+      console.log(`� API: Received ${result?.length || 0} transactions`);
+      return result;
+    }
   );
+  // Use useMemo to avoid reversing on every render and prevent mutation
+  const transactions = useMemo(() => {
+    if (!data) return [];
+    return [...data].reverse(); // Create a new array before reversing
+  }, [data]);
 
   return {
-    transactions: data?.reverse() || [],
+    transactions,
     isLoading,
     error,
     refresh: () => mutate(SWR_KEYS.TRANSACTIONS.ALL),
@@ -190,16 +210,22 @@ export const useTransactionMutations = () => {
  * Auto-caches and shares data between components
  */
 export const useCategories = () => {
+  console.log('🏷️ useCategories: Starting...');
+
   const { data, error, isLoading } = useSWR<Category[]>(
     SWR_KEYS.CATEGORIES.ALL,
-    () => categoryApi.getAll()
+    async () => {
+      console.log('📡 API: Fetching categories...');
+      const result = await categoryApi.getAll();
+      console.log(`� API: Received ${result?.length || 0} categories`);
+      return result;
+    }
   );
 
   return {
     categories: data,
     isLoading,
     error,
-    // Function to manually refresh categories
     refresh: () => mutate(SWR_KEYS.CATEGORIES.ALL),
   };
 };
@@ -332,8 +358,14 @@ export const useTransactionSearch = (filters?: SearchTransactionRequest) => {
     transactionApi.search(filters!)
   );
 
+  // Use useMemo here too to prevent mutation and unnecessary re-computation
+  const transactions = useMemo(() => {
+    if (!data) return [];
+    return [...data].reverse(); // Create a new array before reversing
+  }, [data]);
+
   return {
-    transactions: data?.reverse() || [],
+    transactions,
     isLoading,
     error,
     refresh: () => cacheKey && mutate(cacheKey),

@@ -54,7 +54,6 @@ export const useAuthentication = (): UseAuthenticationReturn => {
   const clearTokenExpired = useCallback(() => {
     setTokenExpired(false);
   }, []);
-
   // Check if user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -72,10 +71,10 @@ export const useAuthentication = (): UseAuthenticationReturn => {
           setUserProfile(userData);
           setIsAuthenticated(true);
         } catch (error) {
-          // Token is invalid/expired, trigger expiry dialog
+          // Token is invalid/expired, clear tokens and let the interceptor handle the state updates
           localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
           localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-          setTokenExpired(true);
+          // Don't set authentication state here - let handleTokenExpired handle it
         }
       }
 
@@ -97,7 +96,7 @@ export const useAuthentication = (): UseAuthenticationReturn => {
     return () => {
       window.removeEventListener('token-expired', handleTokenExpired);
     };
-  }, [isAuthenticated, initialCheckDone]);
+  }, [initialCheckDone]); // Remove isAuthenticated from dependencies to prevent re-runs
 
   const login = useCallback(async (credentials: LoginRequest) => {
     setIsLoading(true);

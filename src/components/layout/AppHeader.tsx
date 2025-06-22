@@ -15,6 +15,7 @@ import {
 import { useLanguageContext } from '../../contexts';
 import { CurrencySelector } from '../ui';
 import { LANGUAGE_OPTIONS } from '../../constants';
+import { useAuthContext } from '../../contexts/AuthContext';
 import './AppHeader.css';
 
 interface AppHeaderProps {
@@ -27,6 +28,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const { language, setLanguage, t } = useLanguageContext();
+  const { logout } = useAuthContext();
 
   // Close dropdowns when clicking outside
   React.useEffect(() => {
@@ -217,7 +219,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
                 </button>
               </div>
               <div className="app-header__dropdown-section">
-                <button className="app-header__dropdown-item app-header__dropdown-item--danger">
+                <button
+                  className="app-header__dropdown-item app-header__dropdown-item--danger"
+                  onClick={() => logout(true)}
+                >
                   <LogOut size={16} />
                   <span>{t ? t('common.signOut') : 'Sign Out'}</span>
                 </button>

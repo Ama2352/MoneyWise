@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useToast as useToastHook } from '../hooks/useToast';
 import type { ToastMessage } from '../hooks/useToast';
@@ -21,22 +21,23 @@ interface ToastProviderProps {
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
-  const { toasts, showSuccess, showError, showInfo, showWarning, removeToast } =
-    useToastHook();
+  const toast = useToastHook();
+
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = useMemo(
+    () => toast,
+    [
+      toast.toasts,
+      toast.showSuccess,
+      toast.showError,
+      toast.showInfo,
+      toast.showWarning,
+      toast.removeToast,
+    ]
+  );
 
   return (
-    <ToastContext.Provider
-      value={{
-        toasts,
-        showSuccess,
-        showError,
-        showInfo,
-        showWarning,
-        removeToast,
-      }}
-    >
-      {children}
-    </ToastContext.Provider>
+    <ToastContext.Provider value={value}>{children}</ToastContext.Provider>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import {
   Plus,
   TrendingUp,
@@ -11,7 +11,6 @@ import {
   useTransactionMutations,
   useCategories,
   useWallets,
-  useCashFlow,
   useTransactionSearch,
 } from '../hooks/useFinanceData';
 import { useLanguageContext, useToastContext } from '../contexts';
@@ -30,7 +29,53 @@ import type {
 } from '../types';
 import './TransactionsPage.css';
 
-const TransactionsPage: React.FC = () => {
+// Memoized transaction list component to prevent unnecessary re-renders
+const TransactionList = memo<{
+  visibleTransactions: Transaction[];
+  getCategoryById: (id: string) => any;
+  getWalletById: (id: string) => any;
+  categoriesLoading: boolean;
+  walletsLoading: boolean;
+  onEdit: (transaction: Transaction) => void;
+  onDelete: (transaction: Transaction) => void;
+}>(
+  ({
+    visibleTransactions,
+    getCategoryById,
+    getWalletById,
+    categoriesLoading,
+    walletsLoading,
+    onEdit,
+    onDelete,
+  }) => {
+    return (
+      <>
+        {visibleTransactions.map(transaction => {
+          const category = getCategoryById(transaction.categoryId);
+          const wallet = getWalletById(transaction.walletId);
+
+          return (
+            <TransactionItem
+              key={transaction.transactionId}
+              transaction={transaction}
+              category={category || undefined}
+              wallet={wallet || undefined}
+              categoriesLoading={categoriesLoading}
+              walletsLoading={walletsLoading}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          );
+        })}
+      </>
+    );
+  }
+);
+
+TransactionList.displayName = 'TransactionList';
+
+// Memoized component to prevent unnecessary re-renders
+const TransactionsPage: React.FC = memo(() => {
   const { t } = useLanguageContext();
   const { showSuccess, showError } = useToastContext();
 
@@ -38,9 +83,8 @@ const TransactionsPage: React.FC = () => {
   const [searchFilters, setSearchFilters] = useState<SearchTransactionRequest>(
     {}
   );
-
-  // Use search hook if filters are active, otherwise use regular transactions
   const hasActiveFilters = Object.keys(searchFilters).length > 0;
+
   const {
     transactions: searchTransactions,
     isLoading: searchLoading,
@@ -51,24 +95,28 @@ const TransactionsPage: React.FC = () => {
     transactions: allTransactions,
     isLoading: allLoading,
     error: allError,
-  } = useTransactions();
-
-  // Use search results if we have active filters, otherwise use all transactions
+    refresh: refreshTransactions,
+  } = useTransactions(); // Use search results if we have active filters, otherwise use all transactions
   const transactions = hasActiveFilters ? searchTransactions : allTransactions;
   const isLoading = hasActiveFilters ? searchLoading : allLoading;
   const error = hasActiveFilters ? searchError : allError;
-
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { wallets, isLoading: walletsLoading } = useWallets();
   const { createTransaction, updateTransaction, deleteTransaction } =
-    useTransactionMutations();
+    useTransactionMutations(); // Stabilize data arrays to prevent unnecessary re-renders caused by new array references
+  const stableTransactions = useMemo(() => {
+    return transactions || [];
+  }, [transactions]); // Depend on the actual array, not just length
 
-  // Cash flow statistics from API (full-time data)
-  const {
-    cashFlow,
-    isLoading: cashFlowLoading,
-    refresh: refreshCashFlow,
-  } = useCashFlow(null, null);
+  const stableCategories = useMemo(() => {
+    return categories || [];
+  }, [categories?.length]); // Only depend on length
+
+  const stableWallets = useMemo(() => {
+    return wallets || [];
+  }, [wallets?.length]); // Only depend on length
+
+  // Cash flow statistics - calculating from transactions directly for better performance
 
   // Pagination constants - reduced for better performance
   const ITEMS_PER_PAGE = 15;
@@ -82,105 +130,120 @@ const TransactionsPage: React.FC = () => {
     transactionId?: string;
     description?: string;
   }>({ show: false });
-  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
-
-  // Get visible transactions for display (only show limited number)
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE); // Get visible transactions (simple slice)
   const visibleTransactions = useMemo(() => {
-    if (!transactions) return [];
-    return transactions.slice(0, visibleCount);
-  }, [transactions, visibleCount]); // Calculate summary stats - Use API cash flow data with fallback to local calculation
+    return stableTransactions.slice(0, visibleCount);
+  }, [stableTransactions, visibleCount]);
+
+  // Calculate summary stats
   const { totalIncome, totalExpenses, netAmount } = useMemo(() => {
-    // If cash flow data is available from API, use it
-    if (cashFlow && !cashFlowLoading) {
-      return {
-        totalIncome: cashFlow.totalIncome,
-        totalExpenses: cashFlow.totalExpenses,
-        netAmount: cashFlow.balance,
-      };
+    if (stableTransactions.length === 0) {
+      return { totalIncome: 0, totalExpenses: 0, netAmount: 0 };
     }
 
-    // Fallback to local calculation from current transactions
-    const income = (transactions || [])
-      .filter((t: Transaction) => t.type === 'income')
-      .reduce((sum: number, t: Transaction) => sum + t.amount, 0);
+    let income = 0;
+    let expenses = 0;
 
-    const expenses = (transactions || [])
-      .filter((t: Transaction) => t.type === 'expense')
-      .reduce((sum: number, t: Transaction) => sum + t.amount, 0);
+    for (const transaction of stableTransactions) {
+      if (transaction.type === 'income') {
+        income += transaction.amount;
+      } else if (transaction.type === 'expense') {
+        expenses += transaction.amount;
+      }
+    }
 
     return {
       totalIncome: income,
       totalExpenses: expenses,
       netAmount: income - expenses,
     };
-  }, [cashFlow, cashFlowLoading, transactions]);
+  }, [stableTransactions]);
 
-  const hasMoreTransactions = visibleCount < (transactions?.length || 0);
-
-  const loadMoreTransactions = () => {
+  const hasMoreTransactions = visibleCount < stableTransactions.length;
+  // Optimize callbacks to prevent unnecessary re-renders
+  const loadMoreTransactions = useCallback(() => {
     setVisibleCount(prev => prev + LOAD_MORE_INCREMENT);
-  };
+  }, [LOAD_MORE_INCREMENT]);
 
-  // Handle advanced search
-  const handleAdvancedSearch = (filters: SearchTransactionRequest) => {
-    setSearchFilters(filters);
-    setVisibleCount(ITEMS_PER_PAGE);
-  };
+  // Handle advanced search with debouncing potential
+  const handleAdvancedSearch = useCallback(
+    (filters: SearchTransactionRequest) => {
+      setSearchFilters(filters);
+      setVisibleCount(ITEMS_PER_PAGE);
+    },
+    [ITEMS_PER_PAGE]
+  );
 
   // Handle clear search
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     setSearchFilters({});
     setVisibleCount(ITEMS_PER_PAGE);
-  };
-  const handleCreateTransaction = async (data: CreateTransactionRequest) => {
-    try {
-      const result = await createTransaction(data);
-
-      if (result.success) {
-        setShowForm(false);
-        refreshCashFlow(); // Refresh cash flow statistics
-        showSuccess(t('transactions.notifications.createSuccess'));
-      } else {
-        console.error('Transaction creation failed:', result.error);
-        showError(result.error || t('transactions.notifications.createError'));
+  }, [ITEMS_PER_PAGE]);
+  const handleCreateTransaction = useCallback(
+    async (data: CreateTransactionRequest) => {
+      try {
+        const result = await createTransaction(data);
+        if (result.success) {
+          setShowForm(false);
+          refreshTransactions(); // Refresh transactions to update statistics
+          showSuccess(t('transactions.notifications.createSuccess'));
+        } else {
+          console.error('Transaction creation failed:', result.error);
+          showError(
+            result.error || t('transactions.notifications.createError')
+          );
+        }
+      } catch (error) {
+        console.error('Error creating transaction:', error);
+        showError(t('transactions.notifications.createError'));
       }
-    } catch (error) {
-      console.error('Error creating transaction:', error);
-      showError(t('transactions.notifications.createError'));
-    }
-  };
-  const handleUpdateTransaction = async (data: CreateTransactionRequest) => {
-    if (!editingTransaction) return;
+    },
+    [createTransaction, refreshTransactions, showSuccess, showError, t]
+  );
 
-    try {
-      const updateData: Transaction = {
-        ...editingTransaction,
-        ...data,
-      };
+  const handleUpdateTransaction = useCallback(
+    async (data: CreateTransactionRequest) => {
+      if (!editingTransaction) return;
 
-      const result = await updateTransaction(updateData);
+      try {
+        const updateData: Transaction = {
+          ...editingTransaction,
+          ...data,
+        };
 
-      if (result.success) {
-        setEditingTransaction(null);
-        setShowForm(false);
-        refreshCashFlow(); // Refresh cash flow statistics
-        showSuccess(t('transactions.notifications.updateSuccess'));
-      } else {
-        showError(result.error || t('transactions.notifications.updateError'));
+        const result = await updateTransaction(updateData);
+        if (result.success) {
+          setEditingTransaction(null);
+          setShowForm(false);
+          refreshTransactions(); // Refresh transactions to update statistics
+          showSuccess(t('transactions.notifications.updateSuccess'));
+        } else {
+          showError(
+            result.error || t('transactions.notifications.updateError')
+          );
+        }
+      } catch (error) {
+        console.error('Error updating transaction:', error);
+        showError(t('transactions.notifications.updateError'));
       }
-    } catch (error) {
-      console.error('Error updating transaction:', error);
-      showError(t('transactions.notifications.updateError'));
-    }
-  };
-  const handleDeleteConfirm = async () => {
+    },
+    [
+      editingTransaction,
+      updateTransaction,
+      refreshTransactions,
+      showSuccess,
+      showError,
+      t,
+    ]
+  );
+
+  const handleDeleteConfirm = useCallback(async () => {
     if (!deleteConfirm.transactionId) return;
 
     try {
       const result = await deleteTransaction(deleteConfirm.transactionId);
-
       if (result.success) {
-        refreshCashFlow(); // Refresh cash flow statistics
+        refreshTransactions(); // Refresh transactions to update statistics
         showSuccess(t('transactions.notifications.deleteSuccess'));
       } else {
         showError(result.error || t('transactions.notifications.deleteError'));
@@ -191,40 +254,73 @@ const TransactionsPage: React.FC = () => {
     } finally {
       setDeleteConfirm({ show: false });
     }
-  };
-  const getCategoryById = (categoryId: string) => {
-    if (categoriesLoading) return null; // Still loading
-    return categories?.find(cat => cat.categoryId === categoryId);
-  };
+  }, [
+    deleteConfirm.transactionId,
+    deleteTransaction,
+    refreshTransactions,
+    showSuccess,
+    showError,
+    t,
+  ]); // Memoize helper functions to prevent recreation on every render
+  const getCategoryById = useCallback(
+    (categoryId: string) => {
+      if (categoriesLoading) return null; // Still loading
+      return stableCategories.find(cat => cat.categoryId === categoryId);
+    },
+    [stableCategories, categoriesLoading]
+  );
 
-  const getWalletById = (walletId: string) => {
-    if (walletsLoading) return null; // Still loading
-    return wallets?.find(wallet => wallet.walletId === walletId);
-  };
+  const getWalletById = useCallback(
+    (walletId: string) => {
+      if (walletsLoading) return null; // Still loading
+      return stableWallets.find(wallet => wallet.walletId === walletId);
+    },
+    [stableWallets, walletsLoading]
+  );
 
-  const openEditForm = (transaction: Transaction) => {
+  const openEditForm = useCallback((transaction: Transaction) => {
     setEditingTransaction(transaction);
     setShowForm(true);
-  };
-
-  const openDeleteConfirm = (transaction: Transaction) => {
+  }, []);
+  const openDeleteConfirm = useCallback((transaction: Transaction) => {
     setDeleteConfirm({
       show: true,
       transactionId: transaction.transactionId,
       description: transaction.description,
     });
-  };
+  }, []);
 
-  const closeForm = () => {
+  const closeForm = useCallback(() => {
     setShowForm(false);
     setEditingTransaction(null);
-  };
-
+  }, []);
+  // Early return for critical errors
   if (error) {
     return (
       <div className="page-container">
         <div className="error-state">
           <p>Error loading transactions: {error.message}</p>
+          <button
+            className="btn btn--primary"
+            onClick={() => window.location.reload()}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show minimal loading state for initial load
+  if (isLoading && !transactions) {
+    return (
+      <div className="page-container">
+        <div className="page-header">
+          <h1 className="page-title">{t('transactions.title')}</h1>
+        </div>
+        <div className="transactions-loading">
+          <Loading />
+          <p>{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -304,12 +400,12 @@ const TransactionsPage: React.FC = () => {
           </div>
         </div>
       </div>{' '}
-      {/* Advanced Search */}
+      {/* Advanced Search */}{' '}
       <AdvancedSearch
         onSearch={handleAdvancedSearch}
         onClear={handleClearSearch}
-        categories={categories || []}
-        wallets={wallets || []}
+        categories={stableCategories}
+        wallets={stableWallets}
         isLoading={categoriesLoading || walletsLoading}
       />
       {/* Transactions List */}
@@ -318,12 +414,12 @@ const TransactionsPage: React.FC = () => {
         <div className="modern-dashboard__card-header">
           {' '}
           <h2 className="modern-dashboard__card-title">
-            {t('transactions.recentTransactions')} ({transactions?.length || 0})
+            {t('transactions.recentTransactions')} ({stableTransactions.length})
           </h2>
-          {(transactions?.length || 0) > 0 && (
+          {stableTransactions.length > 0 && (
             <p className="transaction-count-info">
               {t('common.showing')} {visibleTransactions.length}{' '}
-              {t('common.of')} {transactions?.length || 0}
+              {t('common.of')} {stableTransactions.length}
             </p>
           )}
         </div>{' '}
@@ -334,7 +430,7 @@ const TransactionsPage: React.FC = () => {
           </div>
         ) : (
           <div className="transactions-list">
-            {(transactions?.length || 0) === 0 ? (
+            {stableTransactions.length === 0 ? (
               <div className="transactions-empty">
                 <p>{t('transactions.noTransactions')}</p>
                 <button
@@ -347,24 +443,15 @@ const TransactionsPage: React.FC = () => {
               </div>
             ) : (
               <>
-                {' '}
-                {visibleTransactions.map(transaction => {
-                  const category = getCategoryById(transaction.categoryId);
-                  const wallet = getWalletById(transaction.walletId);
-
-                  return (
-                    <TransactionItem
-                      key={transaction.transactionId}
-                      transaction={transaction}
-                      category={category || undefined}
-                      wallet={wallet || undefined}
-                      categoriesLoading={categoriesLoading}
-                      walletsLoading={walletsLoading}
-                      onEdit={openEditForm}
-                      onDelete={openDeleteConfirm}
-                    />
-                  );
-                })}
+                <TransactionList
+                  visibleTransactions={visibleTransactions}
+                  getCategoryById={getCategoryById}
+                  getWalletById={getWalletById}
+                  categoriesLoading={categoriesLoading}
+                  walletsLoading={walletsLoading}
+                  onEdit={openEditForm}
+                  onDelete={openDeleteConfirm}
+                />
                 {/* Load More Button */}
                 {hasMoreTransactions && (
                   <div className="load-more-container">
@@ -374,7 +461,7 @@ const TransactionsPage: React.FC = () => {
                     >
                       <ChevronDown size={18} />
                       {t('transactions.loadMore')} (
-                      {(transactions?.length || 0) - visibleCount}{' '}
+                      {stableTransactions.length - visibleCount}{' '}
                       {t('transactions.remaining')})
                     </button>
                   </div>
@@ -407,9 +494,12 @@ const TransactionsPage: React.FC = () => {
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteConfirm({ show: false })}
         type="danger"
-      />
+      />{' '}
     </div>
   );
-};
+});
+
+// Add display name for debugging
+TransactionsPage.displayName = 'TransactionsPage';
 
 export default TransactionsPage;

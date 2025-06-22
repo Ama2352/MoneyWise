@@ -53,7 +53,6 @@ export const transactionApi = {
   delete: async (id: string): Promise<void> => {
     await httpClient.delete(`${API_ENDPOINTS.TRANSACTIONS.BASE}/${id}`);
   },
-
   search: async (params: SearchTransactionRequest): Promise<Transaction[]> => {
     const response = await httpClient.get<Transaction[]>(
       API_ENDPOINTS.TRANSACTIONS.SEARCH,

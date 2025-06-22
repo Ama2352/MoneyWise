@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -14,11 +14,23 @@ import {
   Download,
 } from 'lucide-react';
 import { useCurrencyContext } from '../contexts';
+import { useToastContext } from '../contexts';
 import { formatCurrency } from '../utils/formatUtils';
 import './ModernDashboard.css';
 
 const ModernDashboard: React.FC = () => {
   const { currency } = useCurrencyContext();
+  const { showSuccess } = useToastContext();
+
+  // Check for login success message on component mount
+  useEffect(() => {
+    const loginSuccess = sessionStorage.getItem('loginSuccess');
+    if (loginSuccess) {
+      showSuccess(loginSuccess);
+      // Remove the message so it doesn't show again
+      sessionStorage.removeItem('loginSuccess');
+    }
+  }, [showSuccess]);
 
   const stats = [
     {

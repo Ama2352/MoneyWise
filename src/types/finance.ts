@@ -22,7 +22,7 @@ export interface SearchTransactionRequest {
   categoryName?: string;
   walletName?: string;
   amountRange?: string; // e.g. "100-500"
-  keyword?: string; // e.g. "grocery"
+  keywords?: string; // e.g. "grocery" - Note: using "keywords" to match backend API
   timeRange?: string; // e.g. "18:00-20:00"
   dayOfWeek?: string; // e.g. "Monday"
 }

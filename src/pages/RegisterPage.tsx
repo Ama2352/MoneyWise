@@ -67,7 +67,7 @@ const RegisterPage = () => {
       if (!passwordValidation.isValid) {
         // Map the first error to appropriate translation key
         const firstError = passwordValidation.errors[0];
-        if (firstError.includes('8 characters')) {
+        if (firstError.includes('6 characters')) {
           newErrors.password = t('validation.passwordTooShort');
         } else if (firstError.includes('uppercase')) {
           newErrors.password = t('validation.passwordMissingUppercase');
@@ -110,7 +110,10 @@ const RegisterPage = () => {
       if (result.success) {
         // Registration successful, show toast and then navigate
         showSuccess(t('auth.registerSuccess'));
-        navigate(ROUTES.LOGIN);
+        // Add a small delay to ensure toast is displayed and state is updated
+        setTimeout(() => {
+          navigate(ROUTES.LOGIN, { replace: true });
+        }, 100);
       } else {
         showError(result.error || t('auth.registerFailed'));
       }

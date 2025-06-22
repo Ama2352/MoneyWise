@@ -16,35 +16,55 @@ export const swrFetcher = async (url: string) => {
 };
 
 /**
- * Global SWR configuration
+ * Optimized SWR configuration for better performance
+ * Reduced aggressive revalidation to prevent excessive re-renders
  */
 export const swrConfig: SWRConfiguration = {
   fetcher: swrFetcher,
 
-  // Cache data for 5 minutes before considering it stale
-  dedupingInterval: 5 * 60 * 1000,
+  // Increase deduping interval to reduce duplicate requests
+  dedupingInterval: 10 * 60 * 1000, // 10 minutes instead of 5
 
-  // Auto-refresh data when window gets focus
-  revalidateOnFocus: true,
+  // Disable aggressive auto-refresh behaviors that cause re-renders
+  revalidateOnFocus: false, // Disable focus-based refresh
+  revalidateOnReconnect: true, // Keep network reconnect refresh
 
-  // Auto-refresh data when network reconnects
-  revalidateOnReconnect: true,
+  // Reduce retry attempts to prevent cascading re-renders
+  errorRetryCount: 2, // Reduced from 3
+  errorRetryInterval: 3000, // Reduced from 5000ms
 
-  // Retry failed requests
-  errorRetryCount: 3,
-  errorRetryInterval: 5000,
+  // Disable background refresh for better performance
+  refreshInterval: 0, // Disable automatic background refresh
 
-  // Background refresh interval (10 minutes)
-  refreshInterval: 10 * 60 * 1000,
+  // Only revalidate if data is truly stale
+  revalidateIfStale: false, // Prevent unnecessary refreshes
 
-  // Don't refresh when device is offline
-  revalidateIfStale: true,
-
-  // Show error boundaries for unhandled errors
+  // More conservative error handling
   shouldRetryOnError: error => {
-    // Don't retry on 4xx errors (client errors)
+    // Only retry on server errors, not client errors
     return error.status >= 500;
   },
+
+  // Add additional performance optimizations
+  compare: (a, b) => {
+    // Custom comparison to prevent unnecessary re-renders
+    // Only trigger re-render if data actually changed
+    if (a === b) return true;
+    if (!a || !b) return false;
+
+    // For arrays, compare length and first item
+    if (Array.isArray(a) && Array.isArray(b)) {
+      return a.length === b.length && (a.length === 0 || a[0]?.id === b[0]?.id);
+    }
+
+    return JSON.stringify(a) === JSON.stringify(b);
+  },
+
+  // Optimize loading states
+  loadingTimeout: 3000, // 3 second timeout for loading states
+
+  // Prevent unnecessary revalidation
+  revalidateOnMount: true, // Only revalidate on mount, not on every prop change
 };
 
 /**

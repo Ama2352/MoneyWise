@@ -148,7 +148,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   };
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (filters.keyword) count++;
+    if (filters.keywords) count++;
     if (filters.type) count++;
     if (filters.categoryName) count++;
     if (filters.walletName) count++;
@@ -196,12 +196,13 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
             <Stack spacing={2.5} sx={{ mt: 2 }}>
               {/* Row 1: Keyword, Type, and Category */}
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                {' '}
                 <TextField
                   fullWidth
                   size="small"
                   label={t('transactions.keyword')}
-                  value={filters.keyword || ''}
-                  onChange={e => handleFilterChange('keyword', e.target.value)}
+                  value={filters.keywords || ''}
+                  onChange={e => handleFilterChange('keywords', e.target.value)}
                   placeholder={t('transactions.keywordPlaceholder')}
                   InputProps={{
                     startAdornment: (
@@ -222,6 +223,22 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                         <SwapVert />
                       </InputAdornment>
                     }
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200,
+                          width: 'auto',
+                        },
+                      },
+                      anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      },
+                      transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left',
+                      },
+                    }}
                   >
                     <MenuItem value="">
                       <em>{t('common.all')}</em>
@@ -247,6 +264,22 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                         <Label />
                       </InputAdornment>
                     }
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200,
+                          width: 'auto',
+                        },
+                      },
+                      anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      },
+                      transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left',
+                      },
+                    }}
                   >
                     <MenuItem value="">
                       <em>{t('common.allCategories')}</em>
@@ -349,6 +382,22 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                         <AccountBalanceWallet />
                       </InputAdornment>
                     }
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200,
+                          width: 'auto',
+                        },
+                      },
+                      anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      },
+                      transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left',
+                      },
+                    }}
                   >
                     <MenuItem value="">
                       <em>{t('common.allWallets')}</em>
@@ -417,6 +466,22 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                         <CalendarToday />
                       </InputAdornment>
                     }
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 200,
+                          width: 'auto',
+                        },
+                      },
+                      anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      },
+                      transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left',
+                      },
+                    }}
                   >
                     <MenuItem value="">
                       <em>{t('common.anyDay')}</em>
@@ -435,6 +500,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   label={t('transactions.startTime')}
                   value={startTime}
                   onChange={setStartTime}
+                  ampm={false}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -448,6 +514,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   value={endTime}
                   onChange={setEndTime}
                   minTime={startTime || undefined}
+                  ampm={false}
                   slotProps={{
                     textField: {
                       fullWidth: true,
