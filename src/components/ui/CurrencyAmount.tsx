@@ -6,6 +6,7 @@
 import React from 'react';
 import { useCurrencyDisplay } from '../../hooks/useCurrencyDisplay';
 import Loading from './Loading';
+import type { TransactionType } from '../../types';
 
 interface CurrencyAmountProps {
   /** Amount in VND (base currency) */
@@ -40,7 +41,7 @@ export const CurrencyAmount: React.FC<CurrencyAmountProps> = ({
  */
 interface CurrencyAmountWithSignProps extends CurrencyAmountProps {
   /** Transaction type for sign */
-  type: 'income' | 'expense';
+  type: TransactionType;
 }
 
 export const CurrencyAmountWithSign: React.FC<CurrencyAmountWithSignProps> = ({
@@ -49,6 +50,9 @@ export const CurrencyAmountWithSign: React.FC<CurrencyAmountWithSignProps> = ({
   className = '',
   showLoading = false,
 }) => {
+  // Ensure positive value for display
+  amountInVnd = Math.abs(amountInVnd);
+
   const { displayAmount, isLoading, error } = useCurrencyDisplay(amountInVnd);
 
   if (isLoading && showLoading) {

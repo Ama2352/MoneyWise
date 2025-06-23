@@ -1326,7 +1326,7 @@ src/pages/
 
 ```css
 /* Dialog-based creation pattern */
-.create-category-dialog {
+. {
   position: fixed;
   top: 0;
   left: 0;
@@ -2806,7 +2806,7 @@ import { CategoryIcon } from '../components/ui';
 }
 
 /* NEW: Dialog-based forms and soft button styling */
-.create-category-dialog {
+.modal {
   position: fixed;
   /* Dialog overlay pattern */
 }
@@ -2814,7 +2814,7 @@ import { CategoryIcon } from '../components/ui';
 .edit-btn {
   background: #f1f5f9; /* Soft blue background */
   color: #475569; /* Muted text */
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e2e8f0;`
 }
 ```
 

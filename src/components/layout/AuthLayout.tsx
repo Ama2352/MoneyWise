@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguageContext } from '../../contexts';
 import { Card } from '../ui';
-import '../../pages/LoginPage.css'; // Reuse existing styles
+import './AuthLayout.css';
 
 interface AuthLayoutProps {
   title: string;

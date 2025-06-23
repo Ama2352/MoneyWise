@@ -1,10 +1,13 @@
 import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { ArrowUpRight, ArrowDownRight, MoreHorizontal } from 'lucide-react';
+import { CurrencyAmountWithSign } from './CurrencyAmount';
+import type { TransactionType } from '../../types';
 
 interface StatCardProps {
   title: string;
-  value: string | number;
+  value: number;
+  type?: TransactionType;
   icon: LucideIcon;
   change?: string;
   trend?: 'up' | 'down';
@@ -15,6 +18,7 @@ interface StatCardProps {
 export const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
+  type,
   icon: Icon,
   change,
   trend,
@@ -35,7 +39,12 @@ export const StatCard: React.FC<StatCardProps> = ({
       </div>
       <div className="modern-dashboard__stat-content">
         <h3 className="modern-dashboard__stat-title">{title}</h3>
-        <div className="modern-dashboard__stat-value">{value}</div>
+        <div className="modern-dashboard__stat-value">
+          <CurrencyAmountWithSign
+            amountInVnd={value}
+            type={type ? type : value >= 0 ? 'income' : 'expense'}
+          />
+        </div>
         {change && trend && (
           <div
             className={`modern-dashboard__stat-change modern-dashboard__stat-change--${trend}`}

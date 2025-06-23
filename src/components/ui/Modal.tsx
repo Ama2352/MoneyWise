@@ -1,4 +1,5 @@
 import React from 'react';
+import './Modal.css';
 
 interface ModalProps {
   isOpen: boolean;
@@ -21,7 +22,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className={`create-category-dialog ${className}`}
+      className={`modal ${className}`}
       onClick={e => {
         if (e.target === e.currentTarget) {
           onClose();

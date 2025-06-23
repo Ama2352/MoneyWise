@@ -36,8 +36,3 @@ export const validatePassword = (
 export const validateRequired = (value: string): boolean => {
   return value.trim().length > 0;
 };
-
-export const validateAmount = (amount: string): boolean => {
-  const num = parseFloat(amount);
-  return !isNaN(num) && num > 0;
-};

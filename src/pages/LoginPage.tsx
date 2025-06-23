@@ -7,7 +7,6 @@ import { AuthInput, EmailIcon, PasswordIcon } from '../components/forms';
 import { useForm } from '../hooks';
 import { createFormValidationService, type LoginFormData } from '../services';
 import { ROUTES } from '../constants';
-import './LoginPage.css';
 
 const LoginPage = () => {
   const { login, isLoading } = useAuthContext();

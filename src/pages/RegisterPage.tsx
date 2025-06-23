@@ -14,7 +14,6 @@ import { useForm } from '../hooks';
 import { createFormValidationService } from '../services';
 import type { RegisterFormData } from '../services';
 import { ROUTES } from '../constants';
-import './RegisterPage.css';
 
 const RegisterPage = () => {
   const navigate = useNavigate();

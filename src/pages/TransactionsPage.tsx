@@ -73,7 +73,7 @@ TransactionList.displayName = 'TransactionList';
 
 // Memoized component to prevent unnecessary re-renders
 const TransactionsPage: React.FC = memo(() => {
-  const { translations } = useLanguageContext();
+  const { translations, language } = useLanguageContext();
   const { showSuccess, showError } = useToastContext();
 
   // State for search filters
@@ -94,13 +94,16 @@ const TransactionsPage: React.FC = memo(() => {
     error: allError,
     refresh: refreshTransactions,
   } = useTransactions(); // Use search results if we have active filters, otherwise use all transactions
+
   const transactions = hasActiveFilters ? searchTransactions : allTransactions;
   const isLoading = hasActiveFilters ? searchLoading : allLoading;
   const error = hasActiveFilters ? searchError : allError;
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { wallets, isLoading: walletsLoading } = useWallets();
+
   const { createTransaction, updateTransaction, deleteTransaction } =
     useTransactionMutations(); // Stabilize data arrays to prevent unnecessary re-renders caused by new array references
+
   const stableTransactions = useMemo(() => {
     return transactions || [];
   }, [transactions]); // Depend on the actual array, not just length
@@ -127,7 +130,9 @@ const TransactionsPage: React.FC = memo(() => {
     transactionId?: string;
     description?: string;
   }>({ show: false });
+
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE); // Get visible transactions (simple slice)
+
   const visibleTransactions = useMemo(() => {
     return stableTransactions.slice(0, visibleCount);
   }, [stableTransactions, visibleCount]);
@@ -157,6 +162,7 @@ const TransactionsPage: React.FC = memo(() => {
   }, [stableTransactions]);
 
   const hasMoreTransactions = visibleCount < stableTransactions.length;
+
   // Optimize callbacks to prevent unnecessary re-renders
   const loadMoreTransactions = useCallback(() => {
     setVisibleCount(prev => prev + LOAD_MORE_INCREMENT);
@@ -258,7 +264,9 @@ const TransactionsPage: React.FC = memo(() => {
     refreshTransactions,
     showSuccess,
     showError,
-  ]); // Memoize helper functions to prevent recreation on every render
+  ]);
+
+  // Memoize helper functions to prevent recreation on every render
   const getCategoryById = useCallback(
     (categoryId: string) => {
       if (categoriesLoading) return null; // Still loading
@@ -279,6 +287,7 @@ const TransactionsPage: React.FC = memo(() => {
     setEditingTransaction(transaction);
     setShowForm(true);
   }, []);
+
   const openDeleteConfirm = useCallback((transaction: Transaction) => {
     setDeleteConfirm({
       show: true,
@@ -338,12 +347,14 @@ const TransactionsPage: React.FC = memo(() => {
         <StatCard
           title={translations.transactions.totalIncome}
           value={totalIncome}
+          type="income"
           icon={ArrowUpCircle}
           color="success"
         />
         <StatCard
           title={translations.transactions.totalExpenses}
           value={totalExpenses}
+          type="expense"
           icon={ArrowDownCircle}
           color="error"
         />
