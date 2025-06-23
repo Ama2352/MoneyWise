@@ -18,6 +18,14 @@ const httpClient: AxiosInstance = axios.create({
 // Request interceptor - Add auth token to requests
 httpClient.interceptors.request.use(
   config => {
+    // Debug logging (only in development)
+    if (import.meta.env.DEV) {
+      console.log('🚀 [HTTP] Making request:', {
+        url: config.url,
+        method: config.method?.toUpperCase()
+      });
+    }
+
     // Get token from localStorage
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     if (token) {
@@ -110,7 +118,7 @@ httpClient.interceptors.response.use(
 
         // Call refresh token endpoint directly (not through httpClient to avoid interceptor loops)
         const refreshResponse = await axios.post(
-          `${API_BASE_URL}/Accounts/RefreshToken`,
+          `/api/Accounts/RefreshToken`,
           {
             expiredToken: refreshToken || accessToken, // Use refresh token if available, otherwise expired access token
           },

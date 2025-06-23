@@ -3,8 +3,16 @@
  * Centralized configuration for API endpoints and settings
  */
 
-// Environment-based API base URL
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+// Environment-based API base URL - Use relative path for Vite proxy
+export const API_BASE_URL = '/api';
+
+// Debug logging (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔧 [CONFIG] API Configuration:', {
+    API_BASE_URL,
+    MODE: import.meta.env.MODE
+  });
+}
 
 // Request timeout in milliseconds
 export const REQUEST_TIMEOUT = 10000;
