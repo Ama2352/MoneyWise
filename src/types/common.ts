@@ -420,6 +420,83 @@ export interface TranslationKeys {
     categories: string;
     categoriesCount: string;
   };
+  
+  // Reports
+  reports: {
+    title: string;
+    subtitle: string;
+    generateReport: string;
+    generating: string;
+    downloadReport: string;
+    reportGenerated: string;
+    reportFailed: string;
+    
+    types: {
+      categoryBreakdown: {
+        title: string;
+        description: string;
+      };
+      cashFlow: {
+        title: string;
+        description: string;
+      };
+      dailySummary: {
+        title: string;
+        description: string;
+      };
+      weeklySummary: {
+        title: string;
+        description: string;
+      };
+      monthlySummary: {
+        title: string;
+        description: string;
+      };
+      yearlySummary: {
+        title: string;
+        description: string;
+      };
+    };
+    
+    form: {
+      reportType: string;
+      selectReportType: string;
+      dateRange: string;
+      startDate: string;
+      endDate: string;
+      currency: string;
+      format: string;
+      language: string;
+      generate: string;
+      cancel: string;
+      reset: string;
+    };
+    
+    categories: {
+      breakdown: string;
+      summary: string;
+      flow: string;
+    };
+    
+    messages: {
+      selectType: string;
+      selectStartDate: string;
+      selectEndDate: string;
+      invalidDateRange: string;
+      generating: string;
+      downloadStarted: string;
+      generationFailed: string;
+      downloadFailed: string;
+    };
+    
+    progress: {
+      preparing: string;
+      processing: string;
+      generating: string;
+      downloading: string;
+    };
+  };
+  
   // Errors
   errors: {
     networkError: string;

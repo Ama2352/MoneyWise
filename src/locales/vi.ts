@@ -369,6 +369,85 @@ export const vi: TranslationKeys = {
     categories: 'danh mục',
     categoriesCount: 'danh mục', // "5 danh mục"
   },
+  reports: {
+    title: 'Báo Cáo',
+    subtitle: 'Tạo báo cáo tài chính chi tiết',
+    generateReport: 'Tạo Báo Cáo',
+    generating: 'Đang Tạo Báo Cáo...',
+    downloadReport: 'Tải Báo Cáo',
+    reportGenerated: 'Báo Cáo Đã Được Tạo',
+    reportFailed: 'Tạo Báo Cáo Thất Bại',
+    
+    // Report types
+    types: {
+      categoryBreakdown: {
+        title: 'Phân Tích Theo Danh Mục',
+        description: 'Phân tích chi tiết thu nhập và chi tiêu theo danh mục với theo dõi ngân sách',
+      },
+      cashFlow: {
+        title: 'Tóm Tắt Dòng Tiền',
+        description: 'Tổng quan về tổng thu nhập và chi tiêu trong một khoảng thời gian cụ thể',
+      },
+      dailySummary: {
+        title: 'Tóm Tắt Hàng Ngày',
+        description: 'Tóm tắt tài chính hàng ngày đầy đủ với bối cảnh hàng tuần',
+      },
+      weeklySummary: {
+        title: 'Tóm Tắt Hàng Tuần',
+        description: 'Phân tích tài chính hàng tuần với chi tiết từng ngày',
+      },
+      monthlySummary: {
+        title: 'Tóm Tắt Hàng Tháng',
+        description: 'Tổng quan tài chính hàng tháng với so sánh từng tháng',
+      },
+      yearlySummary: {
+        title: 'Tóm Tắt Hàng Năm',
+        description: 'Báo cáo tài chính hàng năm với phân tích từng năm',
+      },
+    },
+    
+    // Form fields
+    form: {
+      reportType: 'Loại Báo Cáo',
+      selectReportType: 'Chọn loại báo cáo',
+      dateRange: 'Khoảng Thời Gian',
+      startDate: 'Ngày Bắt Đầu',
+      endDate: 'Ngày Kết Thúc',
+      currency: 'Tiền Tệ',
+      format: 'Định Dạng',
+      language: 'Ngôn Ngữ',
+      generate: 'Tạo Báo Cáo',
+      cancel: 'Hủy',
+      reset: 'Đặt Lại Form',
+    },
+    
+    // Categories
+    categories: {
+      breakdown: 'Báo Cáo Phân Tích',
+      summary: 'Báo Cáo Tóm Tắt',
+      flow: 'Báo Cáo Dòng Tiền',
+    },
+    
+    // Messages
+    messages: {
+      selectType: 'Vui lòng chọn loại báo cáo',
+      selectStartDate: 'Vui lòng chọn ngày bắt đầu',
+      selectEndDate: 'Ngày kết thúc là bắt buộc cho loại báo cáo này',
+      invalidDateRange: 'Ngày kết thúc phải sau ngày bắt đầu',
+      generating: 'Đang tạo báo cáo của bạn...',
+      downloadStarted: 'Bắt đầu tải báo cáo',
+      generationFailed: 'Không thể tạo báo cáo. Vui lòng thử lại.',
+      downloadFailed: 'Không thể tải file báo cáo',
+    },
+    
+    // Progress
+    progress: {
+      preparing: 'Đang chuẩn bị báo cáo...',
+      processing: 'Đang xử lý dữ liệu...',
+      generating: 'Đang tạo PDF...',
+      downloading: 'Bắt đầu tải xuống...',
+    },
+  },
   errors: {
     networkError: 'Lỗi mạng. Vui lòng kiểm tra kết nối.',
     serverError: 'Lỗi máy chủ. Vui lòng thử lại sau.',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { FileText, PiggyBank, Target, Settings } from 'lucide-react';
+import { PiggyBank, Target, Settings } from 'lucide-react';
 import { AppLayout } from '../components/layout';
 import {
   ModernDashboard,
@@ -8,6 +8,7 @@ import {
   WalletsPage,
   CategoriesPage,
   AnalyticsPage,
+  ReportsPage, 
 } from '../pages';
 import { PlaceholderPage } from '../components/ui';
 import { ROUTES } from '../constants';
@@ -27,17 +28,7 @@ const AppRouter: React.FC = () => {
         <Route path={ROUTES.WALLETS} element={<WalletsPage />} />{' '}
         <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />{' '}
         <Route path={ROUTES.ANALYTICS} element={<AnalyticsPage />} />{' '}
-        <Route
-          path={ROUTES.REPORTS}
-          element={
-            <PlaceholderPage
-              title="Reports"
-              description="Generate detailed financial reports and export your data"
-              icon={FileText}
-              comingSoon={true}
-            />
-          }
-        />
+        <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
         <Route
           path={ROUTES.BUDGET}
           element={

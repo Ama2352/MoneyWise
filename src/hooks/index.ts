@@ -21,3 +21,4 @@ export { useDateFormatter } from './useDateFormatter';
 export { useCrudOperations } from './useCrudOperations';
 export { useAnalytics } from './useAnalytics';
 export { useSafeCurrencyFormat } from './useSafeCurrencyFormat';
+export { useReports } from './useReports';

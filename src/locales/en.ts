@@ -373,6 +373,85 @@ export const en: TranslationKeys = {
     categories: 'categories',
     categoriesCount: 'categories',
   },
+  reports: {
+    title: 'Reports',
+    subtitle: 'Generate detailed financial reports',
+    generateReport: 'Generate Report',
+    generating: 'Generating Report...',
+    downloadReport: 'Download Report',
+    reportGenerated: 'Report Generated',
+    reportFailed: 'Report Generation Failed',
+    
+    // Report types
+    types: {
+      categoryBreakdown: {
+        title: 'Category Breakdown',
+        description: 'Detailed analysis of income and expenses by category with budget tracking',
+      },
+      cashFlow: {
+        title: 'Cash Flow Summary',
+        description: 'Overview of total income and expenses for a specific period',
+      },
+      dailySummary: {
+        title: 'Daily Summary',
+        description: 'Complete daily financial summary with weekly context',
+      },
+      weeklySummary: {
+        title: 'Weekly Summary',
+        description: 'Weekly financial analysis with day-by-day breakdown',
+      },
+      monthlySummary: {
+        title: 'Monthly Summary',
+        description: 'Monthly financial overview with month-by-month comparison',
+      },
+      yearlySummary: {
+        title: 'Yearly Summary',
+        description: 'Annual financial report with year-over-year analysis',
+      },
+    },
+    
+    // Form fields
+    form: {
+      reportType: 'Report Type',
+      selectReportType: 'Select a report type',
+      dateRange: 'Date Range',
+      startDate: 'Start Date',
+      endDate: 'End Date',
+      currency: 'Currency',
+      format: 'Format',
+      language: 'Language',
+      generate: 'Generate Report',
+      cancel: 'Cancel',
+      reset: 'Reset Form',
+    },
+    
+    // Categories
+    categories: {
+      breakdown: 'Breakdown Reports',
+      summary: 'Summary Reports',
+      flow: 'Cash Flow Reports',
+    },
+    
+    // Messages
+    messages: {
+      selectType: 'Please select a report type',
+      selectStartDate: 'Please select a start date',
+      selectEndDate: 'End date is required for this report type',
+      invalidDateRange: 'End date must be after start date',
+      generating: 'Generating your report...',
+      downloadStarted: 'Report download started',
+      generationFailed: 'Failed to generate report. Please try again.',
+      downloadFailed: 'Failed to download report file',
+    },
+    
+    // Progress
+    progress: {
+      preparing: 'Preparing report...',
+      processing: 'Processing data...',
+      generating: 'Generating PDF...',
+      downloading: 'Starting download...',
+    },
+  },
   errors: {
     networkError: 'Network error. Please check your connection.',
     serverError: 'Server error. Please try again later.',

@@ -23,6 +23,7 @@ interface DateRangePickerProps {
     clear?: string;
   };
   className?: string;
+  hideEndDateField?: boolean; // New prop to hide end date field
 }
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({
@@ -31,7 +32,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   onDateChange,
   onClear,
   translations,
-  className = ''
+  className = '',
+  hideEndDateField = false
 }) => {
   const [localStartDate, setLocalStartDate] = useState<Dayjs | null>(
     startDate ? dayjs(startDate) : null
@@ -40,9 +42,19 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     endDate ? dayjs(endDate) : null
   );
 
-  const handleApply = () => {
+  // Auto-apply when dates change
+  const handleStartDateChange = (date: Dayjs | null) => {
+    setLocalStartDate(date);
+    const start = date ? date.format('YYYY-MM-DD') : '';
+    const end = hideEndDateField ? '' : (localEndDate ? localEndDate.format('YYYY-MM-DD') : '');
+    onDateChange(start, end);
+  };
+
+  const handleEndDateChange = (date: Dayjs | null) => {
+    if (hideEndDateField) return; // Don't allow end date changes if hidden
+    setLocalEndDate(date);
     const start = localStartDate ? localStartDate.format('YYYY-MM-DD') : '';
-    const end = localEndDate ? localEndDate.format('YYYY-MM-DD') : '';
+    const end = date ? date.format('YYYY-MM-DD') : '';
     onDateChange(start, end);
   };
 
@@ -56,10 +68,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     }
   };
 
-  const hasChanges = 
-    (localStartDate ? localStartDate.format('YYYY-MM-DD') : '') !== startDate ||
-    (localEndDate ? localEndDate.format('YYYY-MM-DD') : '') !== endDate;
-
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className={`date-range-picker ${className}`}>
@@ -71,8 +79,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
             </label>
             <DatePicker
               value={localStartDate}
-              onChange={(newValue) => setLocalStartDate(newValue)}
-              maxDate={localEndDate || undefined}
+              onChange={handleStartDateChange}
+              maxDate={hideEndDateField ? undefined : (localEndDate || undefined)}
               slotProps={{
                 textField: {
                   size: 'small',
@@ -83,16 +91,17 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
             />
           </div>
           
-          <div className="date-range-picker__field">
-            <label className="date-range-picker__label">
-              <Calendar size={16} />
-              {translations?.endDate || 'End Date'}
-            </label>
-            <DatePicker
-              value={localEndDate}
-              onChange={(newValue) => setLocalEndDate(newValue)}
-              minDate={localStartDate || undefined}
-              slotProps={{
+          {!hideEndDateField && (
+            <div className="date-range-picker__field">
+              <label className="date-range-picker__label">
+                <Calendar size={16} />
+                {translations?.endDate || 'End Date'}
+              </label>
+              <DatePicker
+                value={localEndDate}
+                onChange={handleEndDateChange}
+                minDate={localStartDate || undefined}
+                slotProps={{
                 textField: {
                   size: 'small',
                   variant: 'outlined',
@@ -100,7 +109,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                 }
               }}
             />
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="date-range-picker__actions">
@@ -112,14 +122,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           >
             <X size={16} />
             {translations?.clear || 'Clear'}
-          </Button>
-          
-          <Button
-            onClick={handleApply}
-            size="sm"
-            disabled={!hasChanges || (!localStartDate && !localEndDate)}
-          >
-            {translations?.apply || 'Apply'}
           </Button>
         </div>
       </div>
