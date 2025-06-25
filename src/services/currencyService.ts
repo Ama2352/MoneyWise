@@ -115,9 +115,10 @@ class CurrencyService {
   }
 
   private validateAmount(amount: number): void {
-    if (!Number.isFinite(amount) || amount < 0) {
-      throw new Error('Amount must be a positive finite number');
+    if (!Number.isFinite(amount)) {
+      throw new Error('Amount must be a finite number');
     }
+    // Remove the amount < 0 check to allow negative amounts (for net calculations)
   }
   private calculateConversion(
     amount: number,

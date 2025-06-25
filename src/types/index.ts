@@ -6,3 +6,4 @@ export * from './auth';
 export * from './finance';
 export * from './common';
 export * from './currency';
+export * from './analytics';

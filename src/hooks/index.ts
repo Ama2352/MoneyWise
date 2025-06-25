@@ -19,3 +19,5 @@ export { useCategoryIcon } from './useCategoryIcon';
 export { useForm } from './useForm';
 export { useDateFormatter } from './useDateFormatter';
 export { useCrudOperations } from './useCrudOperations';
+export { useAnalytics } from './useAnalytics';
+export { useSafeCurrencyFormat } from './useSafeCurrencyFormat';

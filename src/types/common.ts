@@ -2,6 +2,29 @@
  * Common type definitions used across the application
  */
 
+export interface ApiResponse<T> {
+  data: T;
+  message: string;
+  success: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  first: boolean;
+}
+
+export interface ApiError {
+  message: string;
+  status: number;
+  error: string;
+  timestamp: string;
+}
+
 export interface SelectOption {
   value: string | number;
   label: string;
@@ -356,7 +379,48 @@ export interface TranslationKeys {
     vnd: string;
     selectCurrency: string;
     switchTo: string;
-  }; // Errors
+  }; 
+  // Analytics
+  analytics: {
+    title: string;
+    subtitle: string;
+    daily: string;
+    weekly: string;
+    monthly: string;
+    yearly: string;
+    income: string;
+    expenses: string;
+    net: string;
+    overview: string;
+    categoryBreakdown: string;
+    incomeVsExpenses: string;
+    totalIncome: string;
+    totalExpenses: string;
+    netAmount: string;
+    refresh: string;
+    refreshing: string;
+    loading: string;
+    noData: string;
+    noDataDescription: string;
+    chartView: string;
+    pieChartType: string;
+    customDateRange: string;
+    selectDateRange: string;
+    startDate: string;
+    endDate: string;
+    applyDateRange: string;
+    dateRange: string;
+    preset: string;
+    custom: string;
+    byCategory: string;
+    failedToLoad: string;
+    errorTitle: string;
+    dismiss: string;
+    retry: string;
+    categories: string;
+    categoriesCount: string;
+  };
+  // Errors
   errors: {
     networkError: string;
     serverError: string;
