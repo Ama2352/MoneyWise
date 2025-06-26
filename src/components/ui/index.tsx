@@ -21,3 +21,4 @@ export { default as AdvancedSearch } from './AdvancedSearch';
 export { WalletBalance } from './WalletBalance';
 export { StatCard } from './StatCard';
 export { Modal } from './Modal';
+export { default as ErrorBoundary } from './ErrorBoundary';

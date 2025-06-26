@@ -6,6 +6,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { BarChart3 } from 'lucide-react';
 import { useCurrencyContext } from '../../contexts/CurrencyContext';
+import { useLanguageContext } from '../../contexts/LanguageContext';
 import type { BarChartData } from '../../types/analytics';
 import './AnalyticsBarChart.css';
 
@@ -96,45 +97,97 @@ export const AnalyticsBarChart: React.FC<AnalyticsBarChartProps> = ({
   showNet = true,
   translations
 }) => {
-  if (loading) {
-    return (
-      <div className="analytics-bar-chart">
-        <div className="analytics-bar-chart__header">
-          <h3 className="analytics-bar-chart__title">{title}</h3>
-        </div>
-        <div className="analytics-bar-chart__loading">
-          <div className="analytics-bar-chart__spinner">
-            <div className="spinner"></div>
-          </div>
-          <p>{translations?.loading || 'Loading chart data...'}</p>
-        </div>
-      </div>
-    );
-  }
+  // ALL HOOKS MUST BE CALLED AT THE TOP LEVEL, BEFORE ANY RETURNS
+  const { language } = useLanguageContext();
+  const { convertAndFormat } = useCurrencyContext();
 
-  if (!data || data.length === 0) {
-    return (
-      <div className="analytics-bar-chart">
-        <div className="analytics-bar-chart__header">
-          <h3 className="analytics-bar-chart__title">{title}</h3>
-        </div>
-        <div className="analytics-bar-chart__empty">
-          <div className="analytics-bar-chart__empty-icon">
-            <BarChart3 size={48} />
-          </div>
-          <p>{translations?.noData || 'No data available'}</p>
-          <span>Data will appear here once you have transactions</span>
-        </div>
-      </div>
-    );
-  }
+  // Format month names using custom logic to ensure proper Vietnamese abbreviations
+  const formatMonthName = React.useCallback((name: string): string => {
+    try {
+      if (!name) return 'N/A';
+      
+      // Try to parse the month name to a month number for proper i18n formatting
+      const monthIndex = getMonthIndexFromName(name);
+      if (monthIndex !== -1) {
+        if (language === 'vi') {
+          // Use custom Vietnamese abbreviations to ensure "Th1", "Th2", etc.
+          return `Th${monthIndex + 1}`;
+        } else {
+          // For English, use browser's built-in formatting
+          const date = new Date(2024, monthIndex, 1);
+          return date.toLocaleDateString('en-US', { month: 'short' });
+        }
+      }
+      
+      // Fallback: return the original name if we can't parse it
+      return name;
+    } catch (error) {
+      console.error('Error formatting month name:', error);
+      return name || 'N/A';
+    }
+  }, [language]);
 
-  // Calculate summary stats
-  const totalIncome = data.reduce((sum, item) => sum + item.income, 0);
-  const totalExpense = data.reduce((sum, item) => sum + item.expense, 0);
+  // Helper function to get month index from month name
+  const getMonthIndexFromName = React.useCallback((name: string): number => {
+    const monthNames: { [key: string]: number } = {
+      // English full names
+      'january': 0, 'february': 1, 'march': 2, 'april': 3,
+      'may': 4, 'june': 5, 'july': 6, 'august': 7,
+      'september': 8, 'october': 9, 'november': 10, 'december': 11,
+      // English short names
+      'jan': 0, 'feb': 1, 'mar': 2, 'apr': 3,
+      'jun': 5, 'jul': 6, 'aug': 7, 'sep': 8,
+      'oct': 9, 'nov': 10, 'dec': 11,
+      // Vietnamese
+      'tháng 1': 0, 'tháng 2': 1, 'tháng 3': 2, 'tháng 4': 3,
+      'tháng 5': 4, 'tháng 6': 5, 'tháng 7': 6, 'tháng 8': 7,
+      'tháng 9': 8, 'tháng 10': 9, 'tháng 11': 10, 'tháng 12': 11,
+      // Vietnamese short
+      'th1': 0, 'th2': 1, 'th3': 2, 'th4': 3,
+      'th5': 4, 'th6': 5, 'th7': 6, 'th8': 7,
+      'th9': 8, 'th10': 9, 'th11': 10, 'th12': 11
+    };
+    
+    const lowerName = name.toLowerCase().trim();
+    return monthNames[lowerName] !== undefined ? monthNames[lowerName] : -1;
+  }, []);
+
+  // Calculate summary stats with error handling - MUST BE AT TOP LEVEL
+  const totalIncome = React.useMemo(() => {
+    try {
+      return data?.reduce((sum, item) => sum + (item?.income || 0), 0) || 0;
+    } catch (error) {
+      console.error('Error calculating total income:', error);
+      return 0;
+    }
+  }, [data]);
+
+  const totalExpense = React.useMemo(() => {
+    try {
+      return data?.reduce((sum, item) => sum + (item?.expense || 0), 0) || 0;
+    } catch (error) {
+      console.error('Error calculating total expense:', error);
+      return 0;
+    }
+  }, [data]);
+
   const netAmount = totalIncome - totalExpense;
 
-  const { convertAndFormat } = useCurrencyContext();
+  const formattedData = React.useMemo(() => {
+    try {
+      if (!data || !Array.isArray(data)) {
+        return [];
+      }
+      return data.map(item => ({
+        ...item,
+        name: formatMonthName(item?.name || '')
+      }));
+    } catch (error) {
+      console.error('Error formatting chart data:', error);
+      return data || [];
+    }
+  }, [data, formatMonthName]);
+
   const [formattedSummary, setFormattedSummary] = React.useState({
     income: '',
     expense: '',
@@ -148,90 +201,165 @@ export const AnalyticsBarChart: React.FC<AnalyticsBarChartProps> = ({
       convertAndFormat(netAmount)
     ]).then(([income, expense, net]) => {
       setFormattedSummary({ income, expense, net });
+    }).catch(error => {
+      console.error('Error formatting currency in chart:', error);
+      // Use fallback formatting
+      setFormattedSummary({
+        income: totalIncome.toLocaleString(),
+        expense: totalExpense.toLocaleString(), 
+        net: netAmount.toLocaleString()
+      });
     });
   }, [totalIncome, totalExpense, netAmount, convertAndFormat]);
 
-  return (
-    <div className="analytics-bar-chart">
-      <div className="analytics-bar-chart__header">
-        <h3 className="analytics-bar-chart__title">{title}</h3>
-        <div className="analytics-bar-chart__summary">
-          <div className="analytics-bar-chart__stat analytics-bar-chart__stat--income">
-            <span className="analytics-bar-chart__stat-label">{translations?.income || 'Income'}</span>
-            <span className="analytics-bar-chart__stat-value">
-              {formattedSummary.income || totalIncome.toLocaleString()}
-            </span>
+  // NOW WE CAN DO CONDITIONAL RENDERING
+  try {
+    if (loading) {
+      return (
+        <div className="analytics-bar-chart">
+          <div className="analytics-bar-chart__header">
+            <h3 className="analytics-bar-chart__title">{title}</h3>
           </div>
-          <div className="analytics-bar-chart__stat analytics-bar-chart__stat--expense">
-            <span className="analytics-bar-chart__stat-label">{translations?.expense || 'Expense'}</span>
-            <span className="analytics-bar-chart__stat-value">
-              {formattedSummary.expense || totalExpense.toLocaleString()}
-            </span>
-          </div>
-          <div className={`analytics-bar-chart__stat analytics-bar-chart__stat--net ${netAmount >= 0 ? 'positive' : 'negative'}`}>
-            <span className="analytics-bar-chart__stat-label">{translations?.net || 'Net'}</span>
-            <span className="analytics-bar-chart__stat-value">
-              {formattedSummary.net || netAmount.toLocaleString()}
-            </span>
+          <div className="analytics-bar-chart__loading">
+            <div className="analytics-bar-chart__spinner">
+              <div className="spinner"></div>
+            </div>
+            <p>{translations?.loading || 'Loading chart data...'}</p>
           </div>
         </div>
-      </div>
-      
-      <div className="analytics-bar-chart__content" style={{ height }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={data}
-            margin={{
-              top: 20,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="name" 
-              stroke="#6b7280"
-              fontSize={12}
-              fontWeight={500}
-            />
-            <YAxis 
-              stroke="#6b7280"
-              fontSize={12}
-              fontWeight={500}
-              tickFormatter={(value) => value.toLocaleString()}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend 
-              wrapperStyle={{
-                paddingTop: '20px',
-                fontSize: '14px',
-                fontWeight: '500'
+      );
+    }
+
+    if (!data || data.length === 0) {
+      return (
+        <div className="analytics-bar-chart">
+          <div className="analytics-bar-chart__header">
+            <h3 className="analytics-bar-chart__title">{title}</h3>
+          </div>
+          <div className="analytics-bar-chart__empty">
+            <div className="analytics-bar-chart__empty-icon">
+              <BarChart3 size={48} />
+            </div>
+            <p>{translations?.noData || 'No data available'}</p>
+            <span>Data will appear here once you have transactions</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="analytics-bar-chart">
+        <div className="analytics-bar-chart__header">
+          <h3 className="analytics-bar-chart__title">{title}</h3>
+          <div className="analytics-bar-chart__summary">
+            <div className="analytics-bar-chart__stat analytics-bar-chart__stat--income">
+              <span className="analytics-bar-chart__stat-label">{translations?.income || 'Income'}</span>
+              <span className="analytics-bar-chart__stat-value">
+                {formattedSummary.income || totalIncome.toLocaleString()}
+              </span>
+            </div>
+            <div className="analytics-bar-chart__stat analytics-bar-chart__stat--expense">
+              <span className="analytics-bar-chart__stat-label">{translations?.expense || 'Expense'}</span>
+              <span className="analytics-bar-chart__stat-value">
+                {formattedSummary.expense || totalExpense.toLocaleString()}
+              </span>
+            </div>
+            <div className={`analytics-bar-chart__stat analytics-bar-chart__stat--net ${netAmount >= 0 ? 'positive' : 'negative'}`}>
+              <span className="analytics-bar-chart__stat-label">{translations?.net || 'Net'}</span>
+              <span className="analytics-bar-chart__stat-value">
+                {formattedSummary.net || netAmount.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="analytics-bar-chart__content" style={{ height }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={formattedData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 30, // Reduced since no angle needed
               }}
-            />
-            <Bar 
-              dataKey="income" 
-              name={translations?.income || "Income"}
-              fill="#10b981" 
-              radius={[2, 2, 0, 0]}
-            />
-            <Bar 
-              dataKey="expense" 
-              name={translations?.expense || "Expense"}
-              fill="#ef4444" 
-              radius={[2, 2, 0, 0]}
-            />
-            {showNet && (
-              <Bar 
-                dataKey="net" 
-                name={translations?.net || "Net"}
-                fill="#6366f1" 
-                radius={[2, 2, 0, 0]}
+              barCategoryGap="10%" // Reduced gap for bigger bars
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis 
+                dataKey="name" 
+                stroke="#6b7280"
+                fontSize={12}
+                fontWeight={500}
+                interval={0} // Show all month labels
+                textAnchor="middle" // Center align text
+                height={40} // Reduced height since no angle
               />
-            )}
-          </BarChart>
-        </ResponsiveContainer>
+              <YAxis 
+                stroke="#6b7280"
+                fontSize={12}
+                fontWeight={500}
+                tickFormatter={(value) => value.toLocaleString()}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend 
+                wrapperStyle={{
+                  paddingTop: '30px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151'
+                }}
+                layout="horizontal"
+                align="center"
+                verticalAlign="bottom"
+                iconType="rect"
+                iconSize={12}
+              />
+              <Bar 
+                dataKey="income" 
+                name={translations?.income || "Thu Nhập"}
+                fill="#10b981" 
+                radius={[2, 2, 0, 0]}
+                maxBarSize={80} // Increased bar width
+              />
+              <Bar 
+                dataKey="expense" 
+                name={translations?.expense || "Chi Phí"}
+                fill="#ef4444" 
+                radius={[2, 2, 0, 0]}
+                maxBarSize={80}
+              />
+              {showNet && (
+                <Bar 
+                  dataKey="net" 
+                  name={translations?.net || "Ròng"}
+                  fill="#6366f1" 
+                  radius={[2, 2, 0, 0]}
+                  maxBarSize={80}
+                />
+              )}
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error('Error in AnalyticsBarChart:', error);
+    return (
+      <div className="analytics-bar-chart">
+        <div className="analytics-bar-chart__header">
+          <h3 className="analytics-bar-chart__title">{title}</h3>
+        </div>
+        <div className="analytics-bar-chart__error">
+          <div className="analytics-bar-chart__error-icon">
+            <BarChart3 size={48} />
+          </div>
+          <p>Error loading chart</p>
+          <span>Please try refreshing the page</span>
+        </div>
+      </div>
+    );
+  }
 };
+
+export default AnalyticsBarChart;

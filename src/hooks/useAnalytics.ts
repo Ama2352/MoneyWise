@@ -208,71 +208,127 @@ export const useAnalytics = (): UseAnalyticsReturn => {
 
   // Chart data helpers
   const getCategoryPieChartData = useCallback((type: 'income' | 'expense' = 'expense'): PieChartData[] => {
-    if (!categoryBreakdown.length) return [];
+    try {
+      if (!categoryBreakdown || !Array.isArray(categoryBreakdown) || categoryBreakdown.length === 0) {
+        return [];
+      }
 
-    return categoryBreakdown
-      .map((item, index) => ({
-        name: item.category,
-        value: type === 'income' ? item.totalIncome : item.totalExpense,
-        color: categoryColors[index % categoryColors.length],
-        percentage: type === 'income' ? item.incomePercentage : item.expensePercentage
-      }))
-      .filter(item => item.value > 0); // Only show categories with values
+      return categoryBreakdown
+        .map((item, index) => {
+          try {
+            const value = type === 'income' ? item.totalIncome : item.totalExpense;
+            const percentage = type === 'income' ? item.incomePercentage : item.expensePercentage;
+            
+            return {
+              name: item.category || 'Unknown Category',
+              value: typeof value === 'number' ? value : 0,
+              color: categoryColors[index % categoryColors.length],
+              percentage: typeof percentage === 'number' ? percentage : 0
+            };
+          } catch (error) {
+            console.error('Error processing category breakdown item:', error);
+            return {
+              name: 'Unknown Category',
+              value: 0,
+              color: categoryColors[index % categoryColors.length],
+              percentage: 0
+            };
+          }
+        })
+        .filter(item => item.value > 0); // Only show categories with values
+    } catch (error) {
+      console.error('Error in getCategoryPieChartData:', error);
+      return [];
+    }
   }, [categoryBreakdown]);
 
   const getCashFlowBarChartData = useCallback((): BarChartData[] => {
-    if (!cashFlow) return [];
+    try {
+      if (!cashFlow) return [];
 
-    return [{
-      name: 'Cash Flow',
-      income: cashFlow.totalIncome,
-      expense: cashFlow.totalExpenses,
-      net: cashFlow.totalIncome - cashFlow.totalExpenses
-    }];
+      return [{
+        name: 'Cash Flow',
+        income: typeof cashFlow.totalIncome === 'number' ? cashFlow.totalIncome : 0,
+        expense: typeof cashFlow.totalExpenses === 'number' ? cashFlow.totalExpenses : 0,
+        net: (typeof cashFlow.totalIncome === 'number' ? cashFlow.totalIncome : 0) - 
+             (typeof cashFlow.totalExpenses === 'number' ? cashFlow.totalExpenses : 0)
+      }];
+    } catch (error) {
+      console.error('Error in getCashFlowBarChartData:', error);
+      return [];
+    }
   }, [cashFlow]);
 
   const getDailyBarChartData = useCallback((): BarChartData[] => {
-    if (!dailySummary?.dailyDetails.length) return [];
+    try {
+      if (!dailySummary?.dailyDetails || !Array.isArray(dailySummary.dailyDetails) || dailySummary.dailyDetails.length === 0) {
+        return [];
+      }
 
-    return dailySummary.dailyDetails.map(item => ({
-      name: item.dayOfWeek,
-      income: item.income,
-      expense: item.expense,
-      net: item.income - item.expense
-    }));
+      return dailySummary.dailyDetails.map(item => ({
+        name: item.dayOfWeek || 'Unknown',
+        income: typeof item.income === 'number' ? item.income : 0,
+        expense: typeof item.expense === 'number' ? item.expense : 0,
+        net: (typeof item.income === 'number' ? item.income : 0) - (typeof item.expense === 'number' ? item.expense : 0)
+      }));
+    } catch (error) {
+      console.error('Error in getDailyBarChartData:', error);
+      return [];
+    }
   }, [dailySummary]);
 
   const getWeeklyBarChartData = useCallback((): BarChartData[] => {
-    if (!weeklySummary?.weeklyDetails.length) return [];
+    try {
+      if (!weeklySummary?.weeklyDetails || !Array.isArray(weeklySummary.weeklyDetails) || weeklySummary.weeklyDetails.length === 0) {
+        return [];
+      }
 
-    return weeklySummary.weeklyDetails.map(item => ({
-      name: `Week ${item.weekNumber}`,
-      income: item.income,
-      expense: item.expense,
-      net: item.income - item.expense
-    }));
+      return weeklySummary.weeklyDetails.map(item => ({
+        name: `Week ${item.weekNumber || 'Unknown'}`,
+        income: typeof item.income === 'number' ? item.income : 0,
+        expense: typeof item.expense === 'number' ? item.expense : 0,
+        net: (typeof item.income === 'number' ? item.income : 0) - (typeof item.expense === 'number' ? item.expense : 0)
+      }));
+    } catch (error) {
+      console.error('Error in getWeeklyBarChartData:', error);
+      return [];
+    }
   }, [weeklySummary]);
 
   const getMonthlyBarChartData = useCallback((): BarChartData[] => {
-    if (!monthlySummary?.monthlyDetails.length) return [];
+    try {
+      if (!monthlySummary?.monthlyDetails || !Array.isArray(monthlySummary.monthlyDetails) || monthlySummary.monthlyDetails.length === 0) {
+        return [];
+      }
 
-    return monthlySummary.monthlyDetails.map(item => ({
-      name: item.monthName,
-      income: item.income,
-      expense: item.expense,
-      net: item.income - item.expense
-    }));
+      return monthlySummary.monthlyDetails.map(item => ({
+        name: item.monthName || 'Unknown',
+        income: typeof item.income === 'number' ? item.income : 0,
+        expense: typeof item.expense === 'number' ? item.expense : 0,
+        net: (typeof item.income === 'number' ? item.income : 0) - (typeof item.expense === 'number' ? item.expense : 0)
+      }));
+    } catch (error) {
+      console.error('Error in getMonthlyBarChartData:', error);
+      return [];
+    }
   }, [monthlySummary]);
 
   const getYearlyBarChartData = useCallback((): BarChartData[] => {
-    if (!yearlySummary?.yearlyDetails.length) return [];
+    try {
+      if (!yearlySummary?.yearlyDetails || !Array.isArray(yearlySummary.yearlyDetails) || yearlySummary.yearlyDetails.length === 0) {
+        return [];
+      }
 
-    return yearlySummary.yearlyDetails.map(item => ({
-      name: item.year.toString(),
-      income: item.income,
-      expense: item.expense,
-      net: item.income - item.expense
-    }));
+      return yearlySummary.yearlyDetails.map(item => ({
+        name: (item.year || new Date().getFullYear()).toString(),
+        income: typeof item.income === 'number' ? item.income : 0,
+        expense: typeof item.expense === 'number' ? item.expense : 0,
+        net: (typeof item.income === 'number' ? item.income : 0) - (typeof item.expense === 'number' ? item.expense : 0)
+      }));
+    } catch (error) {
+      console.error('Error in getYearlyBarChartData:', error);
+      return [];
+    }
   }, [yearlySummary]);
 
   const clearError = useCallback(() => {

@@ -10,7 +10,7 @@ import {
   AnalyticsPage,
   ReportsPage, 
 } from '../pages';
-import { PlaceholderPage } from '../components/ui';
+import { PlaceholderPage, ErrorBoundary } from '../components/ui';
 import { ROUTES } from '../constants';
 import '../styles/pages.css';
 
@@ -27,7 +27,11 @@ const AppRouter: React.FC = () => {
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
         <Route path={ROUTES.WALLETS} element={<WalletsPage />} />{' '}
         <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />{' '}
-        <Route path={ROUTES.ANALYTICS} element={<AnalyticsPage />} />{' '}
+        <Route path={ROUTES.ANALYTICS} element={
+          <ErrorBoundary>
+            <AnalyticsPage />
+          </ErrorBoundary>
+        } />{' '}
         <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
         <Route
           path={ROUTES.BUDGET}

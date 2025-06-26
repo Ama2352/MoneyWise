@@ -68,51 +68,57 @@ export const AnalyticsPage: React.FC = () => {
 
   // Load data based on selected chart
   const loadChartData = useCallback(async () => {
-    if (dateRangeMode === 'custom' && customDateRange.startDate && customDateRange.endDate) {
-      // Custom date range
-      await Promise.all([
-        fetchCategoryBreakdown({
-          startDate: customDateRange.startDate,
-          endDate: customDateRange.endDate
-        }),
-        fetchCashFlow({
-          startDate: customDateRange.startDate,
-          endDate: customDateRange.endDate
-        })
-      ]);
-    } else {
-      // Preset periods - current data
-      const now = new Date();
-      const today = now.toISOString().split('T')[0];
-      
-      switch (selectedChart) {
-        case 'daily':
-          await fetchDailySummary(today);
-          break;
-        case 'weekly':
-          const monday = new Date(now);
-          monday.setDate(now.getDate() - now.getDay() + 1);
-          await fetchWeeklySummary(monday.toISOString().split('T')[0]);
-          break;
-        case 'monthly':
-          await fetchMonthlySummary({
-            year: now.getFullYear(),
-            month: now.getMonth() + 1
-          });
-          break;
-        case 'yearly':
-          await fetchYearlySummary({
-            year: now.getFullYear()
-          });
-          break;
+    try {
+      if (dateRangeMode === 'custom' && customDateRange.startDate && customDateRange.endDate) {
+        // Custom date range
+        await Promise.all([
+          fetchCategoryBreakdown({
+            startDate: customDateRange.startDate,
+            endDate: customDateRange.endDate
+          }),
+          fetchCashFlow({
+            startDate: customDateRange.startDate,
+            endDate: customDateRange.endDate
+          })
+        ]);
+      } else {
+        // Preset periods - current data
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        
+        switch (selectedChart) {
+          case 'daily':
+            await fetchDailySummary(today);
+            break;
+          case 'weekly':
+            const monday = new Date(now);
+            monday.setDate(now.getDate() - now.getDay() + 1);
+            await fetchWeeklySummary(monday.toISOString().split('T')[0]);
+            break;
+          case 'monthly':
+            await fetchMonthlySummary({
+              year: now.getFullYear(),
+              month: now.getMonth() + 1
+            });
+            break;
+          case 'yearly':
+            await fetchYearlySummary({
+              year: now.getFullYear()
+            });
+            break;
+        }
+        
+        // Always fetch category breakdown and cash flow for current period
+        const dateRange = getDateRangeForPeriod(selectedChart);
+        await Promise.all([
+          fetchCategoryBreakdown(dateRange),
+          fetchCashFlow(dateRange)
+        ]);
       }
-      
-      // Always fetch category breakdown and cash flow for current period
-      const dateRange = getDateRangeForPeriod(selectedChart);
-      await Promise.all([
-        fetchCategoryBreakdown(dateRange),
-        fetchCashFlow(dateRange)
-      ]);
+    } catch (error) {
+      console.error('Error loading chart data:', error);
+      // The error is already handled by individual fetch functions
+      // This is just an additional safety net
     }
   }, [selectedChart, dateRangeMode, customDateRange, fetchCategoryBreakdown, fetchCashFlow, fetchDailySummary, fetchWeeklySummary, fetchMonthlySummary, fetchYearlySummary]);
 
@@ -150,12 +156,18 @@ export const AnalyticsPage: React.FC = () => {
 
   // Load initial data and auto-reload when language or currency changes
   useEffect(() => {
-    // Small delay to allow context values to stabilize when changing
-    const timeoutId = setTimeout(() => {
-      loadChartData();
-    }, 100);
-    
-    return () => clearTimeout(timeoutId);
+    try {
+      // Small delay to allow context values to stabilize when changing
+      const timeoutId = setTimeout(() => {
+        loadChartData().catch(error => {
+          console.error('Failed to load chart data in useEffect:', error);
+        });
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    } catch (error) {
+      console.error('Error in useEffect for analytics:', error);
+    }
   }, [loadChartData, language, currency]);
 
   // Chart view options
@@ -174,31 +186,40 @@ export const AnalyticsPage: React.FC = () => {
 
   // Get chart data based on selected view
   const getChartData = () => {
-    let barData: any[] = [];
-    
-    switch (selectedChart) {
-      case 'daily':
-        barData = getDailyBarChartData();
-        break;
-      case 'weekly':
-        barData = getWeeklyBarChartData();
-        break;
-      case 'monthly':
-        barData = getMonthlyBarChartData();
-        break;
-      case 'yearly':
-        barData = getYearlyBarChartData();
-        break;
+    try {
+      let barData: any[] = [];
+      
+      switch (selectedChart) {
+        case 'daily':
+          barData = getDailyBarChartData();
+          break;
+        case 'weekly':
+          barData = getWeeklyBarChartData();
+          break;
+        case 'monthly':
+          barData = getMonthlyBarChartData();
+          break;
+        case 'yearly':
+          barData = getYearlyBarChartData();
+          break;
+      }
+
+      // Get pie chart data based on type
+      const pieData = getCategoryPieChartData(pieChartType);
+
+      return {
+        pieData: Array.isArray(pieData) ? pieData : [],
+        barData: Array.isArray(barData) ? barData : [],
+        title: `${translations.analytics?.title || 'Analytics'} - ${chartOptions.find(c => c.value === selectedChart)?.label}`
+      };
+    } catch (error) {
+      console.error('Error getting chart data:', error);
+      return {
+        pieData: [],
+        barData: [],
+        title: `${translations.analytics?.title || 'Analytics'} - ${chartOptions.find(c => c.value === selectedChart)?.label}`
+      };
     }
-
-    // Get pie chart data based on type
-    const pieData = getCategoryPieChartData(pieChartType);
-
-    return {
-      pieData,
-      barData,
-      title: `${translations.analytics?.title || 'Analytics'} - ${chartOptions.find(c => c.value === selectedChart)?.label}`
-    };
   };
 
   const { pieData, barData, title } = getChartData();

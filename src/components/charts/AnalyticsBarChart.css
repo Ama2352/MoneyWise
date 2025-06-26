@@ -31,6 +31,8 @@
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 .analytics-bar-chart__stat {
@@ -82,6 +84,7 @@
 .analytics-bar-chart__content {
   flex: 1;
   padding: 1rem;
+  overflow: hidden;
 }
 
 /* Loading State */
@@ -172,6 +175,28 @@
   color: #111827;
 }
 
+/* Chart content styling */
+.analytics-bar-chart__content {
+  flex: 1;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+/* Custom recharts legend styling */
+.recharts-legend-wrapper {
+  margin-top: 20px !important;
+}
+
+.recharts-legend-item {
+  margin-right: 40px !important; /* Increased spacing between legend items */
+}
+
+/* Custom styling for XAxis labels */
+.recharts-cartesian-axis-tick-value {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .analytics-bar-chart__header {
@@ -192,7 +217,7 @@
   }
   
   .analytics-bar-chart__content {
-    padding: 0.75rem;
+    padding: 0.5rem;
   }
   
   .analytics-bar-chart__empty {
@@ -201,6 +226,10 @@
   
   .analytics-bar-chart__loading {
     padding: 2rem 1rem;
+  }
+  
+  .recharts-legend-item {
+    margin-right: 20px !important;
   }
 }
 
@@ -218,5 +247,14 @@
   
   .analytics-bar-chart__empty-icon {
     font-size: 2rem;
+  }
+  
+  .recharts-legend-wrapper {
+    margin-top: 10px !important;
+  }
+  
+  .recharts-legend-item {
+    margin-right: 15px !important;
+    font-size: 12px !important;
   }
 }
