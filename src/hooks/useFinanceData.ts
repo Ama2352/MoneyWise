@@ -10,6 +10,8 @@ import {
   transactionApi,
   walletApi,
   statisticsApi,
+  savingGoalApi,
+  budgetApi,
 } from '../api/financeApi';
 import { SWR_KEYS } from '../config/swr';
 import { useLanguageContext } from '../contexts';
@@ -23,6 +25,14 @@ import {
   type CreateCategoryRequest,
   type UpdateCategoryRequest,
   type CashFlow,
+  type SavingGoalProgress,
+  type BudgetProgress,
+  type CreateSavingGoalRequest,
+  type UpdateSavingGoalRequest,
+  type CreateBudgetRequest,
+  type UpdateBudgetRequest,
+  type SavingGoal,
+  type Budget,
 } from '../types/finance';
 
 export const useWalletMutations = () => {
@@ -92,14 +102,10 @@ export const useWallet = (walletId: string | null) => {
  * Hook to fetch all wallets using SWR
  */
 export const useWallets = () => {
-  console.log('💰 useWallets: Starting...');
-
   const { data, error, isLoading } = useSWR<Wallet[]>(
     SWR_KEYS.WALLETS.ALL,
     async () => {
-      console.log('📡 API: Fetching wallets...');
       const result = await walletApi.getAll();
-      console.log(`� API: Received ${result?.length || 0} wallets`);
       return result;
     }
   );
@@ -113,14 +119,11 @@ export const useWallets = () => {
 };
 
 export const useTransactions = () => {
-  console.log('🔄 useTransactions: Starting...');
-
   const { data, error, isLoading } = useSWR<Transaction[]>(
     SWR_KEYS.TRANSACTIONS.ALL,
     async () => {
-      console.log('📡 API: Fetching transactions...');
       const result = await transactionApi.getAll();
-      console.log(`� API: Received ${result?.length || 0} transactions`);
+
       return result;
     }
   );
@@ -213,14 +216,11 @@ export const useTransactionMutations = () => {
  * Auto-caches and shares data between components
  */
 export const useCategories = () => {
-  console.log('🏷️ useCategories: Starting...');
-
   const { data, error, isLoading } = useSWR<Category[]>(
     SWR_KEYS.CATEGORIES.ALL,
     async () => {
-      console.log('📡 API: Fetching categories...');
       const result = await categoryApi.getAll();
-      console.log(`� API: Received ${result?.length || 0} categories`);
+
       return result;
     }
   );
@@ -372,5 +372,177 @@ export const useTransactionSearch = (filters?: SearchTransactionRequest) => {
     isLoading,
     error,
     refresh: () => cacheKey && mutate(cacheKey),
+  };
+};
+
+export const useSavingGoalProgress = () => {
+  const { data, error, isLoading } = useSWR<SavingGoalProgress[]>(
+    SWR_KEYS.SAVING_GOALS.PROGRESS,
+    async () => {
+      const result = await savingGoalApi.getAllSavingGoalProgress();
+      return result;
+    }
+  );
+
+  return {
+    savingGoalProgress: data,
+    isLoading,
+    error,
+    refresh: () => mutate(SWR_KEYS.SAVING_GOALS.PROGRESS),
+  };
+};
+
+export const useBudgetProgress = () => {
+  const { data, error, isLoading } = useSWR<BudgetProgress[]>(
+    SWR_KEYS.BUDGETS.PROGRESS,
+    async () => {
+      const result = await budgetApi.getAllBudgetProgress();
+      return result;
+    }
+  );
+
+  return {
+    budgetProgress: data,
+    isLoading,
+    error,
+    refresh: () => mutate(SWR_KEYS.BUDGETS.PROGRESS),
+  };
+};
+
+export const useSavingGoalMutations = () => {
+  const { translations } = useLanguageContext();
+
+  const createSavingGoal = async (data: CreateSavingGoalRequest) => {
+    try {
+      const newGoal = await savingGoalApi.createSavingGoal(data);
+      mutate(SWR_KEYS.SAVING_GOALS.PROGRESS);
+      return { success: true, data: newGoal };
+    } catch (error: any) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          translations.savingGoals.notifications.createError,
+      };
+    }
+  };
+
+  const updateSavingGoal = async (data: UpdateSavingGoalRequest) => {
+    try {
+      const updatedGoal = await savingGoalApi.updateSavingGoal(data);
+      mutate(SWR_KEYS.SAVING_GOALS.PROGRESS);
+      return { success: true, data: updatedGoal };
+    } catch (error: any) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          translations.savingGoals.notifications.updateError,
+      };
+    }
+  };
+
+  const deleteSavingGoal = async (goalId: string) => {
+    try {
+      await savingGoalApi.deleteSavingGoal(goalId);
+      mutate(SWR_KEYS.SAVING_GOALS.PROGRESS);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          translations.savingGoals.notifications.deleteError,
+      };
+    }
+  };
+
+  return {
+    createSavingGoal,
+    updateSavingGoal,
+    deleteSavingGoal,
+  };
+};
+
+export const useBudgetMutations = () => {
+  const { translations } = useLanguageContext();
+
+  const createBudget = async (data: CreateBudgetRequest) => {
+    try {
+      const newBudget = await budgetApi.createBudget(data);
+      mutate(SWR_KEYS.BUDGETS.PROGRESS);
+      return { success: true, data: newBudget };
+    } catch (error: any) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          translations.budgets.notifications.createError,
+      };
+    }
+  };
+
+  const updateBudget = async (data: UpdateBudgetRequest) => {
+    try {
+      const updatedBudget = await budgetApi.updateBudget(data);
+      mutate(SWR_KEYS.BUDGETS.PROGRESS);
+      return { success: true, data: updatedBudget };
+    } catch (error: any) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          translations.budgets.notifications.updateError,
+      };
+    }
+  };
+
+  const deleteBudget = async (budgetId: string) => {
+    try {
+      await budgetApi.deleteBudget(budgetId);
+      mutate(SWR_KEYS.BUDGETS.PROGRESS);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          translations.budgets.notifications.deleteError,
+      };
+    }
+  };
+
+  return {
+    createBudget,
+    updateBudget,
+    deleteBudget,
+  };
+};
+
+export const useSavingGoal = (goalId: string | null) => {
+  const { data, error, isLoading } = useSWR<SavingGoal>(
+    goalId ? SWR_KEYS.SAVING_GOALS.BY_ID(goalId) : null,
+    goalId ? () => savingGoalApi.getSavingGoalById(goalId) : null
+  );
+
+  return {
+    savingGoal: data,
+    isLoading,
+    error,
+    refresh: () => goalId && mutate(SWR_KEYS.SAVING_GOALS.BY_ID(goalId)),
+  };
+};
+
+export const useBudget = (budgetId: string | null) => {
+  const { data, error, isLoading } = useSWR<Budget>(
+    budgetId ? SWR_KEYS.BUDGETS.BY_ID(budgetId) : null,
+    budgetId ? () => budgetApi.getBudgetById(budgetId) : null
+  );
+
+  return {
+    budget: data,
+    isLoading,
+    error,
+    refresh: () => budgetId && mutate(SWR_KEYS.BUDGETS.BY_ID(budgetId)),
   };
 };

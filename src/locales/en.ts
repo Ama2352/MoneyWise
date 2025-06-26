@@ -347,4 +347,18 @@ export const en: TranslationKeys = {
       searchError: 'Failed to search transactions',
     },
   },
+  savingGoals: {
+    notifications: {
+      createError: 'Failed to create saving goal',
+      updateError: 'Failed to update saving goal',
+      deleteError: 'Failed to delete saving goal',
+    },
+  },
+  budgets: {
+    notifications: {
+      createError: 'Failed to create budget',
+      updateError: 'Failed to update budget',
+      deleteError: 'Failed to delete budget',
+    },
+  },
 };

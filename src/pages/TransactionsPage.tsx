@@ -73,7 +73,7 @@ TransactionList.displayName = 'TransactionList';
 
 // Memoized component to prevent unnecessary re-renders
 const TransactionsPage: React.FC = memo(() => {
-  const { translations, language } = useLanguageContext();
+  const { translations } = useLanguageContext();
   const { showSuccess, showError } = useToastContext();
 
   // State for search filters

@@ -325,6 +325,23 @@ export interface TranslationKeys {
     };
   };
 
+  // Budgets
+  budgets: {
+    notifications: {
+      createError: string;
+      updateError: string;
+      deleteError: string;
+    };
+  };
+  // Saving Goals
+  savingGoals: {
+    notifications: {
+      createError: string;
+      updateError: string;
+      deleteError: string;
+    };
+  };
+
   // Validation
   validation: {
     required: string;

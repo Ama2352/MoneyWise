@@ -48,4 +48,14 @@ export const API_ENDPOINTS = {
   STATISTICS: {
     CASH_FLOW: '/Statistics/cash-flow',
   },
+
+  BUDGETS: {
+    BASE: '/Budgets',
+    PROGRESS: '/Budgets/progress',
+  },
+
+  SAVING_GOALS: {
+    BASE: '/SavingGoals',
+    PROGRESS: '/SavingGoals/progress',
+  },
 } as const;

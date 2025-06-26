@@ -89,4 +89,16 @@ export const SWR_KEYS = {
     CASH_FLOW: (startDate: string, endDate: string) =>
       `/Statistics/cash-flow?startDate=${startDate}&endDate=${endDate}`,
   },
+
+  BUDGETS: {
+    ALL: '/Budgets',
+    BY_ID: (budgetId: string) => `/Budgets/${budgetId}`,
+    PROGRESS: `/Budgets/progress`,
+  },
+
+  SAVING_GOALS: {
+    ALL: '/SavingGoals',
+    BY_ID: (savingGoalId: string) => `/SavingGoals/${savingGoalId}`,
+    PROGRESS: `/SavingGoals/progress`,
+  },
 } as const;
