@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Bell,
@@ -28,7 +29,16 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const { language, setLanguage, translations } = useLanguageContext();
-  const { logout } = useAuthContext();
+  const { logout, userProfile } = useAuthContext();
+  const navigate = useNavigate();
+
+  // Get display data from userProfile (AuthContext)
+  const displayName = userProfile?.displayName || 
+                     `${userProfile?.firstName || ''} ${userProfile?.lastName || ''}`.trim() || 
+                     'User';
+  const userEmail = userProfile?.email || 'user@example.com';
+  const avatarSrc = userProfile?.avatar || 
+                   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
 
   // Close dropdowns when clicking outside
   React.useEffect(() => {
@@ -50,6 +60,28 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     // Here you would implement your theme switching logic
+  };
+
+  // Navigation handlers
+  const handleProfileClick = () => {
+    setIsProfileMenuOpen(false);
+    navigate('/settings');
+  };
+
+  const handleSettingsClick = () => {
+    setIsProfileMenuOpen(false);
+    navigate('/settings');
+  };
+
+  const handleHelpClick = () => {
+    setIsProfileMenuOpen(false);
+    // Navigate to help page or open help modal
+    console.log('Help & Support clicked');
+  };
+
+  const handleLogout = () => {
+    setIsProfileMenuOpen(false);
+    logout(true);
   };
 
   return (
@@ -168,14 +200,14 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
           >
             <div className="app-header__avatar">
               <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                src={avatarSrc}
                 alt="User avatar"
                 className="app-header__avatar-image"
               />
               <div className="app-header__avatar-status"></div>
             </div>
             <div className="app-header__user-info">
-              <span className="app-header__user-name">John Doe</span>
+              <span className="app-header__user-name">{displayName}</span>
               <span className="app-header__user-role">Premium User</span>
             </div>
             <ChevronDown
@@ -190,27 +222,36 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
               <div className="app-header__dropdown-header">
                 <div className="app-header__dropdown-avatar">
                   <img
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    src={avatarSrc}
                     alt="User avatar"
                   />
                 </div>
                 <div>
-                  <div className="app-header__dropdown-name">John Doe</div>
+                  <div className="app-header__dropdown-name">{displayName}</div>
                   <div className="app-header__dropdown-email">
-                    john@example.com
+                    {userEmail}
                   </div>
                 </div>
               </div>{' '}
               <div className="app-header__dropdown-section">
-                <button className="app-header__dropdown-item">
+                <button 
+                  className="app-header__dropdown-item"
+                  onClick={handleProfileClick}
+                >
                   <User size={16} />
                   <span>{translations.common.profile}</span>
                 </button>
-                <button className="app-header__dropdown-item">
+                <button 
+                  className="app-header__dropdown-item"
+                  onClick={handleSettingsClick}
+                >
                   <Settings size={16} />
                   <span>{translations.common.settings}</span>
                 </button>
-                <button className="app-header__dropdown-item">
+                <button 
+                  className="app-header__dropdown-item"
+                  onClick={handleHelpClick}
+                >
                   <HelpCircle size={16} />
                   <span>{translations.common.helpSupport}</span>
                 </button>
@@ -218,7 +259,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
               <div className="app-header__dropdown-section">
                 <button
                   className="app-header__dropdown-item app-header__dropdown-item--danger"
-                  onClick={() => logout(true)}
+                  onClick={handleLogout}
                 >
                   <LogOut size={16} />
                   <span>{translations.common.signOut}</span>

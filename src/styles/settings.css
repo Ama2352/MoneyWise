@@ -197,6 +197,28 @@
   transform: none;
 }
 
+.avatar-delete-btn {
+  position: absolute;
+  bottom: -4px;
+  left: -4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.avatar-delete-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
 .avatar-info {
   flex: 1;
 }

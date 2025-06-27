@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useCurrencyContext } from '../contexts';
 import { useToastContext } from '../contexts';
+import { useAuthContext } from '../contexts';
 import { StatCard } from '../components/ui';
 import { formatCurrency } from '../utils/formatUtils';
 import './ModernDashboard.css';
@@ -19,6 +20,7 @@ import './ModernDashboard.css';
 const ModernDashboard: React.FC = () => {
   const { currency } = useCurrencyContext();
   const { showSuccess } = useToastContext();
+  const { userProfile } = useAuthContext();
 
   // Check for login success message on component mount
   useEffect(() => {
@@ -33,38 +35,42 @@ const ModernDashboard: React.FC = () => {
     {
       id: 'balance',
       title: 'Total Balance',
-      value: formatCurrency(24680420, currency), // 24,680,420 VND or $24,680.42 USD
+      value: 24680420, // 24,680,420 VND or $24,680.42 USD
       change: '+12.5%',
       trend: 'up' as const,
       icon: DollarSign,
       color: 'primary' as const,
+      type: 'income' as const,
     },
     {
       id: 'income',
       title: 'Monthly Income',
-      value: formatCurrency(8240000, currency), // 8,240,000 VND or $8,240 USD
+      value: 8240000, // 8,240,000 VND or $8,240 USD
       change: '+8.2%',
       trend: 'up' as const,
       icon: TrendingUp,
       color: 'success' as const,
+      type: 'income' as const,
     },
     {
       id: 'expenses',
       title: 'Monthly Expenses',
-      value: formatCurrency(3567890, currency), // 3,567,890 VND or $3,567.89 USD
+      value: -3567890, // -3,567,890 VND or -$3,567.89 USD
       change: '-3.1%',
       trend: 'down' as const,
       icon: TrendingDown,
       color: 'error' as const,
+      type: 'expense' as const,
     },
     {
       id: 'savings',
       title: 'Total Savings',
-      value: formatCurrency(12450670, currency), // 12,450,670 VND or $12,450.67 USD
+      value: 12450670, // 12,450,670 VND or $12,450.67 USD
       change: '+15.3%',
       trend: 'up' as const,
       icon: PiggyBank,
       color: 'info' as const,
+      type: 'income' as const,
     },
   ];
 
@@ -150,7 +156,7 @@ const ModernDashboard: React.FC = () => {
           <div>
             <h1 className="modern-dashboard__title">Dashboard</h1>
             <p className="modern-dashboard__subtitle">
-              Welcome back, John! Here's what's happening with your finances.
+              Welcome back, {userProfile?.firstName || userProfile?.username || 'User'}! Here's what's happening with your finances.
             </p>
           </div>
           <div className="modern-dashboard__header-actions">
@@ -180,6 +186,7 @@ const ModernDashboard: React.FC = () => {
             key={stat.id}
             title={stat.title}
             value={stat.value}
+            type={stat.type}
             change={stat.change}
             trend={stat.trend}
             icon={stat.icon}
