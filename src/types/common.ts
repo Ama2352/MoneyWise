@@ -68,6 +68,7 @@ export interface TranslationKeys {
     retry: string;
     createdAt: string;
     search: string;
+    searching: string;
     back: string;
     next: string;
     previous: string;
@@ -415,6 +416,23 @@ export interface TranslationKeys {
     // Confirmations
     deleteConfirmTitle: string;
     deleteConfirmMessage: string;
+    
+    // Search
+    search: {
+      title: string;
+      keywords: string;
+      keywordsPlaceholder: string;
+      startDate: string;
+      endDate: string;
+      category: string;
+      wallet: string;
+      targetAmount: string;
+      allCategories: string;
+      allWallets: string;
+      resultsFound: string;
+      noResults: string;
+      clearSearch: string;
+    };
     
     notifications: {
       createSuccess: string;

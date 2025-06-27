@@ -21,6 +21,7 @@ export const en: TranslationKeys = {
     retry: 'Try Again',
     createdAt: 'Created:',
     search: 'Search',
+    searching: 'Searching...',
     back: 'Back',
     next: 'Next',
     previous: 'Previous',
@@ -523,6 +524,23 @@ export const en: TranslationKeys = {
     // Confirmations
     deleteConfirmTitle: 'Delete Saving Goal',
     deleteConfirmMessage: 'Are you sure you want to delete this saving goal? This action cannot be undone.',
+    
+    // Search
+    search: {
+      title: 'Search Saving Goals',
+      keywords: 'Keywords',
+      keywordsPlaceholder: 'Search by description...',
+      startDate: 'Start Date',
+      endDate: 'End Date',
+      category: 'Category',
+      wallet: 'Wallet',
+      targetAmount: 'Target Amount',
+      allCategories: 'All Categories',
+      allWallets: 'All Wallets',
+      resultsFound: 'results found',
+      noResults: 'No saving goals match your search criteria',
+      clearSearch: 'Clear Search',
+    },
     
     notifications: {
       createSuccess: 'Saving goal created successfully',

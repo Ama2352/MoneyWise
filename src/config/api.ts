@@ -57,5 +57,6 @@ export const API_ENDPOINTS = {
   SAVING_GOALS: {
     BASE: '/SavingGoals',
     PROGRESS: '/SavingGoals/progress',
+    SEARCH: '/SavingGoals/search',
   },
 } as const;

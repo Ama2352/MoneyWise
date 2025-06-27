@@ -21,6 +21,7 @@ export const vi: TranslationKeys = {
     retry: 'Thử lại',
     createdAt: 'Ngày tạo:',
     search: 'Tìm kiếm',
+    searching: 'Đang tìm...',
     back: 'Quay lại',
     next: 'Tiếp theo',
     previous: 'Trước',
@@ -519,6 +520,23 @@ export const vi: TranslationKeys = {
     // Confirmations
     deleteConfirmTitle: 'Xóa Mục Tiêu Tiết Kiệm',
     deleteConfirmMessage: 'Bạn có chắc chắn muốn xóa mục tiêu tiết kiệm này? Hành động này không thể hoàn tác.',
+    
+    // Search
+    search: {
+      title: 'Tìm Kiếm Mục Tiêu Tiết Kiệm',
+      keywords: 'Từ Khóa',
+      keywordsPlaceholder: 'Tìm theo mô tả...',
+      startDate: 'Ngày Bắt Đầu',
+      endDate: 'Ngày Kết Thúc',
+      category: 'Danh Mục',
+      wallet: 'Ví',
+      targetAmount: 'Số Tiền Mục Tiêu',
+      allCategories: 'Tất Cả Danh Mục',
+      allWallets: 'Tất Cả Ví',
+      resultsFound: 'kết quả được tìm thấy',
+      noResults: 'Không tìm thấy mục tiêu tiết kiệm nào phù hợp',
+      clearSearch: 'Xóa Tìm Kiếm',
+    },
     
     notifications: {
       createSuccess: 'Tạo mục tiêu tiết kiệm thành công',

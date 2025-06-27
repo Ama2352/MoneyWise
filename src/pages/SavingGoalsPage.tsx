@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import {
   useSavingGoalProgress,
+  useSearchSavingGoals,
   useSavingGoalMutations,
   useCategories,
   useWallets,
@@ -22,6 +23,7 @@ import { useCurrencyContext } from '../contexts/CurrencyContext';
 import { Loading, ConfirmDialog, Modal } from '../components/ui';
 import { PageLayout } from '../components/layout/PageLayout';
 import { SavingGoalForm } from '../components/forms/SavingGoalForm';
+import { SavingGoalSearchForm, type SearchSavingGoalsParams } from '../components/forms/SavingGoalSearchForm';
 import { SavingGoalCard } from '../components/ui/SavingGoalCard';
 import type {
   SavingGoalProgress,
@@ -59,6 +61,37 @@ const SavingGoalsPage: React.FC = () => {
     description?: string;
   }>({ show: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Search state
+  const [searchParams, setSearchParams] = useState<SearchSavingGoalsParams>({});
+  
+  // Search functionality
+  const { 
+    searchResults, 
+    isSearching: isSearchLoading, 
+    searchError,
+  } = useSearchSavingGoals(
+    Object.keys(searchParams).length > 0 ? searchParams : undefined,
+    language
+  );
+  
+  // Determine which data to display
+  const displayData = useMemo(() => {
+    if (Object.keys(searchParams).length > 0) {
+      return {
+        data: searchResults || [],
+        isLoading: isSearchLoading,
+        error: searchError,
+        isSearchMode: true,
+      };
+    }
+    return {
+      data: savingGoals || [],
+      isLoading,
+      error,
+      isSearchMode: false,
+    };
+  }, [searchParams, searchResults, isSearchLoading, searchError, savingGoals, isLoading, error]);
   
   // State for formatted currency values
   const [formattedAmounts, setFormattedAmounts] = useState({
@@ -157,13 +190,18 @@ const SavingGoalsPage: React.FC = () => {
       if (result.success) {
         showSuccess(translations.savingGoals.notifications.createSuccess);
         setShowForm(false);
+        setEditingGoal(null);
         refreshSavingGoals();
       } else {
         showError(result.error || translations.savingGoals.notifications.createError);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Create goal error:', error);
-      showError(translations.savingGoals.notifications.createError);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.title ||
+                          error.message ||
+                          translations.savingGoals.notifications.createError;
+      showError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -175,14 +213,19 @@ const SavingGoalsPage: React.FC = () => {
       const result = await updateSavingGoal(data);
       if (result.success) {
         showSuccess(translations.savingGoals.notifications.updateSuccess);
+        setShowForm(false);
         setEditingGoal(null);
         refreshSavingGoals();
       } else {
         showError(result.error || translations.savingGoals.notifications.updateError);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update goal error:', error);
-      showError(translations.savingGoals.notifications.updateError);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.title ||
+                          error.message ||
+                          translations.savingGoals.notifications.updateError;
+      showError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -236,13 +279,26 @@ const SavingGoalsPage: React.FC = () => {
       } else {
         showError(result.error || translations.savingGoals.notifications.deleteError);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Delete goal error:', error);
-      showError(translations.savingGoals.notifications.deleteError);
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.title ||
+                          error.message ||
+                          translations.savingGoals.notifications.deleteError;
+      showError(errorMessage);
     } finally {
       setDeleteConfirm({ show: false });
     }
   }, [deleteConfirm.goalId, deleteSavingGoal, showSuccess, showError, translations, refreshSavingGoals]);
+
+  // Search handlers
+  const handleSearch = useCallback(async (params: SearchSavingGoalsParams) => {
+    setSearchParams(params);
+  }, []);
+
+  const handleResetSearch = useCallback(() => {
+    setSearchParams({});
+  }, []);
 
   // Loading state
   if (isLoading || categoriesLoading || walletsLoading) {
@@ -346,33 +402,67 @@ const SavingGoalsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Search Form */}
+      <SavingGoalSearchForm
+        onSearch={handleSearch}
+        onReset={handleResetSearch}
+        isSearching={isSearchLoading}
+      />
+
       {/* Saving Goals List */}
       <div className="saving-goals-page__content">
-        {!savingGoals || savingGoals.length === 0 ? (
+        {displayData.isLoading ? (
+          <Loading />
+        ) : displayData.error ? (
+          <div className="saving-goals-page__error">
+            <AlertTriangle size={48} />
+            <h3>{translations.common.error}</h3>
+            <p>{translations.savingGoals.notifications.loadError}</p>
+          </div>
+        ) : !displayData.data || displayData.data.length === 0 ? (
           <div className="saving-goals-page__empty">
             <Target size={64} />
-            <h3>{translations.savingGoals.noGoals}</h3>
-            <p>{translations.savingGoals.noGoalsDescription}</p>
-            <button
-              className="btn btn--primary"
-              onClick={openCreateForm}
-            >
-              <Plus size={20} />
-              {translations.savingGoals.addNew}
-            </button>
+            <h3>
+              {displayData.isSearchMode 
+                ? translations.savingGoals.search.noResults 
+                : translations.savingGoals.noGoals}
+            </h3>
+            <p>
+              {displayData.isSearchMode 
+                ? translations.savingGoals.search.clearSearch
+                : translations.savingGoals.noGoalsDescription}
+            </p>
+            {!displayData.isSearchMode && (
+              <button
+                className="btn btn--primary"
+                onClick={openCreateForm}
+              >
+                <Plus size={20} />
+                {translations.savingGoals.addNew}
+              </button>
+            )}
           </div>
         ) : (
-          <div className="saving-goals-page__grid">
-            {savingGoals.map((goal) => (
-              <SavingGoalCard
-                key={goal.savingGoalId}
-                goal={goal}
-                category={getCategoryById(goal.categoryId)}
-                wallet={getWalletById(goal.walletId)}
-                onEdit={openEditForm}
-                onDelete={openDeleteConfirm}
-              />
-            ))}
+          <div className="saving-goals-page__results">
+            {displayData.isSearchMode && (
+              <div className="search-results-header">
+                <p className="search-results-count">
+                  {displayData.data.length} {translations.savingGoals.search.resultsFound}
+                </p>
+              </div>
+            )}
+            <div className="saving-goals-page__grid">
+              {displayData.data.map((goal) => (
+                <SavingGoalCard
+                  key={goal.savingGoalId}
+                  goal={goal}
+                  category={getCategoryById(goal.categoryId)}
+                  wallet={getWalletById(goal.walletId)}
+                  onEdit={openEditForm}
+                  onDelete={openDeleteConfirm}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>

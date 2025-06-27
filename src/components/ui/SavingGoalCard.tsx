@@ -96,60 +96,69 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
   }, [goal.savedAmount, goal.targetAmount, progressData.remainingAmount, convertAndFormat]);
 
   // Get status icon and color based on backend status
-  const getStatusInfo = () => {
+  const getStatusInfo = useMemo(() => {
     const status = goal.progressStatus?.toLowerCase() || '';
     
     // Map backend status to UI elements
     switch (status) {
       case 'not started':
+      case 'chưa bắt đầu':
         return {
           icon: Clock,
           color: 'warning',
           text: translations.savingGoals.status.notStarted,
         };
       case 'achieved':
+      case 'đã đạt được':
         return {
           icon: CheckCircle,
           color: 'success',
           text: translations.savingGoals.status.achieved,
         };
       case 'partially achieved':
+      case 'đạt một phần':
         return {
           icon: CheckCircle,
           color: 'warning',
           text: translations.savingGoals.status.partiallyAchieved,
         };
       case 'missed target':
+      case 'không đạt mục tiêu':
         return {
           icon: AlertTriangle,
           color: 'danger',
           text: translations.savingGoals.status.missedTarget,
         };
       case 'achieved early':
+      case 'đạt sớm':
         return {
           icon: CheckCircle,
           color: 'success',
           text: translations.savingGoals.status.achievedEarly,
         };
       case 'ahead':
+      case 'tiến trước':
         return {
           icon: TrendingUp,
           color: 'success',
           text: translations.savingGoals.status.ahead,
         };
       case 'on track':
+      case 'đúng tiến độ':
         return {
           icon: Target,
           color: 'safe',
           text: translations.savingGoals.status.onTrack,
         };
       case 'slightly behind':
+      case 'hơi chậm':
         return {
           icon: Clock,
           color: 'warning',
           text: translations.savingGoals.status.slightlyBehind,
         };
       case 'at risk':
+      case 'rủi ro':
         return {
           icon: AlertTriangle,
           color: 'danger',
@@ -179,9 +188,9 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
           text: translations.savingGoals.status.safe,
         };
     }
-  };
+  }, [goal.progressStatus, progressData.isCompleted, progressData.isOverdue, translations.savingGoals]);
 
-  const statusInfo = getStatusInfo();
+  const statusInfo = getStatusInfo;
   const StatusIcon = statusInfo.icon;
 
   // Format dates
