@@ -23,6 +23,12 @@ interface AnalyticsBarChartProps {
     loading?: string;
     noData?: string;
   };
+  dateRangeMode?: 'preset' | 'custom';
+  customDateRange?: {
+    startDate: string;
+    endDate: string;
+  };
+  chartView?: 'daily' | 'weekly' | 'monthly' | 'yearly';
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -95,7 +101,10 @@ export const AnalyticsBarChart: React.FC<AnalyticsBarChartProps> = ({
   loading = false,
   height = 400,
   showNet = true,
-  translations
+  translations,
+  dateRangeMode = 'preset',
+  customDateRange,
+  chartView = 'monthly'
 }) => {
   // ALL HOOKS MUST BE CALLED AT THE TOP LEVEL, BEFORE ANY RETURNS
   const { language } = useLanguageContext();
@@ -178,15 +187,31 @@ export const AnalyticsBarChart: React.FC<AnalyticsBarChartProps> = ({
       if (!data || !Array.isArray(data)) {
         return [];
       }
+      
+      // If in custom date range mode and no time series data, create a summary bar
+      if (dateRangeMode === 'custom' && data.length === 0 && customDateRange?.startDate && customDateRange?.endDate) {
+        // Return placeholder data that will be handled by the parent to show summary instead
+        // chartView is used to determine the context of the display
+        return [{
+          name: `${customDateRange.startDate} - ${customDateRange.endDate}`,
+          income: 0,
+          expense: 0,
+          net: 0
+        }];
+      }
+      
       return data.map(item => ({
         ...item,
-        name: formatMonthName(item?.name || '')
+        name: formatMonthName(item?.name || ''),
+        // Store original name for reference (useful for different chart views)
+        originalName: item?.name || '',
+        chartType: chartView
       }));
     } catch (error) {
       console.error('Error formatting chart data:', error);
       return data || [];
     }
-  }, [data, formatMonthName]);
+  }, [data, formatMonthName, dateRangeMode, customDateRange]);
 
   const [formattedSummary, setFormattedSummary] = React.useState({
     income: '',

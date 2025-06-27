@@ -185,32 +185,47 @@ export const AnalyticsPage: React.FC = () => {
   ];
 
   // Get chart data based on selected view
-  const getChartData = () => {
+  const getChartData = React.useCallback(() => {
     try {
       let barData: any[] = [];
       
-      switch (selectedChart) {
-        case 'daily':
-          barData = getDailyBarChartData();
-          break;
-        case 'weekly':
-          barData = getWeeklyBarChartData();
-          break;
-        case 'monthly':
-          barData = getMonthlyBarChartData();
-          break;
-        case 'yearly':
-          barData = getYearlyBarChartData();
-          break;
+      // If custom date range is selected, create summary bar chart data
+      if (dateRangeMode === 'custom' && customDateRange.startDate && customDateRange.endDate && cashFlow) {
+        barData = [{
+          name: `${customDateRange.startDate} to ${customDateRange.endDate}`,
+          income: cashFlow.totalIncome || 0,
+          expense: cashFlow.totalExpenses || 0,
+          net: (cashFlow.totalIncome || 0) - (cashFlow.totalExpenses || 0)
+        }];
+      } else {
+        // Preset periods - use time series data
+        switch (selectedChart) {
+          case 'daily':
+            barData = getDailyBarChartData();
+            break;
+          case 'weekly':
+            barData = getWeeklyBarChartData();
+            break;
+          case 'monthly':
+            barData = getMonthlyBarChartData();
+            break;
+          case 'yearly':
+            barData = getYearlyBarChartData();
+            break;
+        }
       }
 
       // Get pie chart data based on type
       const pieData = getCategoryPieChartData(pieChartType);
 
+      const chartLabel = dateRangeMode === 'custom' && customDateRange.startDate && customDateRange.endDate
+        ? `Custom Range: ${customDateRange.startDate} - ${customDateRange.endDate}`
+        : chartOptions.find(c => c.value === selectedChart)?.label;
+
       return {
         pieData: Array.isArray(pieData) ? pieData : [],
         barData: Array.isArray(barData) ? barData : [],
-        title: `${translations.analytics?.title || 'Analytics'} - ${chartOptions.find(c => c.value === selectedChart)?.label}`
+        title: `${translations.analytics?.title || 'Analytics'} - ${chartLabel}`
       };
     } catch (error) {
       console.error('Error getting chart data:', error);
@@ -220,9 +235,23 @@ export const AnalyticsPage: React.FC = () => {
         title: `${translations.analytics?.title || 'Analytics'} - ${chartOptions.find(c => c.value === selectedChart)?.label}`
       };
     }
-  };
+  }, [
+    dateRangeMode, 
+    customDateRange, 
+    cashFlow, 
+    selectedChart, 
+    pieChartType, 
+    getDailyBarChartData, 
+    getWeeklyBarChartData, 
+    getMonthlyBarChartData, 
+    getYearlyBarChartData, 
+    getCategoryPieChartData, 
+    translations.analytics?.title, 
+    chartOptions
+  ]);
 
-  const { pieData, barData, title } = getChartData();
+  const chartData = getChartData();
+  const { pieData, barData, title } = chartData;
   const isLoading = Object.values(loading).some(Boolean);
 
   // Chart translations
@@ -409,6 +438,9 @@ export const AnalyticsPage: React.FC = () => {
             height={400}
             showNet={true}
             translations={chartTranslations}
+            dateRangeMode={dateRangeMode}
+            customDateRange={dateRangeMode === 'custom' ? customDateRange : undefined}
+            chartView={selectedChart}
           />
         </div>
       </div>
