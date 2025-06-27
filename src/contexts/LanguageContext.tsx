@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslations } from '../hooks/useLanguage';
 import type { UseTranslationsReturn } from '../hooks/useLanguage';
@@ -18,20 +18,16 @@ interface LanguageProviderProps {
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   children,
 }) => {
-  const { language, translations, t, setLanguage, toggleLanguage, isLoading } =
-    useTranslations();
+  const lang = useTranslations();
+
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = useMemo(
+    () => lang,
+    [lang.language, lang.translations, lang.isLoading]
+  );
 
   return (
-    <LanguageContext.Provider
-      value={{
-        language,
-        translations,
-        t,
-        setLanguage,
-        toggleLanguage,
-        isLoading,
-      }}
-    >
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

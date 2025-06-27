@@ -6,3 +6,8 @@ export {
   LanguageContext,
   useLanguageContext,
 } from './LanguageContext';
+export {
+  CurrencyProvider,
+  CurrencyContext,
+  useCurrencyContext,
+} from './CurrencyContext';

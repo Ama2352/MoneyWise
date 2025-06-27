@@ -48,6 +48,8 @@ The dashboard uses a comprehensive design system with:
 - **React 19** with TypeScript
 - **React Router v6** with nested routing
 - **SWR** for data fetching and caching
+- **DRY Components**: `PageLayout`, `StatCard`, `Modal`, and other reusable components
+- **Centralized Hooks**: `useCrudOperations`, `useForm`, `useDateFormatter` for consistent patterns
 - **Lucide React** for icons
 - **CSS Custom Properties** for theming
 - **Modern CSS** with Grid and Flexbox
@@ -182,5 +184,14 @@ App.tsx (Authentication Guard + Global Dialogs)
 - **Mobile-First Navigation**: Responsive sidebar with overlay on mobile
 - **Index Redirect**: Root `/` automatically redirects to `/dashboard`
 - **Example Routes**: Educational routes for learning SWR and currency systems
+- **DRY Page Layout**: `PageLayout` component provides consistent page structure for all dashboard pages
+
+## 🔗 Related Components
+
+For page-level layout within the dashboard, see the **[DRY Refactoring Guide](./DRY_REFACTORING_GUIDE.md)** for information about:
+
+- **PageLayout**: Universal page structure with loading states and error handling
+- **StatCard**: Consistent statistics display across dashboard pages
+- **Modal**: Reusable dialog component for forms and confirmations
 
 Enjoy exploring the modern dashboard! 🎉

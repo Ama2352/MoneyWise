@@ -2,33 +2,113 @@
 
 ## Overview
 
-This currency module provides comprehensive support for USD and VND currency operations in the Money Management application. It includes exchange rate fetching, caching, conversion, locale-aware formatting, and transaction-specific formatting with signs.
+This currency module provides comprehensive support for USD and VND currency operations in the Money Management application. It includes exchange rate fetching, caching, conversion, locale-aware formatting, and React components for seamless currency display. **All amounts are stored in VND (base currency) and converted to the selected display currency in real-time.**
+
+## Key Architecture Principles
+
+- **VND as Base Currency**: All transaction amounts are stored in VND in the database
+- **Real-time Conversion**: Amounts are converted to the selected display currency (USD/VND) using live exchange rates
+- **Component-Based**: Uses dedicated React components (`CurrencyAmount`, `CurrencyAmountWithSign`) for consistent display
+- **Context-Driven**: Currency selection and conversion logic managed through React Context
+- **Type-Safe**: Full TypeScript support with proper type definitions
 
 ## Features
 
 - **Exchange Rate API**: Uses the fawazahmed0/exchange-api with fallback URLs
 - **Caching**: Intelligent caching with 1-hour TTL to minimize API calls
-- **Currency Conversion**: Convert between USD and VND
+- **Currency Conversion**: Convert between USD and VND with live rates
 - **Locale-aware Formatting**: Proper formatting for each currency
-- **Transaction Sign Formatting**: Automatic + for income, - for expense
-- **React Hooks**: Easy-to-use hooks for React components
+- **React Components**: Pre-built components for currency display
+- **Context Provider**: Centralized currency state management
+- **Real-time Updates**: Currency switching updates all amounts instantly
 - **TypeScript Support**: Full type safety
 
 ## Quick Start
 
-### Basic Usage with Hooks
+### 1. Currency Context Usage
 
 ```typescript
-import { useCurrency } from '../hooks';
+import { useCurrencyContext } from '../contexts';
+
+const MyComponent = () => {
+  const { currency, setCurrency, toggleCurrency } = useCurrencyContext();
+
+  return (
+    <div>
+      <p>Current currency: {currency.toUpperCase()}</p>
+      <button onClick={toggleCurrency}>
+        Switch to {currency === 'usd' ? 'VND' : 'USD'}
+      </button>
+    </div>
+  );
+};
+```
+
+### 2. Currency Amount Components
+
+```typescript
+import { CurrencyAmount, CurrencyAmountWithSign } from '../components';
+
+const TransactionList = () => {
+  return (
+    <div>
+      {transactions.map(transaction => (
+        <div key={transaction.id}>
+          <span>{transaction.description}</span>
+
+          {/* For regular amounts */}
+          <CurrencyAmount amountInVnd={transaction.amount} />
+
+          {/* For transaction amounts with +/- signs */}
+          <CurrencyAmountWithSign
+            amountInVnd={transaction.amount}
+            type={transaction.type as 'income' | 'expense'}
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+```
+
+### 3. Currency Selector Component
+
+```typescript
+import { CurrencySelector } from '../components/ui';
+
+const AppHeader = () => {
+  return (
+    <header>
+      <div className="header-controls">
+        <CurrencySelector />
+        {/* Other header elements */}
+      </div>
+    </header>
+  );
+};
+```
+
+### Direct Service Usage
+
+````typescript
+import { currencyService } from '../services/currencyService';
+
+// Format currency
+const formatted = currencyService.formatCurrency(1000, 'usd');
+
+// Convert currency
+### 4. Direct Hook Usage (Advanced)
+
+```typescript
+import { useCurrency, useCurrencyDisplay } from '../hooks';
 
 const MyComponent = () => {
   const { formatCurrency, convertCurrency } = useCurrency();
 
-  // Format currency
-  const usdAmount = formatCurrency(1234.56, 'usd'); // "$1,234.56"
-  const vndAmount = formatCurrency(25000, 'vnd'); // "25,000₫"
+  // For a single amount conversion and display
+  const { displayAmount, isLoading, error } = useCurrencyDisplay(25000); // VND amount
 
-  // Convert currency
+  // For manual conversion
   const handleConvert = async () => {
     const result = await convertCurrency({
       amount: 100,
@@ -37,177 +117,207 @@ const MyComponent = () => {
     });
     console.log(result.convertedAmount);
   };
-};
-```
-
-### Auto-conversion Hook
-
-```typescript
-import { useCurrencyWithConversion } from '../hooks';
-
-const CurrencyConverter = () => {
-  const { conversion, isLoading } = useCurrencyWithConversion(
-    100,    // amount
-    'usd',  // from
-    'vnd'   // to
-  );
-
-  if (isLoading) return <div>Converting...</div>;
 
   return (
     <div>
-      {conversion && (
-        <p>
-          {conversion.amount} USD = {conversion.convertedAmount} VND
-        </p>
-      )}
+      {isLoading ? 'Loading...' : displayAmount}
     </div>
   );
 };
 ```
 
-### Transaction Amount Formatting with Signs
+### 5. Currency-Aware Input Fields
+
+For forms that need currency-aware amount inputs (like transaction forms or search filters), use the specialized hooks:
 
 ```typescript
-import { formatAmountWithSign } from '../utils/formatUtils';
+import { useAmountInput, useCurrencyFormatter } from '../hooks';
 
-const TransactionList = () => {
-  // Format amounts with + for income, - for expense
-  const incomeAmount = formatAmountWithSign(1234.56, 'USD', 'income');   // "+$1,234.56"
-  const expenseAmount = formatAmountWithSign(1234.56, 'USD', 'expense'); // "-$1,234.56"
-
-  // Works with VND too
-  const vndIncome = formatAmountWithSign(25000, 'VND', 'income');        // "+25,000₫"
-  const vndExpense = formatAmountWithSign(25000, 'VND', 'expense');      // "-25,000₫"
-
-  // Case insensitive
-  const flexibleIncome = formatAmountWithSign(100, 'USD', 'INCOME');     // "+$100.00"
-  const flexibleExpense = formatAmountWithSign(100, 'USD', 'Expense');   // "-$100.00"
+const TransactionForm = () => {
+  // Currency-aware amount input with validation and formatting
+  const amountInput = useAmountInput({
+    initialValue: 0,
+    onAmountChange: (rawValue) => console.log('Amount changed:', rawValue),
+    onError: (error) => console.log('Validation error:', error),
+  });
 
   return (
-    <div>
-      {transactions.map(transaction => (
-        <div key={transaction.id}>
-          <span>{transaction.description}</span>
-          <span className={transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}>
-            {formatAmountWithSign(transaction.amount, 'USD', transaction.type)}
-          </span>
-        </div>
-      ))}
-    </div>
+    <TextField
+      label={`Amount (${currency.toUpperCase()})`}
+      type="text"
+      value={amountInput.displayAmount}
+      onChange={e => amountInput.handleInputChange(e.target.value)}
+      onFocus={amountInput.handleFocus}
+      onBlur={amountInput.handleBlur}
+      placeholder={amountInput.placeholder}
+      error={!!errors.amount}
+      helperText={errors.amount}
+    />
   );
 };
 ```
 
-### Direct Service Usage
+#### Currency Formatter Hook
 
 ```typescript
-import { currencyService } from '../services/currencyService';
+import { useCurrencyFormatter } from '../hooks';
 
-// Format currency
-const formatted = currencyService.formatCurrency(1000, 'usd');
+const MyComponent = () => {
+  const {
+    formatAmountForDisplay,
+    parseAmountFromDisplay,
+    getAmountPlaceholder,
+  } = useCurrencyFormatter();
 
-// Convert currency
-const conversion = await currencyService.convertCurrency({
-  amount: 100,
-  from: 'usd',
-  to: 'vnd',
-});
+  // Format amount for display
+  const formatted = formatAmountForDisplay(1000); // "1.000₫" or "$10.00"
 
-// Get exchange rate
-const rate = await currencyService.getExchangeRate('usd', 'vnd');
+  // Parse user input back to number
+  const rawValue = parseAmountFromDisplay("1.000₫"); // 1000
 
-// Get currency info
-const usdInfo = currencyService.getCurrencyInfo('usd');
+  // Get placeholder for input
+  const placeholder = getAmountPlaceholder(); // "0₫" or "$0.00"
+};
 ```
 
-## formatAmountWithSign Feature
+#### Amount Input Features
 
-### Overview
+- **Currency-aware formatting**: Auto-formats based on selected currency (VND/USD)
+- **Natural typing experience**: No interference while typing, formats on blur
+- **Smart validation**: Real-time validation with user-friendly error messages
+- **Easy deletion**: Backspace and delete work naturally without cursor jumping
+- **Focus/blur behavior**: Shows raw numbers for editing, formatted display when done
+- **Placeholder support**: Dynamic placeholders based on currency selection`
 
-The `formatAmountWithSign` function provides automatic transaction sign formatting for the Money Management application. This function formats currency amounts with appropriate signs (+ for income, - for expense) based on transaction type.
+## Architecture Overview
 
-### Key Features
+### Storage and Display Pattern
 
-- ✅ **Automatic Sign Addition**: + for income, - for expense
-- ✅ **Case Insensitive**: Accepts 'INCOME', 'income', 'Income', etc.
-- ✅ **Smart Amount Handling**: Uses absolute value - sign controlled by type
-- ✅ **Enhanced Currency Support**: Integrates with currency service for USD/VND
-- ✅ **Fallback Protection**: Invalid types default to expense (-)
-- ✅ **Full Integration**: Works with existing currency module
+```
+Database (Storage)     →     Display Layer
+     VND (Base)       →     VND or USD (User Choice)
+```
 
-### Usage Examples
+1. **Storage**: All amounts stored in VND (Vietnamese Dong) as the base currency
+2. **Conversion**: Live exchange rates used to convert VND to USD when needed
+3. **Display**: User sees amounts in their selected currency (VND or USD)
+4. **Components**: `CurrencyAmount` and `CurrencyAmountWithSign` handle conversion automatically
+
+### Components Architecture
+
+```
+CurrencyProvider (Context)
+├── CurrencySelector (Header component)
+├── CurrencyAmount (Display component)
+├── CurrencyAmountWithSign (Transaction display)
+└── useCurrencyDisplay (Hook for custom components)
+```
+
+### File Structure
+
+```
+src/
+├── components/
+│   ├── TransactionItem.tsx            # Domain component (uses CurrencyAmountWithSign)
+│   ├── forms/
+│   │   └── TransactionForm.tsx        # Form component (uses useAmountInput)
+│   └── ui/
+│       ├── AdvancedSearch.tsx         # Search component (uses useAmountInput)
+│       ├── CurrencyAmount.tsx         # Pure UI components for currency display
+│       └── CurrencySelector.tsx       # Pure UI component for currency selection
+├── contexts/
+│   └── CurrencyContext.tsx            # Context provider for currency state
+├── hooks/
+│   ├── useCurrency.ts                 # Basic currency operations
+│   ├── useCurrencyDisplay.ts          # Display hook for conversion
+│   ├── useCurrencyFormatter.ts        # NEW: Formatting and parsing utilities
+│   └── useAmountInput.ts              # NEW: Currency-aware input management
+├── services/
+│   └── currencyService.ts             # Business logic and API calls
+├── constants/
+│   └── index.ts                       # Currency constants and configuration
+└── types/
+    └── currency.ts                    # Currency-related TypeScript types
+```
+
+## Migration from Old Implementation
+
+If you have components using `formatAmountWithSign` or direct `formatCurrency` calls, migrate them to use the new components:
+
+### Before (Old)
 
 ```typescript
-import { formatAmountWithSign } from '../utils/formatUtils';
-
-// Basic usage
-const incomeAmount = formatAmountWithSign(1234.56, 'USD', 'income'); // "+$1,234.56"
-const expenseAmount = formatAmountWithSign(1234.56, 'USD', 'expense'); // "-$1,234.56"
-
-// VND support
-const vndIncome = formatAmountWithSign(25000, 'VND', 'income'); // "+25,000₫"
-const vndExpense = formatAmountWithSign(25000, 'VND', 'expense'); // "-25,000₫"
-
-// Case insensitive
-const flexibleIncome = formatAmountWithSign(100, 'USD', 'INCOME'); // "+$100.00"
-const flexibleExpense = formatAmountWithSign(100, 'USD', 'Expense'); // "-$100.00"
-
-// Handles negative amounts by using absolute value - sign is controlled by type
-const correctedAmount = formatAmountWithSign(-100, 'USD', 'income'); // "+$100.00"
+// DON'T use this anymore
+{
+  formatAmountWithSign(transaction.amount, currency, transaction.type);
+}
 ```
 
-### React Component Usage
+### After (New)
 
 ```typescript
-const TransactionItem = ({ transaction }) => (
-  <div className="transaction-item">
-    <span>{transaction.description}</span>
-    <span className={transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}>
-      {formatAmountWithSign(transaction.amount, 'USD', transaction.type)}
-    </span>
-  </div>
-);
+// USE this instead
+<CurrencyAmountWithSign
+  amountInVnd={transaction.amount}
+  type={transaction.type as 'income' | 'expense'}
+/>
 ```
 
-### API Reference
+### Benefits of New Approach
 
-```typescript
-formatAmountWithSign(
-  amount: number,              // Amount to format (uses absolute value)
-  currency: string | CurrencyCode = 'USD',  // Currency code or string
-  type: string                 // 'income' or 'expense' (case insensitive)
-): string
-```
-
-### Benefits
-
-1. **Consistent UX**: Standardized + and - formatting across the app
-2. **Developer Friendly**: Simple API that handles edge cases
-3. **Type Safe**: Integration with existing TypeScript types
-4. **Flexible**: Works with any currency, enhanced for USD/VND
-5. **Robust**: Handles negative amounts and invalid inputs gracefully
+- **Real-time updates**: Currency changes update all displays instantly
+- **Consistent conversion**: All amounts use the same exchange rates
+- **Better performance**: Optimized with React hooks and context
+- **Type safety**: Full TypeScript support
+- **Maintainable**: Centralized currency logic
 
 ## API Reference
+
+### Context API
+
+```typescript
+interface CurrencyContextType {
+  currency: CurrencyCode;
+  setCurrency: (currency: CurrencyCode) => void;
+  toggleCurrency: () => void;
+  isLoading: boolean;
+  convertAndFormat: (amountInVnd: number) => Promise<string>;
+  convertFromDisplay: (displayAmount: number) => Promise<number>;
+}
+```
+
+### Component Props
+
+```typescript
+// CurrencyAmount
+interface CurrencyAmountProps {
+  amountInVnd: number;
+  className?: string;
+  showLoading?: boolean;
+}
+
+// CurrencyAmountWithSign
+interface CurrencyAmountWithSignProps extends CurrencyAmountProps {
+  type: 'income' | 'expense';
+}
+```
 
 ### Types
 
 ```typescript
 type CurrencyCode = 'usd' | 'vnd';
 
+interface CurrencyInfo {
+  code: CurrencyCode;
+  name: string;
+  symbol: string;
+  locale: string;
+}
+
 interface ConversionRequest {
   amount: number;
   from: CurrencyCode;
   to: CurrencyCode;
-}
-
-interface CurrencyConversion {
-  amount: number;
-  fromCurrency: CurrencyCode;
-  toCurrency: CurrencyCode;
-  convertedAmount: number;
-  exchangeRate: number;
-  timestamp: string;
 }
 ```
 
@@ -297,26 +407,21 @@ const amount2 = formatCurrencyWithCode(100, 'usd');
 // NEW: Format with transaction signs (+ for income, - for expense)
 const incomeAmount = formatAmountWithSign(1234.56, 'USD', 'income'); // "+$1,234.56"
 const expenseAmount = formatAmountWithSign(1234.56, 'USD', 'expense'); // "-$1,234.56"
-const vndIncome = formatAmountWithSign(25000, 'VND', 'income'); // "+25,000₫"
+const vndIncome = formatAmountWithSign(25000, 'VND', 'income'); // "+25,000đ"
 
 // Case insensitive type handling
 const flexibleIncome = formatAmountWithSign(100, 'USD', 'INCOME'); // "+$100.00"
 const flexibleExpense = formatAmountWithSign(100, 'USD', 'Expense'); // "-$100.00"
 ```
 
-## Configuration
+## Constants and Configuration
 
-### Constants
-
-Currency configuration is defined in `src/constants/index.ts`:
+### Currency Information
 
 ```typescript
-export const CURRENCIES = {
-  USD: 'usd' as const,
-  VND: 'vnd' as const,
-};
+export const DEFAULT_CURRENCY: CurrencyCode = 'vnd';
 
-export const CURRENCY_INFO = {
+export const CURRENCY_INFO: Record<CurrencyCode, CurrencyInfo> = {
   usd: {
     code: 'usd',
     name: 'US Dollar',
@@ -326,74 +431,194 @@ export const CURRENCY_INFO = {
   vnd: {
     code: 'vnd',
     name: 'Vietnamese Dong',
-    symbol: '₫',
+    symbol: 'đ',
     locale: 'vi-VN',
   },
 };
+```
 
+### Exchange Rate API Configuration
+
+```typescript
 export const EXCHANGE_API = {
   PRIMARY_BASE_URL:
     'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1',
   FALLBACK_BASE_URL: 'https://latest.currency-api.pages.dev/v1',
-  CACHE_DURATION: 3600000, // 1 hour
+  CACHE_DURATION: 3600000, // 1 hour in milliseconds
 };
 ```
 
-## Architecture
+## Best Practices
 
+### 1. Always Store in VND
+
+```typescript
+// ✅ CORRECT - Store in VND
+const transaction = {
+  amount: 250000, // VND
+  currency: 'vnd', // Base currency
+};
+
+// ❌ WRONG - Don't store in display currency
+const transaction = {
+  amount: 10.5, // USD - This would break conversion
+  currency: 'usd',
+};
 ```
-src/
-├── types/
-│   └── currency.ts          # TypeScript types
-├── constants/
-│   └── index.ts             # Currency constants and config
-├── api/
-│   └── exchangeRateApi.ts   # Exchange rate API client
-├── services/
-│   └── currencyService.ts   # Business logic service
-├── hooks/
-│   └── useCurrency.ts       # React hooks
-└── utils/
-    └── formatUtils.ts       # Enhanced formatting utilities
+
+### 2. Use Components for Display
+
+```typescript
+// ✅ CORRECT - Use components
+<CurrencyAmountWithSign amountInVnd={transaction.amount} type="expense" />
+
+// ❌ WRONG - Manual formatting
+{currency === 'usd' ? `$${amount}` : `${amount}đ`}
 ```
 
-## Error Handling
+### 3. Handle Loading States
 
-The module includes comprehensive error handling:
+```typescript
+// ✅ CORRECT - Show loading state for conversions
+<CurrencyAmount
+  amountInVnd={amount}
+  showLoading={true}
+  className="transaction-amount"
+/>
 
-- **Network failures**: Automatic fallback to secondary API
-- **Invalid currencies**: Type-safe validation
-- **API errors**: Graceful error messages
-- **Cache failures**: Automatic retry without cache
+// ❌ WRONG - Ignore loading states
+<CurrencyAmount amountInVnd={amount} />
+```
 
-## Performance
+### 4. Error Handling
 
-- **Caching**: Exchange rates cached for 1 hour
-- **Efficient fetching**: Only fetches when needed
-- **Fallback mechanism**: Secondary API for reliability
-- **Type safety**: Compile-time error prevention
+```typescript
+// ✅ CORRECT - Components handle errors gracefully
+const { displayAmount, error } = useCurrencyDisplay(amount);
+if (error) {
+  console.warn('Currency conversion failed, showing VND fallback');
+}
 
-## Testing
+// ❌ WRONG - Not handling conversion errors
+const amount = await convertCurrency(request); // Might throw
+```
 
-- **Interactive Testing**: Available in `CurrencyExample.tsx` component
-- **Example Functions**: See `src/examples/currencyFormattingExamples.ts`
-- **Live Demo**: Test section in currency example with real-time formatting
+## Testing Recommendations
 
-## Example Component
+### Unit Tests
 
-See `src/components/examples/CurrencyExample.tsx` for a complete example demonstrating all features of the currency module, including:
+```typescript
+// Test currency components
+it('should display VND amount when currency is VND', () => {
+  render(
+    <CurrencyProvider>
+      <CurrencyAmount amountInVnd={25000} />
+    </CurrencyProvider>
+  );
+  expect(screen.getByText(/25,000đ/)).toBeInTheDocument();
+});
 
-- Currency conversion and exchange rates
-- Locale-aware formatting for USD and VND
-- Interactive testing of `formatAmountWithSign` with income/expense examples
-- Cache management and statistics
-- Error handling demonstrations
+// Test currency conversion
+it('should convert VND to USD correctly', async () => {
+  const result = await convertCurrency({
+    amount: 25000,
+    from: 'vnd',
+    to: 'usd'
+  });
+  expect(result.success).toBe(true);
+});
+```
 
-The example component includes a dedicated "Amount with Sign Testing" section that showcases the new transaction formatting feature with live examples and interactive testing.
+### Integration Tests
 
-## Files Modified
+```typescript
+// Test currency switching
+it('should update all amounts when currency changes', async () => {
+  render(<App />);
+  // Check initial VND display
+  expect(screen.getByText(/25,000đ/)).toBeInTheDocument();
 
-- `src/utils/formatUtils.ts` - Added the main function
-- `src/components/examples/CurrencyExample.tsx` - Added interactive testing section
-- `src/examples/currencyFormattingExamples.ts` - Added usage examples
-- `guides/CURRENCY_MODULE_GUIDE.md` - This comprehensive guide
+  // Switch to USD
+  fireEvent.click(screen.getByText('USD'));
+
+  // Wait for conversion and check USD display
+  await waitFor(() => {
+    expect(screen.getByText(/\$10\.50/)).toBeInTheDocument();
+  });
+});
+```
+
+## Performance Considerations
+
+### 1. Exchange Rate Caching
+
+- Exchange rates are cached for 1 hour to minimize API calls
+- Use the same rate for all conversions within the cache period
+- Fallback to cached rates if API is unavailable
+
+### 2. Component Optimization
+
+- `CurrencyAmount` components are optimized with React.memo
+- `useCurrencyDisplay` hook includes proper dependency arrays
+- Context updates only trigger re-renders when currency actually changes
+
+### 3. Error Recovery
+
+- Graceful fallback to VND formatting if conversion fails
+- Retry mechanism for failed API calls
+- User-friendly error messages
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Amounts not updating when currency changes**
+
+   - Ensure components use `CurrencyAmount` or `CurrencyAmountWithSign`
+   - Check that components are wrapped in `CurrencyProvider`
+
+2. **Conversion errors**
+
+   - Verify internet connection for exchange rate API
+   - Check that amounts are stored as numbers, not strings
+   - Ensure amounts are positive VND values
+
+3. **TypeScript errors**
+   - Use `CurrencyCode` type for currency values
+   - Ensure transaction types are `'income' | 'expense'`
+   - Import types from the correct modules
+
+### Debug Tools
+
+```typescript
+// Check currency context state
+const { currency, isLoading } = useCurrencyContext();
+console.log('Current currency:', currency, 'Loading:', isLoading);
+
+// Debug conversion
+const { displayAmount, error } = useCurrencyDisplay(amount);
+console.log('Display amount:', displayAmount, 'Error:', error);
+```
+
+## Changelog
+
+### v2.0.0 (Current)
+
+- ✅ Added `CurrencyAmount` and `CurrencyAmountWithSign` components
+- ✅ Implemented `CurrencyContext` for state management
+- ✅ Added `useCurrencyDisplay` hook
+- ✅ Set VND as default and base currency
+- ✅ Real-time currency switching
+- ✅ Improved TypeScript support
+- ✅ Updated all pages to use new components
+
+### v1.0.0 (Legacy)
+
+- ❌ Direct `formatAmountWithSign` usage (deprecated)
+- ❌ Manual currency formatting (deprecated)
+- ❌ Component-level currency state (deprecated)
+
+---
+
+**For questions or support, refer to the main development team or check the component implementations in the codebase.**
+````

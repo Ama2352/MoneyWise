@@ -28,6 +28,15 @@ import {
   PiggyBank,
   Folder,
   TrendingUp,
+  Smartphone,
+  Trophy,
+  Palette,
+  Camera,
+  Settings,
+  PawPrint,
+  Briefcase,
+  Sparkles,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -41,12 +50,26 @@ export interface CategoryPattern {
 }
 
 /**
- * Comprehensive category icon mappings
+ * Comprehensive category icon mappings with Vietnamese support
  */
 export const CATEGORY_ICON_PATTERNS: CategoryPattern[] = [
   // Food & Dining
   {
-    keywords: ['food', 'dining', 'restaurant', 'grocery', 'eat', 'meal'],
+    keywords: [
+      'food',
+      'dining',
+      'restaurant',
+      'grocery',
+      'eat',
+      'meal',
+      'ăn',
+      'uống',
+      'thức ăn',
+      'nhà hàng',
+      'tạp hóa',
+      'bữa ăn',
+      'món ăn',
+    ],
     icon: Utensils,
     description: 'Food & Dining',
   },
@@ -62,6 +85,13 @@ export const CATEGORY_ICON_PATTERNS: CategoryPattern[] = [
       'parking',
       'taxi',
       'uber',
+      'di chuyển',
+      'xe',
+      'phương tiện',
+      'xăng',
+      'nhiên liệu',
+      'đỗ xe',
+      'giao thông',
     ],
     icon: Car,
     description: 'Transportation',
@@ -69,135 +99,470 @@ export const CATEGORY_ICON_PATTERNS: CategoryPattern[] = [
 
   // Coffee & Beverages (more specific than food)
   {
-    keywords: ['coffee', 'drink', 'beverage', 'cafe'],
+    keywords: [
+      'coffee',
+      'drink',
+      'beverage',
+      'cafe',
+      'cà phê',
+      'đồ uống',
+      'nước uống',
+      'quán cà phê',
+    ],
     icon: Coffee,
     description: 'Coffee & Beverages',
   },
 
   // Electricity & Power
   {
-    keywords: ['electricity', 'power'],
+    keywords: ['electricity', 'power', 'điện', 'năng lượng', 'tiền điện'],
     icon: Zap,
     description: 'Electricity & Power',
   },
-
   // Internet & Wifi
   {
-    keywords: ['internet', 'wifi', 'broadband'],
+    keywords: ['internet', 'wifi', 'broadband', 'mạng', 'băng thông rộng'],
     icon: Wifi,
     description: 'Internet & Connectivity',
   },
 
   // Housing & Utilities
   {
-    keywords: ['rent', 'mortgage', 'housing', 'home', 'utilities', 'water'],
+    keywords: [
+      'rent',
+      'mortgage',
+      'housing',
+      'home',
+      'utilities',
+      'water',
+      'thuê nhà',
+      'vay nhà',
+      'nhà ở',
+      'nhà',
+      'tiện ích',
+      'nước',
+      'hóa đơn nhà',
+    ],
     icon: Home,
     description: 'Housing & Utilities',
   },
 
   // Clothing & Fashion
   {
-    keywords: ['clothes', 'clothing', 'fashion'],
+    keywords: [
+      'clothes',
+      'clothing',
+      'fashion',
+      'quần áo',
+      'thời trang',
+      'may mặc',
+      'áo quần',
+    ],
     icon: Shirt,
     description: 'Clothing & Fashion',
   },
-
   // Shopping (general)
   {
-    keywords: ['shopping', 'retail'],
+    keywords: ['shopping', 'retail', 'mua sắm', 'bán lẻ', 'mua hàng'],
     icon: ShoppingBag,
     description: 'Shopping',
   },
 
   // Music
   {
-    keywords: ['music'],
+    keywords: ['music', 'nhạc', 'âm nhạc', 'nghe nhạc'],
     icon: Music,
     description: 'Music',
   },
-
   // Entertainment (general)
   {
-    keywords: ['entertainment', 'game', 'movie', 'fun', 'hobby'],
+    keywords: [
+      'entertainment',
+      'game',
+      'movie',
+      'fun',
+      'hobby',
+      'giải trí',
+      'trò chơi',
+      'phim',
+      'vui chơi',
+      'sở thích',
+    ],
     icon: Gamepad2,
     description: 'Entertainment',
   },
 
   // Travel
   {
-    keywords: ['travel', 'vacation', 'trip', 'hotel', 'flight'],
+    keywords: [
+      'travel',
+      'vacation',
+      'trip',
+      'hotel',
+      'flight',
+      'du lịch',
+      'nghỉ dưỡng',
+      'chuyến đi',
+      'khách sạn',
+      'máy bay',
+      'vé máy bay',
+    ],
     icon: Plane,
     description: 'Travel',
   },
 
   // Education
   {
-    keywords: ['education', 'school', 'course', 'learning', 'book'],
+    keywords: [
+      'education',
+      'school',
+      'course',
+      'learning',
+      'book',
+      'giáo dục',
+      'trường học',
+      'khóa học',
+      'học tập',
+      'sách',
+      'học phí',
+    ],
     icon: GraduationCap,
     description: 'Education',
   },
 
   // Fitness & Gym
   {
-    keywords: ['fitness', 'gym'],
+    keywords: [
+      'fitness',
+      'gym',
+      'thể dục',
+      'tập gym',
+      'phòng tập',
+      'thể hình',
+      'sức khỏe',
+    ],
     icon: Dumbbell,
     description: 'Fitness & Gym',
   },
 
   // Health & Medical (general)
   {
-    keywords: ['health', 'medical', 'doctor', 'hospital', 'medicine'],
+    keywords: [
+      'health',
+      'medical',
+      'doctor',
+      'hospital',
+      'medicine',
+      'sức khỏe',
+      'y tế',
+      'bác sĩ',
+      'bệnh viện',
+      'thuốc',
+      'khám bệnh',
+    ],
     icon: Heart,
     description: 'Health & Medical',
   },
 
   // Phone & Mobile
   {
-    keywords: ['phone'],
+    keywords: ['phone', 'điện thoại', 'di động', 'mobile', 'cước phí', 'sim'],
     icon: Phone,
     description: 'Phone & Mobile',
   },
 
   // Bills & Services (general)
   {
-    keywords: ['bill', 'service', 'subscription'],
+    keywords: [
+      'bill',
+      'service',
+      'subscription',
+      'hóa đơn',
+      'dịch vụ',
+      'đăng ký',
+      'phí dịch vụ',
+      'thanh toán',
+    ],
     icon: Building2,
     description: 'Bills & Services',
   },
 
   // Maintenance & Repairs
   {
-    keywords: ['maintenance', 'repair', 'fix'],
+    keywords: [
+      'maintenance',
+      'repair',
+      'fix',
+      'bảo trì',
+      'sửa chữa',
+      'bảo dưỡng',
+      'sửa',
+    ],
     icon: Wrench,
     description: 'Maintenance & Repairs',
   },
 
   // Gifts & Donations
   {
-    keywords: ['gift', 'donation', 'charity'],
+    keywords: [
+      'gift',
+      'donation',
+      'charity',
+      'quà tặng',
+      'tặng',
+      'từ thiện',
+      'quyên góp',
+      'quà',
+    ],
     icon: Gift,
     description: 'Gifts & Donations',
   },
 
   // Investment & Trading
   {
-    keywords: ['investment', 'profit'],
+    keywords: [
+      'investment',
+      'profit',
+      'đầu tư',
+      'lợi nhuận',
+      'chứng khoán',
+      'cổ phiếu',
+      'kiếm tiền',
+    ],
     icon: TrendingUp,
     description: 'Investment & Trading',
   },
 
   // Salary & Income (general)
   {
-    keywords: ['salary', 'income', 'wage', 'earning'],
+    keywords: [
+      'salary',
+      'income',
+      'wage',
+      'earning',
+      'lương',
+      'thu nhập',
+      'tiền lương',
+      'công',
+      'thưởng',
+    ],
     icon: Banknote,
     description: 'Salary & Income',
   },
 
   // Savings & Emergency Fund
   {
-    keywords: ['saving', 'emergency', 'fund'],
+    keywords: [
+      'saving',
+      'emergency',
+      'fund',
+      'tiết kiệm',
+      'khẩn cấp',
+      'quỹ',
+      'dự phòng',
+      'để dành',
+    ],
     icon: PiggyBank,
     description: 'Savings & Emergency Fund',
+  },
+
+  // Electronics
+  {
+    keywords: [
+      'electronics',
+      'electronic',
+      'tech',
+      'technology',
+      'gadget',
+      'điện tử',
+      'công nghệ',
+      'thiết bị',
+      'đồ điện tử',
+    ],
+    icon: Smartphone,
+    description: 'Electronics',
+  },
+
+  // Sports & Fitness
+  {
+    keywords: [
+      'sports',
+      'sport',
+      'athletic',
+      'exercise',
+      'workout',
+      'thể thao',
+      'vận động',
+      'tập luyện',
+      'thể dục thể thao',
+    ],
+    icon: Trophy,
+    description: 'Sports',
+  },
+
+  // Automotive
+  {
+    keywords: [
+      'automotive',
+      'auto',
+      'car maintenance',
+      'vehicle service',
+      'ô tô',
+      'xe hơi',
+      'bảo dưỡng xe',
+      'dịch vụ xe',
+    ],
+    icon: Car,
+    description: 'Automotive',
+  },
+
+  // Beauty & Personal Care
+  {
+    keywords: [
+      'beauty',
+      'cosmetic',
+      'makeup',
+      'skincare',
+      'personal care',
+      'làm đẹp',
+      'mỹ phẩm',
+      'chăm sóc da',
+      'trang điểm',
+    ],
+    icon: Sparkles,
+    description: 'Beauty & Personal Care',
+  },
+
+  // Gaming
+  {
+    keywords: [
+      'gaming',
+      'video game',
+      'console',
+      'pc game',
+      'chơi game',
+      'trò chơi điện tử',
+      'game online',
+      'máy chơi game',
+    ],
+    icon: Gamepad2,
+    description: 'Gaming',
+  },
+
+  // Business
+  {
+    keywords: [
+      'business',
+      'work',
+      'professional',
+      'office',
+      'kinh doanh',
+      'công việc',
+      'văn phòng',
+      'chuyên nghiệp',
+    ],
+    icon: Briefcase,
+    description: 'Business',
+  },
+
+  // Finance & Banking
+  {
+    keywords: [
+      'finance',
+      'financial',
+      'bank',
+      'banking',
+      'tài chính',
+      'ngân hàng',
+      'giao dịch tài chính',
+      'dịch vụ ngân hàng',
+    ],
+    icon: Banknote,
+    description: 'Finance & Banking',
+  },
+
+  // Social & Community
+  {
+    keywords: [
+      'social',
+      'community',
+      'networking',
+      'meeting',
+      'xã hội',
+      'cộng đồng',
+      'gặp gỡ',
+      'kết nối',
+    ],
+    icon: Users,
+    description: 'Social & Community',
+  },
+
+  // Art & Creative
+  {
+    keywords: [
+      'art',
+      'creative',
+      'design',
+      'drawing',
+      'painting',
+      'nghệ thuật',
+      'sáng tạo',
+      'thiết kế',
+      'vẽ',
+      'hội họa',
+    ],
+    icon: Palette,
+    description: 'Art & Creative',
+  },
+
+  // Photography
+  {
+    keywords: [
+      'photography',
+      'photo',
+      'camera',
+      'picture',
+      'nhiếp ảnh',
+      'chụp ảnh',
+      'máy ảnh',
+      'hình ảnh',
+    ],
+    icon: Camera,
+    description: 'Photography',
+  },
+
+  // Tools & Equipment
+  {
+    keywords: [
+      'tools',
+      'equipment',
+      'hardware',
+      'instrument',
+      'công cụ',
+      'thiết bị',
+      'dụng cụ',
+      'phần cứng',
+    ],
+    icon: Settings,
+    description: 'Tools & Equipment',
+  },
+
+  // Pets & Animals
+  {
+    keywords: [
+      'pets',
+      'pet',
+      'animal',
+      'dog',
+      'cat',
+      'thú cưng',
+      'động vật',
+      'chó',
+      'mèo',
+      'thú nuôi',
+    ],
+    icon: PawPrint,
+    description: 'Pets & Animals',
   },
 ];
 
@@ -288,6 +653,7 @@ export const getCategoryIcon = (categoryName: string): LucideIcon => {
 
 /**
  * Get all available category suggestions with their icons and translation keys
+ * Note: Only includes suggestions that have corresponding translations defined
  *
  * @returns Array of category suggestions with translation keys
  */

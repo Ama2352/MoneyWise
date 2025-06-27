@@ -1,17 +1,23 @@
 import httpClient from './httpClient';
 import { API_ENDPOINTS } from '../config/api';
 import type {
+  Wallet,
+  CreateWalletRequest,
   Transaction,
   Category,
-  Account,
-  Budget,
   CreateTransactionRequest,
   CreateCategoryRequest,
   UpdateCategoryRequest,
-  CreateAccountRequest,
+  SearchTransactionRequest,
+  CashFlow,
+  BudgetProgress,
+  Budget,
   CreateBudgetRequest,
-  TransactionSummary,
-  PaginatedResponse,
+  UpdateBudgetRequest,
+  SavingGoal,
+  SavingGoalProgress,
+  CreateSavingGoalRequest,
+  UpdateSavingGoalRequest,
 } from '../types';
 
 /**
@@ -20,17 +26,14 @@ import type {
 
 // Transaction APIs
 export const transactionApi = {
-  getAll: async (
-    page = 0,
-    size = 10
-  ): Promise<PaginatedResponse<Transaction>> => {
-    const response = await httpClient.get<PaginatedResponse<Transaction>>(
-      `${API_ENDPOINTS.TRANSACTIONS.BASE}?page=${page}&size=${size}`
+  getAll: async (): Promise<Transaction[]> => {
+    const response = await httpClient.get<Transaction[]>(
+      API_ENDPOINTS.TRANSACTIONS.BASE
     );
     return response.data;
   },
 
-  getById: async (id: number): Promise<Transaction> => {
+  getById: async (id: string): Promise<Transaction> => {
     const response = await httpClient.get<Transaction>(
       `${API_ENDPOINTS.TRANSACTIONS.BASE}/${id}`
     );
@@ -47,25 +50,21 @@ export const transactionApi = {
     return response.data;
   },
 
-  update: async (
-    id: number,
-    transaction: Partial<CreateTransactionRequest>
-  ): Promise<Transaction> => {
+  update: async (transaction: Transaction): Promise<Transaction> => {
     const response = await httpClient.put<Transaction>(
-      `${API_ENDPOINTS.TRANSACTIONS.BASE}/${id}`,
-      transaction
+      API_ENDPOINTS.TRANSACTIONS.BASE,
+      transaction // ← Direct object, becomes request body
     );
     return response.data;
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await httpClient.delete(`${API_ENDPOINTS.TRANSACTIONS.BASE}/${id}`);
   },
-
-  getSummary: async (period?: string): Promise<TransactionSummary> => {
-    const params = period ? `?period=${period}` : '';
-    const response = await httpClient.get<TransactionSummary>(
-      `${API_ENDPOINTS.TRANSACTIONS.SUMMARY}${params}`
+  search: async (params: SearchTransactionRequest): Promise<Transaction[]> => {
+    const response = await httpClient.get<Transaction[]>(
+      API_ENDPOINTS.TRANSACTIONS.SEARCH,
+      { params } // ← Wrapped in object, becomes ?key=value&key2=value2
     );
     return response.data;
   },
@@ -111,68 +110,75 @@ export const categoryApi = {
   },
 };
 
-// Account APIs
-export const accountApi = {
-  getAll: async (): Promise<Account[]> => {
-    const response = await httpClient.get<Account[]>(
-      API_ENDPOINTS.ACCOUNTS.BASE
+// Wallet APIs
+export const walletApi = {
+  getAll: async (): Promise<Wallet[]> => {
+    const response = await httpClient.get<Wallet[]>(API_ENDPOINTS.WALLETS.BASE);
+    return response.data;
+  },
+
+  getById: async (walletId: string): Promise<Wallet> => {
+    const response = await httpClient.get<Wallet>(
+      `${API_ENDPOINTS.WALLETS.BASE}/${walletId}`
     );
     return response.data;
   },
 
-  getById: async (id: number): Promise<Account> => {
-    const response = await httpClient.get<Account>(
-      `${API_ENDPOINTS.ACCOUNTS.BASE}/${id}`
+  create: async (wallet: CreateWalletRequest): Promise<Wallet> => {
+    const response = await httpClient.post<Wallet>(
+      API_ENDPOINTS.WALLETS.BASE,
+      wallet
     );
     return response.data;
   },
 
-  create: async (account: CreateAccountRequest): Promise<Account> => {
-    const response = await httpClient.post<Account>(
-      API_ENDPOINTS.ACCOUNTS.BASE,
-      account
+  update: async (wallet: Wallet): Promise<Wallet> => {
+    const response = await httpClient.put<Wallet>(
+      `${API_ENDPOINTS.WALLETS.BASE}`,
+      wallet // ← Direct object, becomes request body
     );
     return response.data;
   },
 
-  update: async (
-    id: number,
-    account: Partial<CreateAccountRequest>
-  ): Promise<Account> => {
-    const response = await httpClient.put<Account>(
-      `${API_ENDPOINTS.ACCOUNTS.BASE}/${id}`,
-      account
-    );
-    return response.data;
-  },
-
-  delete: async (id: number): Promise<void> => {
-    await httpClient.delete(`${API_ENDPOINTS.ACCOUNTS.BASE}/${id}`);
-  },
-
-  getBalance: async (id: number): Promise<{ balance: number }> => {
-    const response = await httpClient.get<{ balance: number }>(
-      `${API_ENDPOINTS.ACCOUNTS.BASE}/${id}/balance`
-    );
-    return response.data;
+  delete: async (walletId: string): Promise<void> => {
+    await httpClient.delete(`${API_ENDPOINTS.WALLETS.BASE}/${walletId}`);
   },
 };
 
-// Budget APIs
-export const budgetApi = {
-  getAll: async (): Promise<Budget[]> => {
-    const response = await httpClient.get<Budget[]>(API_ENDPOINTS.BUDGETS.BASE);
-    return response.data;
-  },
+export const statisticsApi = {
+  getCashFlow: async (
+    startDate: string,
+    endDate: string
+  ): Promise<CashFlow> => {
+    const response = await httpClient.get<CashFlow>(
+      `${API_ENDPOINTS.STATISTICS.CASH_FLOW}?startDate=${startDate}&endDate=${endDate}`
+    );
 
-  getById: async (id: number): Promise<Budget> => {
-    const response = await httpClient.get<Budget>(
-      `${API_ENDPOINTS.BUDGETS.BASE}/${id}`
+    // Calculate balance if not provided by backend
+    const data = response.data;
+    return {
+      ...data,
+      balance: data.totalIncome - data.totalExpenses,
+    };
+  },
+};
+
+export const budgetApi = {
+  getAllBudgetProgress: async (): Promise<BudgetProgress[]> => {
+    const response = await httpClient.get<BudgetProgress[]>(
+      API_ENDPOINTS.BUDGETS.BASE
     );
     return response.data;
   },
 
-  create: async (budget: CreateBudgetRequest): Promise<Budget> => {
+  getBudgetById: async (budgetId: string): Promise<Budget> => {
+    const response = await httpClient.get<Budget>(
+      `${API_ENDPOINTS.BUDGETS.BASE}/${budgetId}`
+    );
+    return response.data;
+  },
+
+  createBudget: async (budget: CreateBudgetRequest): Promise<Budget> => {
     const response = await httpClient.post<Budget>(
       API_ENDPOINTS.BUDGETS.BASE,
       budget
@@ -180,18 +186,57 @@ export const budgetApi = {
     return response.data;
   },
 
-  update: async (
-    id: number,
-    budget: Partial<CreateBudgetRequest>
-  ): Promise<Budget> => {
+  updateBudget: async (budget: UpdateBudgetRequest): Promise<Budget> => {
     const response = await httpClient.put<Budget>(
-      `${API_ENDPOINTS.BUDGETS.BASE}/${id}`,
-      budget
+      `${API_ENDPOINTS.BUDGETS.BASE}`,
+      budget // ← Direct object, becomes request body
     );
     return response.data;
   },
 
-  delete: async (id: number): Promise<void> => {
-    await httpClient.delete(`${API_ENDPOINTS.BUDGETS.BASE}/${id}`);
+  deleteBudget: async (budgetId: string): Promise<void> => {
+    await httpClient.delete(`${API_ENDPOINTS.BUDGETS.BASE}/${budgetId}`);
+  },
+};
+
+export const savingGoalApi = {
+  getAllSavingGoalProgress: async (): Promise<SavingGoalProgress[]> => {
+    const response = await httpClient.get<SavingGoalProgress[]>(
+      API_ENDPOINTS.SAVING_GOALS.BASE
+    );
+    return response.data;
+  },
+
+  getSavingGoalById: async (savingGoalId: string): Promise<SavingGoal> => {
+    const response = await httpClient.get<SavingGoal>(
+      `${API_ENDPOINTS.SAVING_GOALS.BASE}/${savingGoalId}`
+    );
+    return response.data;
+  },
+
+  createSavingGoal: async (
+    savingGoal: CreateSavingGoalRequest
+  ): Promise<SavingGoal> => {
+    const response = await httpClient.post<SavingGoal>(
+      API_ENDPOINTS.SAVING_GOALS.BASE,
+      savingGoal
+    );
+    return response.data;
+  },
+
+  updateSavingGoal: async (
+    savingGoal: UpdateSavingGoalRequest
+  ): Promise<SavingGoal> => {
+    const response = await httpClient.put<SavingGoal>(
+      `${API_ENDPOINTS.SAVING_GOALS.BASE}`,
+      savingGoal
+    );
+    return response.data;
+  },
+
+  deleteSavingGoal: async (savingGoalId: string): Promise<void> => {
+    await httpClient.delete(
+      `${API_ENDPOINTS.SAVING_GOALS.BASE}/${savingGoalId}`
+    );
   },
 };

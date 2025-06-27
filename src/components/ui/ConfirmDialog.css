@@ -5,13 +5,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.2s ease-out;
+  z-index: 9999;
+  animation: fadeIn 0.15s ease-out;
 }
 
 .confirm-dialog {
@@ -22,7 +21,7 @@
   width: 90%;
   max-height: 90vh;
   overflow: hidden;
-  animation: slideIn 0.2s ease-out;
+  animation: slideIn 0.15s ease-out;
 }
 
 .confirm-dialog__header {

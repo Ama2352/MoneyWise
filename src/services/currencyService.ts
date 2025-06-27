@@ -9,7 +9,6 @@ import type {
   CurrencyCode,
   CurrencyConversion,
   ConversionRequest,
-  ExchangeRate,
 } from '../types';
 
 interface CacheEntry {
@@ -34,10 +33,8 @@ class CurrencyService {
     this.validateAmount(amount);
 
     // Get exchange rate (with caching)
-    const exchangeRate = await this.getExchangeRateWithCache(from, to);
-
-    // Calculate converted amount
-    const convertedAmount = this.calculateConversion(amount, exchangeRate);
+    const exchangeRate = await this.getExchangeRateWithCache(from, to); // Calculate converted amount
+    const convertedAmount = this.calculateConversion(amount, exchangeRate, to);
 
     return {
       amount,
@@ -75,24 +72,6 @@ class CurrencyService {
 
     return rate;
   }
-
-  /**
-   * Get current exchange rate without conversion
-   */
-  async getExchangeRate(
-    from: CurrencyCode,
-    to: CurrencyCode
-  ): Promise<ExchangeRate> {
-    const rate = await this.getExchangeRateWithCache(from, to);
-
-    return {
-      from,
-      to,
-      rate,
-      lastUpdated: new Date().toISOString(),
-    };
-  }
-
   /**
    * Format currency amount with proper locale and symbol
    */
@@ -100,11 +79,18 @@ class CurrencyService {
     const currencyInfo = CURRENCY_INFO[currency];
 
     try {
+      // For VND, use custom formatting to avoid space between amount and symbol
+      if (currency === 'vnd') {
+        const formattedAmount = Math.round(amount).toLocaleString('vi-VN');
+        return `${formattedAmount}${currencyInfo.symbol}`;
+      }
+
+      // For other currencies, use standard Intl formatting
       return new Intl.NumberFormat(currencyInfo.locale, {
         style: 'currency',
         currency: currency.toUpperCase(),
-        minimumFractionDigits: currency === 'vnd' ? 0 : 2,
-        maximumFractionDigits: currency === 'vnd' ? 0 : 2,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       }).format(amount);
     } catch (error) {
       // Fallback formatting if Intl fails
@@ -120,44 +106,6 @@ class CurrencyService {
     }
   }
 
-  /**
-   * Get currency information
-   */
-  getCurrencyInfo(currency: CurrencyCode) {
-    return CURRENCY_INFO[currency];
-  }
-
-  /**
-   * Get all supported currencies
-   */
-  getSupportedCurrencies() {
-    return Object.values(CURRENCY_INFO);
-  }
-
-  /**
-   * Clear exchange rate cache
-   */
-  clearCache(): void {
-    this.cache.clear();
-  }
-
-  /**
-   * Get cache statistics (for debugging)
-   */
-  getCacheStats() {
-    const entries = Array.from(this.cache.entries());
-    return {
-      totalEntries: entries.length,
-      validEntries: entries.filter(([, entry]) =>
-        this.isCacheValid(entry.timestamp)
-      ).length,
-      oldestEntry:
-        entries.length > 0
-          ? Math.min(...entries.map(([, entry]) => entry.timestamp))
-          : null,
-    };
-  }
-
   // Private helper methods
 
   private validateCurrencyCode(currency: CurrencyCode): void {
@@ -171,12 +119,21 @@ class CurrencyService {
       throw new Error('Amount must be a positive finite number');
     }
   }
-
-  private calculateConversion(amount: number, rate: number): number {
+  private calculateConversion(
+    amount: number,
+    rate: number,
+    toCurrency: CurrencyCode
+  ): number {
     const result = amount * rate;
 
-    // Round to appropriate decimal places based on currency
-    return Math.round((result + Number.EPSILON) * 100) / 100;
+    // Round to appropriate decimal places based on target currency
+    if (toCurrency === 'vnd') {
+      // VND should have no decimal places
+      return Math.round(result);
+    } else {
+      // Other currencies (USD) should have 2 decimal places
+      return Math.round((result + Number.EPSILON) * 100) / 100;
+    }
   }
 
   private isCacheValid(timestamp: number): boolean {

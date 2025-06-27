@@ -36,13 +36,18 @@ export const useAuthentication = (): UseAuthenticationReturn => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [tokenExpired, setTokenExpired] = useState(false);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
-
   // Logout function
   const logout = useCallback((isManual: boolean = true) => {
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     setUserProfile(null);
     setIsAuthenticated(false);
+
+    // Clear SWR cache on logout to prevent data leakage
+    import('swr').then(({ mutate }) => {
+      console.log('🗑️ [SWR] Clearing cache due to logout');
+      mutate(() => true, undefined, { revalidate: false });
+    });
 
     if (!isManual) {
       // Token expired, show dialog
@@ -54,7 +59,6 @@ export const useAuthentication = (): UseAuthenticationReturn => {
   const clearTokenExpired = useCallback(() => {
     setTokenExpired(false);
   }, []);
-
   // Check if user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -72,10 +76,10 @@ export const useAuthentication = (): UseAuthenticationReturn => {
           setUserProfile(userData);
           setIsAuthenticated(true);
         } catch (error) {
-          // Token is invalid/expired, trigger expiry dialog
+          // Token is invalid/expired, clear tokens and let the interceptor handle the state updates
           localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
           localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-          setTokenExpired(true);
+          // Don't set authentication state here - let handleTokenExpired handle it
         }
       }
 
@@ -97,8 +101,7 @@ export const useAuthentication = (): UseAuthenticationReturn => {
     return () => {
       window.removeEventListener('token-expired', handleTokenExpired);
     };
-  }, [isAuthenticated, initialCheckDone]);
-
+  }, [initialCheckDone]); // Remove isAuthenticated from dependencies to prevent re-runs
   const login = useCallback(async (credentials: LoginRequest) => {
     setIsLoading(true);
     try {
@@ -111,6 +114,12 @@ export const useAuthentication = (): UseAuthenticationReturn => {
         const userData = await authApi.getProfile();
         setUserProfile(userData);
         setIsAuthenticated(true);
+
+        // Clear SWR cache on login to get fresh user-specific data
+        import('swr').then(({ mutate }) => {
+          console.log('🗑️ [SWR] Clearing cache due to login');
+          mutate(() => true, undefined, { revalidate: true });
+        });
 
         return { success: true, user: userData };
       } catch (profileError) {
