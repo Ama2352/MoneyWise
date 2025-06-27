@@ -10,6 +10,14 @@ import type {
   UpdateCategoryRequest,
   SearchTransactionRequest,
   CashFlow,
+  BudgetProgress,
+  Budget,
+  CreateBudgetRequest,
+  UpdateBudgetRequest,
+  SavingGoal,
+  SavingGoalProgress,
+  CreateSavingGoalRequest,
+  UpdateSavingGoalRequest,
 } from '../types';
 
 /**
@@ -152,5 +160,83 @@ export const statisticsApi = {
       ...data,
       balance: data.totalIncome - data.totalExpenses,
     };
+  },
+};
+
+export const budgetApi = {
+  getAllBudgetProgress: async (): Promise<BudgetProgress[]> => {
+    const response = await httpClient.get<BudgetProgress[]>(
+      API_ENDPOINTS.BUDGETS.BASE
+    );
+    return response.data;
+  },
+
+  getBudgetById: async (budgetId: string): Promise<Budget> => {
+    const response = await httpClient.get<Budget>(
+      `${API_ENDPOINTS.BUDGETS.BASE}/${budgetId}`
+    );
+    return response.data;
+  },
+
+  createBudget: async (budget: CreateBudgetRequest): Promise<Budget> => {
+    const response = await httpClient.post<Budget>(
+      API_ENDPOINTS.BUDGETS.BASE,
+      budget
+    );
+    return response.data;
+  },
+
+  updateBudget: async (budget: UpdateBudgetRequest): Promise<Budget> => {
+    const response = await httpClient.put<Budget>(
+      `${API_ENDPOINTS.BUDGETS.BASE}`,
+      budget // ← Direct object, becomes request body
+    );
+    return response.data;
+  },
+
+  deleteBudget: async (budgetId: string): Promise<void> => {
+    await httpClient.delete(`${API_ENDPOINTS.BUDGETS.BASE}/${budgetId}`);
+  },
+};
+
+export const savingGoalApi = {
+  getAllSavingGoalProgress: async (): Promise<SavingGoalProgress[]> => {
+    const response = await httpClient.get<SavingGoalProgress[]>(
+      API_ENDPOINTS.SAVING_GOALS.BASE
+    );
+    return response.data;
+  },
+
+  getSavingGoalById: async (savingGoalId: string): Promise<SavingGoal> => {
+    const response = await httpClient.get<SavingGoal>(
+      `${API_ENDPOINTS.SAVING_GOALS.BASE}/${savingGoalId}`
+    );
+    return response.data;
+  },
+
+  createSavingGoal: async (
+    savingGoal: CreateSavingGoalRequest
+  ): Promise<SavingGoal> => {
+    const response = await httpClient.post<SavingGoal>(
+      API_ENDPOINTS.SAVING_GOALS.BASE,
+      savingGoal
+    );
+    return response.data;
+  },
+
+  updateSavingGoal: async (
+    savingGoal: UpdateSavingGoalRequest
+  ): Promise<SavingGoal> => {
+    const response = await httpClient.put<SavingGoal>(
+      `${API_ENDPOINTS.SAVING_GOALS.BASE}`,
+      savingGoal
+    );
+    return response.data;
+  },
+
+  deleteSavingGoal: async (savingGoalId: string): Promise<void> => {
+    await httpClient.delete(
+      `${API_ENDPOINTS.SAVING_GOALS.BASE}/${savingGoalId}`
+    );
   },
 };

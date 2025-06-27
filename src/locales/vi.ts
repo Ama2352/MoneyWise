@@ -461,4 +461,18 @@ export const vi: TranslationKeys = {
       searchError: 'Không thể tìm kiếm giao dịch',
     },
   },
+  savingGoals: {
+    notifications: {
+      createError: 'Không thể tạo mục tiêu tiết kiệm',
+      updateError: 'Không thể cập nhật mục tiêu tiết kiệm',
+      deleteError: 'Không thể xóa mục tiêu tiết kiệm',
+    },
+  },
+  budgets: {
+    notifications: {
+      createError: 'Không thể tạo ngân sách',
+      updateError: 'Không thể cập nhật ngân sách',
+      deleteError: 'Không thể xóa ngân sách',
+    },
+  },
 };

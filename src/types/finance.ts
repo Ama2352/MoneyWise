@@ -49,3 +49,60 @@ export interface CashFlow {
   totalExpenses: number;
   balance: number;
 }
+
+export interface SavingGoalProgress {
+  savingGoalId: string;
+  categoryId: string;
+  walletId: string;
+  description: string;
+  targetAmount: number;
+  savedAmount: number;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  savedPercentage: number;
+  progressStatus: string;
+  notification: string;
+}
+
+export type SavingGoal = Omit<
+  SavingGoalProgress,
+  'savedPercentage' | 'progressStatus' | 'notification'
+>;
+
+export type CreateSavingGoalRequest = Omit<
+  SavingGoal,
+  'createdAt' | 'savedAmount' | 'savingGoalId'
+>;
+
+export type UpdateSavingGoalRequest = Omit<
+  SavingGoal,
+  'createdAt' | 'savedAmount'
+>;
+
+export interface BudgetProgress {
+  budgetId: string;
+  categoryId: string;
+  walletId: string;
+  description: string;
+  limitAmount: number;
+  currentSpending: number;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+  usagePercentage: number;
+  progressStatus: string;
+  notification: string;
+}
+
+export type Budget = Omit<
+  BudgetProgress,
+  'usagePercentage' | 'progressStatus' | 'notification'
+>;
+
+export type CreateBudgetRequest = Omit<
+  Budget,
+  'createdAt' | 'currentSpending' | 'budgetId'
+>;
+
+export type UpdateBudgetRequest = Omit<Budget, 'createdAt' | 'currentSpending'>;
