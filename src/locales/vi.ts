@@ -462,10 +462,84 @@ export const vi: TranslationKeys = {
     },
   },
   savingGoals: {
+    title: 'Mục Tiêu Tiết Kiệm',
+    subtitle: 'Theo dõi tiến độ tiết kiệm và đạt được mục tiêu tài chính của bạn',
+    addNew: 'Thêm Mục Tiêu Mới',
+    editGoal: 'Chỉnh Sửa Mục Tiêu',
+    deleteGoal: 'Xóa Mục Tiêu',
+    goalDetails: 'Chi Tiết Mục Tiêu',
+    progress: 'Tiến Độ',
+    noGoals: 'Không có mục tiêu tiết kiệm nào',
+    noGoalsDescription: 'Tạo mục tiêu tiết kiệm đầu tiên để bắt đầu theo dõi tiến độ',
+    
+    // Form fields
+    description: 'Mô Tả',
+    targetAmount: 'Số Tiền Mục Tiêu',
+    startDate: 'Ngày Bắt Đầu',
+    endDate: 'Ngày Kết Thúc',
+    category: 'Danh Mục',
+    wallet: 'Ví',
+    savedAmount: 'Số Tiền Đã Tiết Kiệm',
+    
+    // Status
+    status: {
+      notStarted: 'Chưa Bắt Đầu',
+      achieved: 'Đã Đạt Được',
+      partiallyAchieved: 'Đạt Một Phần',
+      missedTarget: 'Không Đạt Mục Tiêu',
+      achievedEarly: 'Đạt Mục Tiêu Sớm',
+      ahead: 'Vượt Tiến Độ',
+      onTrack: 'Đúng Tiến Độ',
+      slightlyBehind: 'Hơi Chậm Tiến Độ',
+      atRisk: 'Có Nguy Cơ',
+      safe: 'Đúng Tiến Độ',
+      warning: 'Chậm Tiến Độ',
+      danger: 'Nguy Hiểm',
+    },
+    
+    // Stats
+    totalGoals: 'Tổng Mục Tiêu',
+    activeGoals: 'Mục Tiêu Đang Hoạt Động',
+    completedGoals: 'Mục Tiêu Đã Hoàn Thành',
+    totalTargetAmount: 'Tổng Mục Tiêu',
+    totalSavedAmount: 'Tổng Đã Tiết Kiệm',
+    
+    // Actions
+    create: 'Tạo Mục Tiêu',
+    update: 'Cập Nhật Mục Tiêu',
+    delete: 'Xóa',
+    edit: 'Chỉnh Sửa',
+    view: 'Xem Chi Tiết',
+    
+    // Progress
+    progressPercentage: '% Tiến Độ',
+    daysRemaining: 'ngày còn lại',
+    completed: 'Hoàn Thành',
+    
+    // Confirmations
+    deleteConfirmTitle: 'Xóa Mục Tiêu Tiết Kiệm',
+    deleteConfirmMessage: 'Bạn có chắc chắn muốn xóa mục tiêu tiết kiệm này? Hành động này không thể hoàn tác.',
+    
     notifications: {
+      createSuccess: 'Tạo mục tiêu tiết kiệm thành công',
+      updateSuccess: 'Cập nhật mục tiêu tiết kiệm thành công',
+      deleteSuccess: 'Xóa mục tiêu tiết kiệm thành công',
       createError: 'Không thể tạo mục tiêu tiết kiệm',
       updateError: 'Không thể cập nhật mục tiêu tiết kiệm',
       deleteError: 'Không thể xóa mục tiêu tiết kiệm',
+      loadError: 'Không thể tải mục tiêu tiết kiệm',
+    },
+    
+    // Validation
+    validation: {
+      descriptionRequired: 'Mô tả là bắt buộc',
+      targetAmountRequired: 'Số tiền mục tiêu là bắt buộc',
+      targetAmountPositive: 'Số tiền mục tiêu phải lớn hơn 0',
+      startDateRequired: 'Ngày bắt đầu là bắt buộc',
+      endDateRequired: 'Ngày kết thúc là bắt buộc',
+      endDateAfterStart: 'Ngày kết thúc phải sau ngày bắt đầu',
+      categoryRequired: 'Danh mục là bắt buộc',
+      walletRequired: 'Ví là bắt buộc',
     },
   },
   budgets: {

@@ -375,9 +375,14 @@ export const useTransactionSearch = (filters?: SearchTransactionRequest) => {
   };
 };
 
-export const useSavingGoalProgress = () => {
-  const { data, error, isLoading } = useSWR<SavingGoalProgress[]>(
-    SWR_KEYS.SAVING_GOALS.PROGRESS,
+export const useSavingGoalProgress = (language?: string) => {
+  // Include language in SWR key to force refetch when language changes
+  const swrKey = language 
+    ? `${SWR_KEYS.SAVING_GOALS.PROGRESS}?lang=${language}`
+    : SWR_KEYS.SAVING_GOALS.PROGRESS;
+    
+  const { data, error, isLoading, mutate: mutateSavingGoals } = useSWR<SavingGoalProgress[]>(
+    swrKey,
     async () => {
       const result = await savingGoalApi.getAllSavingGoalProgress();
       return result;
@@ -388,7 +393,7 @@ export const useSavingGoalProgress = () => {
     savingGoalProgress: data,
     isLoading,
     error,
-    refresh: () => mutate(SWR_KEYS.SAVING_GOALS.PROGRESS),
+    refresh: () => mutateSavingGoals(undefined, { revalidate: true }),
   };
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { PiggyBank, Target, Settings } from 'lucide-react';
+import { PiggyBank, Settings } from 'lucide-react';
 import { AppLayout } from '../components/layout';
 import {
   ModernDashboard,
@@ -8,7 +8,8 @@ import {
   WalletsPage,
   CategoriesPage,
   AnalyticsPage,
-  ReportsPage, 
+  ReportsPage,
+  SavingGoalsPage,
 } from '../pages';
 import { PlaceholderPage, ErrorBoundary } from '../components/ui';
 import { ROUTES } from '../constants';
@@ -47,12 +48,9 @@ const AppRouter: React.FC = () => {
         <Route
           path={ROUTES.SAVING_GOALS}
           element={
-            <PlaceholderPage
-              title="Saving Goals"
-              description="Set and track your savings goals to achieve financial milestones"
-              icon={Target}
-              comingSoon={true}
-            />
+            <ErrorBoundary>
+              <SavingGoalsPage />
+            </ErrorBoundary>
           }
         />{' '}
         <Route

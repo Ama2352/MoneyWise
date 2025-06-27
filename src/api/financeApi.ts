@@ -202,7 +202,7 @@ export const budgetApi = {
 export const savingGoalApi = {
   getAllSavingGoalProgress: async (): Promise<SavingGoalProgress[]> => {
     const response = await httpClient.get<SavingGoalProgress[]>(
-      API_ENDPOINTS.SAVING_GOALS.BASE
+      API_ENDPOINTS.SAVING_GOALS.PROGRESS
     );
     return response.data;
   },
@@ -228,7 +228,7 @@ export const savingGoalApi = {
     savingGoal: UpdateSavingGoalRequest
   ): Promise<SavingGoal> => {
     const response = await httpClient.put<SavingGoal>(
-      `${API_ENDPOINTS.SAVING_GOALS.BASE}`,
+      `${API_ENDPOINTS.SAVING_GOALS.BASE}/${savingGoal.savingGoalId}`,
       savingGoal
     );
     return response.data;

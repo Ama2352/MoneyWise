@@ -358,10 +358,84 @@ export interface TranslationKeys {
   };
   // Saving Goals
   savingGoals: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    editGoal: string;
+    deleteGoal: string;
+    goalDetails: string;
+    progress: string;
+    noGoals: string;
+    noGoalsDescription: string;
+    
+    // Form fields
+    description: string;
+    targetAmount: string;
+    startDate: string;
+    endDate: string;
+    category: string;
+    wallet: string;
+    savedAmount: string;
+    
+    // Status
+    status: {
+      notStarted: string;
+      achieved: string;
+      partiallyAchieved: string;
+      missedTarget: string;
+      achievedEarly: string;
+      ahead: string;
+      onTrack: string;
+      slightlyBehind: string;
+      atRisk: string;
+      safe: string;
+      warning: string;
+      danger: string;
+    };
+    
+    // Stats
+    totalGoals: string;
+    activeGoals: string;
+    completedGoals: string;
+    totalTargetAmount: string;
+    totalSavedAmount: string;
+    
+    // Actions
+    create: string;
+    update: string;
+    delete: string;
+    edit: string;
+    view: string;
+    
+    // Progress
+    progressPercentage: string;
+    daysRemaining: string;
+    completed: string;
+    
+    // Confirmations
+    deleteConfirmTitle: string;
+    deleteConfirmMessage: string;
+    
     notifications: {
+      createSuccess: string;
+      updateSuccess: string;
+      deleteSuccess: string;
       createError: string;
       updateError: string;
       deleteError: string;
+      loadError: string;
+    };
+    
+    // Validation
+    validation: {
+      descriptionRequired: string;
+      targetAmountRequired: string;
+      targetAmountPositive: string;
+      startDateRequired: string;
+      endDateRequired: string;
+      endDateAfterStart: string;
+      categoryRequired: string;
+      walletRequired: string;
     };
   };
 
