@@ -73,7 +73,9 @@ httpClient.interceptors.response.use(
       url: error.config?.url,
       method: error.config?.method?.toUpperCase(),
       responseData: error.response?.data,
+      responseHeaders: error.response?.headers,
       requestData: error.config?.data,
+      requestHeaders: error.config?.headers,
     });
 
     const originalRequest = error.config as any; // Handle 401 Unauthorized or 403 Forbidden - Token expired or invalid

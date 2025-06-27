@@ -7,6 +7,7 @@ import {
   TransactionsPage,
   WalletsPage,
   CategoriesPage,
+  SettingsPage,
 } from '../pages';
 import { PlaceholderPage } from '../components/ui';
 import { ROUTES } from '../constants';
@@ -69,16 +70,7 @@ const AppRouter: React.FC = () => {
             />
           }
         />{' '}
-        <Route
-          path={ROUTES.SETTINGS}
-          element={
-            <PlaceholderPage
-              title="Settings"
-              description="Customize your experience and manage account preferences"
-              icon={Settings}
-            />
-          }
-        />
+        <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
       </Route>
     </Routes>
   );

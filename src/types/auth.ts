@@ -3,12 +3,17 @@
  */
 
 export interface UserProfile {
-  id: number;
+  id: string | number; // Backend uses UUID strings, but keeping number for compatibility
   email: string;
   firstName: string;
   lastName: string;
   displayName: string;
-  avatarUrl?: string;
+  username?: string;
+  avatar?: string | null; // Base64 data URL for temporary storage
+  avatarUrl?: string; // Backend URL (when available)
+  phoneNumber?: string;
+  dateOfBirth?: string;
+  bio?: string;
 }
 
 export interface LoginRequest {

@@ -387,39 +387,7 @@ const WalletsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Summary Cards */}
-        {wallets.length > 0 && (
-          <div className="summary-cards">
-            <div className="summary-card animate-fadeInUp hover-lift">
-              <h3>Total Assets</h3>
-              <div className="summary-value positive">{formatCurrency(totalAssets)}</div>
-              <div className="summary-change">
-                <TrendingUp size={16} />
-                {wallets.filter(w => w.balance > 0).length} positive accounts
-              </div>
-            </div>
 
-            <div className="summary-card animate-fadeInUp hover-lift" style={{ animationDelay: '0.1s' }}>
-              <h3>Total Liabilities</h3>
-              <div className="summary-value negative">{formatCurrency(totalLiabilities)}</div>
-              <div className="summary-change">
-                <AlertCircle size={16} />
-                {wallets.filter(w => w.balance < 0).length} negative accounts
-              </div>
-            </div>
-
-            <div className="summary-card animate-fadeInUp hover-lift" style={{ animationDelay: '0.2s' }}>
-              <h3>Net Worth</h3>
-              <div className={`summary-value ${totalBalance >= 0 ? 'positive' : 'negative'}`}>
-                {formatCurrency(totalBalance)}
-              </div>
-              <div className="summary-change">
-                <TrendingUp size={16} />
-                {wallets.length} total wallets
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Create/Edit Modal */}
