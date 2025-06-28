@@ -7,17 +7,15 @@ import {
   Loader,
   Edit3,
   X,
-  AlertCircle,
   Shield,
   Key,
-  Bell,
-  Globe,
   Trash2,
   Eye,
   EyeOff,
 } from 'lucide-react';
 import { settingsApi } from '../api/settingsApi';
 import { useAuthContext, useToastContext } from '../contexts';
+import { useTranslations } from '../hooks';
 import '../styles/pages.css';
 import '../styles/modals.css';
 import '../styles/settings.css';
@@ -32,6 +30,7 @@ interface SettingsSection {
 const SettingsPage: React.FC = () => {
   // Use AuthContext instead of ProfileContext for better synchronization
   const { userProfile, isLoading } = useAuthContext();
+  const { translations: t } = useTranslations();
   
   // Local state
   const [isUpdating, setIsUpdating] = useState(false);
@@ -45,7 +44,6 @@ const SettingsPage: React.FC = () => {
     lastName: '',
     email: '',
     displayName: '',
-    username: '',
   });
   const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
   
@@ -73,27 +71,15 @@ const SettingsPage: React.FC = () => {
   const settingsSections: SettingsSection[] = [
     {
       id: 'profile',
-      title: 'Profile Settings',
+      title: t.settings.profileSettings,
       icon: User,
-      description: 'Manage your personal information and avatar',
+      description: t.settings.profileDescription,
     },
     {
       id: 'security',
-      title: 'Security',
+      title: t.settings.security,
       icon: Shield,
-      description: 'Password and security settings',
-    },
-    {
-      id: 'notifications',
-      title: 'Notifications',
-      icon: Bell,
-      description: 'Manage your notification preferences',
-    },
-    {
-      id: 'preferences',
-      title: 'Preferences',
-      icon: Globe,
-      description: 'Language and display settings',
+      description: t.settings.securityDescription,
     },
   ];
 
@@ -105,7 +91,6 @@ const SettingsPage: React.FC = () => {
         lastName: userProfile.lastName || '',
         email: userProfile.email || '',
         displayName: userProfile.displayName || '',
-        username: userProfile.username || userProfile.email || '',
       });
     }
   }, [userProfile]);
@@ -122,7 +107,7 @@ const SettingsPage: React.FC = () => {
       
       // Note: Profile-only updates require a current password for security
       // For now, we'll show a message asking user to use the password section
-      showError('To update profile information, please use the Security section below and provide your current password.');
+      showError(t.settings.updateProfileNote);
       setEditMode(false);
       
     } catch (error: any) {
@@ -144,13 +129,13 @@ const SettingsPage: React.FC = () => {
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      showError('File size must be less than 5MB');
+      showError(t.settings.fileSizeError);
       return;
     }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      showError('Please select a valid image file');
+      showError(t.settings.fileTypeError);
       return;
     }
 
@@ -162,7 +147,7 @@ const SettingsPage: React.FC = () => {
         const base64String = reader.result as string;
         // Store avatar in localStorage
         localStorage.setItem('moneywise_avatar', base64String);
-        showSuccess('Avatar updated successfully!');
+        showSuccess(t.settings.avatarUpdateSuccess);
         // Force page reload to refresh with new avatar
         window.location.reload();
       };
@@ -170,7 +155,7 @@ const SettingsPage: React.FC = () => {
 
     } catch (error) {
       console.error('❌ [AVATAR] Upload failed:', error);
-      showError('Failed to upload avatar. Please try again.');
+      showError(t.settings.avatarUploadError);
     } finally {
       setIsUploadingAvatar(false);
       // Reset file input
@@ -196,7 +181,7 @@ const SettingsPage: React.FC = () => {
       console.log('🗑️ [AVATAR] Deleting avatar...');
       
       localStorage.removeItem('moneywise_avatar');
-      showSuccess('Avatar deleted successfully!');
+      showSuccess(t.settings.avatarDeleteSuccess);
       console.log('✅ [AVATAR] Avatar deleted successfully');
       
       // Force page reload to refresh without avatar
@@ -204,7 +189,7 @@ const SettingsPage: React.FC = () => {
       
     } catch (error) {
       console.error('❌ [AVATAR] Error deleting avatar:', error);
-      showError('Failed to delete avatar. Please try again.');
+      showError(t.settings.avatarDeleteError);
     }
   };
 
@@ -213,109 +198,106 @@ const SettingsPage: React.FC = () => {
     const errors: {[key: string]: string} = {};
     
     if (!formData.firstName.trim()) {
-      errors.firstName = 'First name is required';
+      errors.firstName = t.settings.firstNameRequired;
     }
-    
     if (!formData.lastName.trim()) {
-      errors.lastName = 'Last name is required';
+      errors.lastName = t.settings.lastNameRequired;
     }
-    
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email address';
+    if (!formData.displayName.trim()) {
+      errors.displayName = t.settings.displayNameRequired;
     }
     
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Form helpers
+  // Handle input change
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
     if (formErrors[field]) {
       setFormErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
   const cancelEdit = () => {
+    setEditMode(false);
+    setFormErrors({});
+    // Reset form data to original values
     if (userProfile) {
       setFormData({
         firstName: userProfile.firstName || '',
         lastName: userProfile.lastName || '',
         email: userProfile.email || '',
         displayName: userProfile.displayName || '',
-        username: userProfile.username || userProfile.email || '',
       });
     }
-    setEditMode(false);
-    setFormErrors({});
   };
 
-  // Password validation
   const validatePasswordForm = () => {
     const errors: {[key: string]: string} = {};
-    if (!pwForm.currentPassword) errors.currentPassword = 'Current password is required';
-    if (!pwForm.newPassword) errors.newPassword = 'New password is required';
-    else if (pwForm.newPassword.length < 8) errors.newPassword = 'Password must be at least 8 characters';
-    else if (!/[A-Z]/.test(pwForm.newPassword)) errors.newPassword = 'Password must contain an uppercase letter';
-    else if (!/[a-z]/.test(pwForm.newPassword)) errors.newPassword = 'Password must contain a lowercase letter';
-    else if (!/[0-9]/.test(pwForm.newPassword)) errors.newPassword = 'Password must contain a number';
-    else if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(pwForm.newPassword)) errors.newPassword = 'Password must contain a special character';
-    if (pwForm.newPassword !== pwForm.confirmNewPassword) errors.confirmNewPassword = 'Passwords do not match';
+    
+    if (!pwForm.currentPassword) {
+      errors.currentPassword = t.settings.currentPasswordRequired;
+    }
+    if (!pwForm.newPassword) {
+      errors.newPassword = t.settings.newPasswordRequired;
+    }
+    if (pwForm.newPassword && pwForm.newPassword.length < 8) {
+      errors.newPassword = t.settings.passwordMinLength;
+    }
+    if (!pwForm.confirmNewPassword) {
+      errors.confirmNewPassword = t.settings.confirmPasswordRequired;
+    }
+    if (pwForm.newPassword && pwForm.confirmNewPassword && pwForm.newPassword !== pwForm.confirmNewPassword) {
+      errors.confirmNewPassword = t.settings.passwordsMustMatch;
+    }
+    
     setPwErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Password change handler
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validatePasswordForm()) {
-      // Focus vào trường lỗi đầu tiên
-      const firstError = Object.keys(pwErrors)[0];
-      if (firstError) {
-        const el = document.getElementById(`pw-${firstError}`);
-        if (el) (el as HTMLInputElement).focus();
-        // Show toast cho lỗi validation đầu tiên
-        showError(pwErrors[firstError]);
-      }
-      return;
-    }
     
-    // If updating profile, validate profile form too
-    if (updateProfileWithPassword && !validateForm()) {
-      showError('Please check your profile information.');
-      return;
-    }
+    if (!validatePasswordForm()) return;
     
     setPwLoading(true);
     try {
+      // If updating profile, validate profile form too
+      if (updateProfileWithPassword && !validateForm()) {
+        setPwLoading(false);
+        return;
+      }
+      
       // Use profile data if updating profile, otherwise use current userProfile data
       const profileData = updateProfileWithPassword ? formData : {
         firstName: userProfile?.firstName || '',
         lastName: userProfile?.lastName || '',
         email: userProfile?.email || '',
         displayName: userProfile?.displayName || '',
-        username: userProfile?.username || '',
       };
       
       console.log('📤 [SECURITY] Updating with data:', {
-        updateProfileWithPassword,
-        profileData,
-        hasPassword: !!pwForm.newPassword
+        ...profileData,
+        includeProfile: updateProfileWithPassword,
       });
       
-      await settingsApi.updateProfile({
-        firstName: profileData.firstName,
-        lastName: profileData.lastName,
+      const result = await settingsApi.changePassword({
         currentPassword: pwForm.currentPassword,
         newPassword: pwForm.newPassword,
         confirmNewPassword: pwForm.confirmNewPassword,
+        // Include profile data if checkbox is checked
+        ...(updateProfileWithPassword && {
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          displayName: profileData.displayName,
+        }),
       });
       
       const successMessage = updateProfileWithPassword 
-        ? 'Profile and password updated successfully!' 
-        : 'Password changed successfully!';
+        ? t.settings.profileAndPasswordUpdated 
+        : t.settings.passwordChanged;
       
       console.log('✅ [SECURITY] Update successful, showing toast:', successMessage);
       showSuccess(successMessage);
@@ -325,49 +307,42 @@ const SettingsPage: React.FC = () => {
       setPwErrors({});
       setUpdateProfileWithPassword(false);
       
-      // If profile was updated, refresh the page to show new data
-      if (updateProfileWithPassword) {
-        console.log('✅ [SECURITY] Profile updated, will reload in 2 seconds...');
-        setTimeout(() => {
-          console.log('✅ [SECURITY] Reloading page now...');
-          window.location.reload();
-        }, 2000); // Increased to 2 seconds to see the toast
-      }
+      console.log('✅ [SECURITY] Profile updated, will reload in 2 seconds...');
+      setTimeout(() => {
+        console.log('✅ [SECURITY] Reloading page now...');
+        window.location.reload();
+      }, 2000);
       
     } catch (error: any) {
       console.error('❌ [SECURITY] Update failed:', error);
       
-      // Lấy message backend nếu có
-      let backendMsg = error.response?.data?.message || error.message || '';
-      // Mapping lỗi HTTP phổ biến
-      if (!backendMsg || /^Request failed with status code/.test(backendMsg)) {
-        if ([500,502,503,504].includes(error.response?.status)) backendMsg = 'The server is currently unavailable. Please try again later.';
-        else if (error.response?.status === 400) backendMsg = 'Invalid input. Please check your information and try again.';
-        else if (error.response?.status === 401 || error.response?.status === 403) backendMsg = 'You are not authorized. Please login again.';
-        else backendMsg = 'Something went wrong. Please try again.';
-      }
+      const backendMsg = error.response?.data?.message || error.message || '';
+      
       // Nếu backendMsg là lỗi current password
       if (/current password|invalid/i.test(backendMsg)) {
-        backendMsg = 'Your current password is wrong. Please enter again.';
+        setPwErrors({ currentPassword: t.settings.currentPasswordWrong });
+        // Focus vào trường current password
+        const currentPwInput = document.getElementById('pw-currentPassword');
+        currentPwInput?.focus();
+      } else {
+        showError(backendMsg || t.settings.updateError);
       }
-      setPwErrors(errs => ({ ...errs, currentPassword: backendMsg }));
-      showError(backendMsg);
-      // Focus vào trường current password
-      setTimeout(() => {
-        const el = document.getElementById('pw-currentPassword');
-        if (el) (el as HTMLInputElement).focus();
-      }, 100);
     } finally {
       setPwLoading(false);
     }
   };
 
+  const getAvatarSrc = () => {
+    const storedAvatar = localStorage.getItem('moneywise_avatar');
+    return storedAvatar || userProfile?.avatar || null;
+  };
+
   if (isLoading) {
     return (
       <div className="page-container">
-        <div className="loading-container">
-          <Loader size={40} className="animate-spin" />
-          <p>Loading settings...</p>
+        <div className="loading-center">
+          <Loader size={24} className="animate-spin" />
+          <span>{t.common.loading}</span>
         </div>
       </div>
     );
@@ -376,14 +351,12 @@ const SettingsPage: React.FC = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Settings</h1>
-        <p className="page-subtitle">
-          Manage your account settings and preferences
-        </p>
+        <h1 className="page-title">{t.settings.title}</h1>
+        <p className="page-subtitle">{t.settings.subtitle}</p>
       </div>
 
       <div className="settings-container">
-        {/* Settings Navigation */}
+        {/* Sidebar */}
         <div className="settings-sidebar">
           <nav className="settings-nav">
             {settingsSections.map((section) => {
@@ -392,9 +365,7 @@ const SettingsPage: React.FC = () => {
                 <button
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
-                  className={`settings-nav-item ${
-                    activeSection === section.id ? 'active' : ''
-                  }`}
+                  className={`settings-nav-item ${activeSection === section.id ? 'active' : ''}`}
                 >
                   <Icon size={20} />
                   <div className="settings-nav-content">
@@ -407,69 +378,71 @@ const SettingsPage: React.FC = () => {
           </nav>
         </div>
 
-        {/* Settings Content */}
+        {/* Main Content */}
         <div className="settings-content">
+          {/* Profile Section */}
           {activeSection === 'profile' && (
             <div className="settings-section">
               <div className="settings-section-header">
-                <h2>Profile Settings</h2>
-                <p>Update your personal information and avatar</p>
+                <h2>{t.settings.profileSettings}</h2>
+                <p>{t.settings.profileDescription}</p>
               </div>
 
-              {/* Avatar Section */}
-              <div className="avatar-section">
-                <div className="avatar-container">
-                  <div className="avatar-wrapper">
-                    {userProfile?.avatar ? (
-                      <img 
-                        src={userProfile.avatar} 
-                        alt="Profile Avatar" 
-                        className="avatar-image"
-                      />
-                    ) : (
-                      <div className="avatar-placeholder">
-                        <User size={40} />
-                      </div>
-                    )}
-                    
+              {/* Avatar Upload Section */}
+              <div className="avatar-section" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+                {/* Avatar + overlay buttons */}
+                <div className="avatar-container" style={{ position: 'relative', width: 96, height: 96, minWidth: 96 }}>
+                  {getAvatarSrc() ? (
+                    <img
+                      src={getAvatarSrc()!}
+                      alt="Profile Avatar"
+                      className="avatar-image"
+                      style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', background: '#e5e7eb', border: '4px solid #fff' }}
+                    />
+                  ) : (
+                    <div className="avatar-placeholder" style={{ width: 96, height: 96, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '4px solid #fff' }}>
+                      <User size={44} color="#9ca3af" />
+                    </div>
+                  )}
+                  {/* Camera icon bottom right */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="avatar-btn-camera"
+                    disabled={isUploadingAvatar}
+                    style={{ position: 'absolute', right: -8, bottom: -8, width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', cursor: 'pointer', zIndex: 2, padding: 0 }}
+                    title={t.settings.uploadAvatar}
+                  >
+                    {isUploadingAvatar ? <Loader size={15} className="animate-spin" /> : <Camera size={16} color="#8b5cf6" />}
+                  </button>
+                  {/* Trash icon bottom left */}
+                  {getAvatarSrc() && (
                     <button
-                      className="avatar-upload-btn"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isUploadingAvatar}
+                      type="button"
+                      onClick={handleDeleteAvatar}
+                      className="avatar-btn-trash"
+                      style={{ position: 'absolute', left: -8, bottom: -8, width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#fff1f2', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', cursor: 'pointer', zIndex: 2, padding: 0 }}
+                      title={t.settings.deleteAvatar}
                     >
-                      {isUploadingAvatar ? (
-                        <Loader size={16} className="animate-spin" />
-                      ) : (
-                        <Camera size={16} />
-                      )}
+                      <Trash2 size={15} color="#ef4444" />
                     </button>
-                    
-                    {userProfile?.avatar && (
-                      <button
-                        className="avatar-delete-btn"
-                        onClick={handleDeleteAvatar}
-                        title="Delete avatar"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </div>
-                  
+                  )}
                   <input
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
                     onChange={handleFileSelect}
+                    className="avatar-input"
                     style={{ display: 'none' }}
                   />
                 </div>
-                
-                <div className="avatar-info">
-                  <h3>{userProfile?.displayName || 'Unknown User'}</h3>
-                  <p>{userProfile?.email}</p>
-                  <span className="avatar-hint">
-                    Click the camera icon to upload a new avatar (max 5MB)
-                  </span>
+                {/* Info bên phải avatar */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+                  <div style={{ fontWeight: 700, fontSize: 20, color: 'var(--gray-900)' }}>{formData.displayName || userProfile?.displayName || ''}</div>
+                  <div style={{ color: 'var(--gray-500)', fontSize: 15, marginBottom: 2 }}>{formData.email || userProfile?.email || ''}</div>
+                  <div style={{ color: 'var(--gray-400)', fontSize: 13, marginTop: 4 }}>
+                    {t.settings.avatarHint}
+                  </div>
                 </div>
               </div>
 
@@ -479,7 +452,7 @@ const SettingsPage: React.FC = () => {
                   <div className="form-group">
                     <label className="form-label">
                       <User size={16} />
-                      First Name
+                      {t.settings.firstName}
                     </label>
                     <input
                       type="text"
@@ -487,11 +460,10 @@ const SettingsPage: React.FC = () => {
                       onChange={(e) => handleInputChange('firstName', e.target.value)}
                       disabled={!editMode}
                       className={`form-input ${formErrors.firstName ? 'error' : ''}`}
-                      placeholder="Enter your first name"
+                      placeholder={t.settings.firstNamePlaceholder}
                     />
                     {formErrors.firstName && (
                       <div className="form-error">
-                        <AlertCircle size={14} />
                         {formErrors.firstName}
                       </div>
                     )}
@@ -500,7 +472,7 @@ const SettingsPage: React.FC = () => {
                   <div className="form-group">
                     <label className="form-label">
                       <User size={16} />
-                      Last Name
+                      {t.settings.lastName}
                     </label>
                     <input
                       type="text"
@@ -508,11 +480,10 @@ const SettingsPage: React.FC = () => {
                       onChange={(e) => handleInputChange('lastName', e.target.value)}
                       disabled={!editMode}
                       className={`form-input ${formErrors.lastName ? 'error' : ''}`}
-                      placeholder="Enter your last name"
+                      placeholder={t.settings.lastNamePlaceholder}
                     />
                     {formErrors.lastName && (
                       <div className="form-error">
-                        <AlertCircle size={14} />
                         {formErrors.lastName}
                       </div>
                     )}
@@ -521,28 +492,21 @@ const SettingsPage: React.FC = () => {
                   <div className="form-group">
                     <label className="form-label">
                       <Mail size={16} />
-                      Email Address
+                      {t.settings.emailAddress}
                     </label>
                     <input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      disabled={!editMode}
-                      className={`form-input ${formErrors.email ? 'error' : ''}`}
-                      placeholder="Enter your email address"
+                      disabled={true}
+                      className="form-input"
+                      placeholder={t.settings.emailPlaceholder}
                     />
-                    {formErrors.email && (
-                      <div className="form-error">
-                        <AlertCircle size={14} />
-                        {formErrors.email}
-                      </div>
-                    )}
                   </div>
 
                   <div className="form-group">
                     <label className="form-label">
                       <User size={16} />
-                      Display Name
+                      {t.settings.displayName}
                     </label>
                     <input
                       type="text"
@@ -550,22 +514,7 @@ const SettingsPage: React.FC = () => {
                       onChange={(e) => handleInputChange('displayName', e.target.value)}
                       disabled={!editMode}
                       className="form-input"
-                      placeholder="Enter your display name"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">
-                      <User size={16} />
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.username}
-                      onChange={(e) => handleInputChange('username', e.target.value)}
-                      disabled={!editMode}
-                      className="form-input"
-                      placeholder="Enter your username"
+                      placeholder={t.settings.displayNamePlaceholder}
                     />
                   </div>
                 </div>
@@ -579,7 +528,7 @@ const SettingsPage: React.FC = () => {
                       className="btn btn--primary"
                     >
                       <Edit3 size={16} />
-                      Edit Profile
+                      {t.settings.editProfile}
                     </button>
                   ) : (
                     <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
@@ -591,12 +540,12 @@ const SettingsPage: React.FC = () => {
                         {isUpdating ? (
                           <>
                             <Loader size={16} className="animate-spin" />
-                            Updating...
+                            {t.settings.updating}
                           </>
                         ) : (
                           <>
                             <Save size={16} />
-                            Save Changes
+                            {t.settings.saveChanges}
                           </>
                         )}
                       </button>
@@ -607,7 +556,7 @@ const SettingsPage: React.FC = () => {
                         disabled={isUpdating}
                       >
                         <X size={16} />
-                        Cancel
+                        {t.settings.cancel}
                       </button>
                     </div>
                   )}
@@ -616,11 +565,12 @@ const SettingsPage: React.FC = () => {
             </div>
           )}
 
+          {/* Security Section */}
           {activeSection === 'security' && (
             <div className="settings-section">
               <div className="settings-section-header">
-                <h2>Security Settings</h2>
-                <p>Change your password for better account protection</p>
+                <h2>{t.settings.securitySettings}</h2>
+                <p>{t.settings.securitySubtitle}</p>
               </div>
               <form onSubmit={handleChangePassword} className="profile-form" autoComplete="off">
                 
@@ -633,33 +583,32 @@ const SettingsPage: React.FC = () => {
                       onChange={(e) => setUpdateProfileWithPassword(e.target.checked)}
                       style={{ margin: 0 }}
                     />
-                    Also update my profile information
+                    {t.settings.alsoUpdateProfile}
                   </label>
                   <span style={{ fontSize: '14px', color: 'var(--gray-600)' }}>
-                    Check this to update your name and email along with password change
+                    {t.settings.alsoUpdateProfileHint}
                   </span>
                 </div>
 
                 {/* Profile fields (shown when checkbox is checked) */}
                 {updateProfileWithPassword && (
                   <div className="form-grid" style={{ marginBottom: '24px', padding: '16px', border: '1px solid var(--gray-200)', borderRadius: '8px', backgroundColor: 'var(--gray-50)' }}>
-                    <h4 style={{ gridColumn: '1 / -1', margin: '0 0 16px 0', color: 'var(--gray-700)' }}>Profile Information</h4>
+                    <h4 style={{ gridColumn: '1 / -1', margin: '0 0 16px 0', color: 'var(--gray-700)' }}>{t.settings.profileInformation}</h4>
                     
                     <div className="form-group">
                       <label className="form-label">
                         <User size={16} />
-                        First Name
+                        {t.settings.firstName}
                       </label>
                       <input
                         type="text"
                         value={formData.firstName}
                         onChange={(e) => handleInputChange('firstName', e.target.value)}
                         className={`form-input ${formErrors.firstName ? 'error' : ''}`}
-                        placeholder="Enter your first name"
+                        placeholder={t.settings.firstNamePlaceholder}
                       />
                       {formErrors.firstName && (
                         <div className="form-error">
-                          <AlertCircle size={14} />
                           {formErrors.firstName}
                         </div>
                       )}
@@ -668,18 +617,17 @@ const SettingsPage: React.FC = () => {
                     <div className="form-group">
                       <label className="form-label">
                         <User size={16} />
-                        Last Name
+                        {t.settings.lastName}
                       </label>
                       <input
                         type="text"
                         value={formData.lastName}
                         onChange={(e) => handleInputChange('lastName', e.target.value)}
                         className={`form-input ${formErrors.lastName ? 'error' : ''}`}
-                        placeholder="Enter your last name"
+                        placeholder={t.settings.lastNamePlaceholder}
                       />
                       {formErrors.lastName && (
                         <div className="form-error">
-                          <AlertCircle size={14} />
                           {formErrors.lastName}
                         </div>
                       )}
@@ -688,21 +636,15 @@ const SettingsPage: React.FC = () => {
                     <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                       <label className="form-label">
                         <Mail size={16} />
-                        Email Address
+                        {t.settings.emailAddress}
                       </label>
                       <input
                         type="email"
                         value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                        className={`form-input ${formErrors.email ? 'error' : ''}`}
-                        placeholder="Enter your email address"
+                        disabled={true}
+                        className="form-input"
+                        placeholder={t.settings.emailPlaceholder}
                       />
-                      {formErrors.email && (
-                        <div className="form-error">
-                          <AlertCircle size={14} />
-                          {formErrors.email}
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}
@@ -710,7 +652,7 @@ const SettingsPage: React.FC = () => {
                 <div className="form-grid">
                   <div className="form-group">
                     <label className="form-label">
-                      <Key size={16} /> Current Password
+                      <Key size={16} /> {t.settings.currentPassword}
                     </label>
                     <div style={{ position: 'relative' }}>
                       <input
@@ -718,20 +660,36 @@ const SettingsPage: React.FC = () => {
                         value={pwForm.currentPassword}
                         onChange={e => setPwForm(f => ({ ...f, currentPassword: e.target.value }))}
                         className={`form-input ${pwErrors.currentPassword ? 'error' : ''}`}
-                        placeholder="Enter current password"
+                        placeholder={t.settings.currentPasswordPlaceholder}
                         autoComplete="current-password"
                         id="pw-currentPassword"
+                        style={{ paddingRight: '40px' }}
                       />
-                      <button type="button" style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none' }}
-                        tabIndex={-1} onClick={() => setPwShow(s => ({ ...s, current: !s.current }))}>
+                      <button 
+                        type="button" 
+                        style={{ 
+                          position: 'absolute', 
+                          right: '12px', 
+                          top: '50%', 
+                          transform: 'translateY(-50%)',
+                          background: 'none', 
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        tabIndex={-1} 
+                        onClick={() => setPwShow(s => ({ ...s, current: !s.current }))}
+                      >
                         {pwShow.current ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
-                    {pwErrors.currentPassword && <div className="form-error"><AlertCircle size={14} />{pwErrors.currentPassword}</div>}
+                    {pwErrors.currentPassword && <div className="form-error">{pwErrors.currentPassword}</div>}
                   </div>
                   <div className="form-group">
                     <label className="form-label">
-                      <Key size={16} /> New Password
+                      <Key size={16} /> {t.settings.newPassword}
                     </label>
                     <div style={{ position: 'relative' }}>
                       <input
@@ -739,20 +697,36 @@ const SettingsPage: React.FC = () => {
                         value={pwForm.newPassword}
                         onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))}
                         className={`form-input ${pwErrors.newPassword ? 'error' : ''}`}
-                        placeholder="Enter new password"
+                        placeholder={t.settings.newPasswordPlaceholder}
                         autoComplete="new-password"
                         id="pw-newPassword"
+                        style={{ paddingRight: '40px' }}
                       />
-                      <button type="button" style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none' }}
-                        tabIndex={-1} onClick={() => setPwShow(s => ({ ...s, new: !s.new }))}>
+                      <button 
+                        type="button" 
+                        style={{ 
+                          position: 'absolute', 
+                          right: '12px', 
+                          top: '50%', 
+                          transform: 'translateY(-50%)',
+                          background: 'none', 
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        tabIndex={-1} 
+                        onClick={() => setPwShow(s => ({ ...s, new: !s.new }))}
+                      >
                         {pwShow.new ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
-                    {pwErrors.newPassword && <div className="form-error"><AlertCircle size={14} />{pwErrors.newPassword}</div>}
+                    {pwErrors.newPassword && <div className="form-error">{pwErrors.newPassword}</div>}
                   </div>
                   <div className="form-group">
                     <label className="form-label">
-                      <Key size={16} /> Confirm New Password
+                      <Key size={16} /> {t.settings.confirmNewPassword}
                     </label>
                     <div style={{ position: 'relative' }}>
                       <input
@@ -760,22 +734,38 @@ const SettingsPage: React.FC = () => {
                         value={pwForm.confirmNewPassword}
                         onChange={e => setPwForm(f => ({ ...f, confirmNewPassword: e.target.value }))}
                         className={`form-input ${pwErrors.confirmNewPassword ? 'error' : ''}`}
-                        placeholder="Re-enter new password"
+                        placeholder={t.settings.confirmPasswordPlaceholder}
                         autoComplete="new-password"
                         id="pw-confirmNewPassword"
+                        style={{ paddingRight: '40px' }}
                       />
-                      <button type="button" style={{ position: 'absolute', right: 8, top: 8, background: 'none', border: 'none' }}
-                        tabIndex={-1} onClick={() => setPwShow(s => ({ ...s, confirm: !s.confirm }))}>
+                      <button 
+                        type="button" 
+                        style={{ 
+                          position: 'absolute', 
+                          right: '12px', 
+                          top: '50%', 
+                          transform: 'translateY(-50%)',
+                          background: 'none', 
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        tabIndex={-1} 
+                        onClick={() => setPwShow(s => ({ ...s, confirm: !s.confirm }))}
+                      >
                         {pwShow.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
-                    {pwErrors.confirmNewPassword && <div className="form-error"><AlertCircle size={14} />{pwErrors.confirmNewPassword}</div>}
+                    {pwErrors.confirmNewPassword && <div className="form-error">{pwErrors.confirmNewPassword}</div>}
                   </div>
                 </div>
                 <div className="form-actions">
                   <button type="submit" className="btn btn--primary" disabled={pwLoading}>
                     {pwLoading ? <Loader size={16} className="animate-spin" /> : <Save size={16} />} 
-                    {updateProfileWithPassword ? 'Update Profile & Password' : 'Change Password'}
+                    {updateProfileWithPassword ? t.settings.updateProfilePassword : t.settings.changePassword}
                   </button>
                 </div>
               </form>

@@ -30,8 +30,8 @@ export const vi: TranslationKeys = {
     email: 'Email',
     password: 'Mật khẩu',
     name: 'Tên',
-    firstName: 'Họ',
-    lastName: 'Tên',
+    firstName: 'Tên',
+    lastName: 'Họ',
     confirmPassword: 'Xác nhận mật khẩu',
     searchPlaceholder: 'Tìm kiếm giao dịch, danh mục...',
     profile: 'Hồ sơ',
@@ -82,8 +82,8 @@ export const vi: TranslationKeys = {
     email: 'Email',
     password: 'Mật khẩu',
     confirmPassword: 'Xác nhận mật khẩu',
-    firstName: 'Họ',
-    lastName: 'Tên',
+    firstName: 'Tên',
+    lastName: 'Họ',
     forgotPassword: 'Quên mật khẩu?',
     rememberMe: 'Ghi nhớ đăng nhập',
     loginTitle: 'Chào mừng trở lại',
@@ -92,8 +92,8 @@ export const vi: TranslationKeys = {
     registerSubtitle: 'Tham gia với chúng tôi để bắt đầu quản lý tài chính',
     emailPlaceholder: 'Nhập email của bạn',
     passwordPlaceholder: 'Nhập mật khẩu của bạn',
-    firstNamePlaceholder: 'Họ',
-    lastNamePlaceholder: 'Tên',
+    firstNamePlaceholder: 'Nhập tên của bạn',
+    lastNamePlaceholder: 'Nhập họ của bạn',
     emailAddressPlaceholder: 'Địa chỉ email',
     confirmPasswordPlaceholder: 'Xác nhận mật khẩu',
     loginButton: 'Đăng nhập',
@@ -356,5 +356,139 @@ export const vi: TranslationKeys = {
       updateError: 'Không thể cập nhật ngân sách',
       deleteError: 'Không thể xóa ngân sách',
     },
+  },
+  
+  settings: {
+    title: 'Cài đặt',
+    subtitle: 'Quản lý cài đặt tài khoản và tùy chọn của bạn',
+    profileSettings: 'Cài đặt hồ sơ',
+    profileDescription: 'Quản lý thông tin cá nhân và avatar của bạn',
+    security: 'Bảo mật',
+    securityDescription: 'Cài đặt mật khẩu và bảo mật',
+    securitySettings: 'Cài đặt bảo mật',
+    securitySubtitle: 'Thay đổi mật khẩu để bảo mật tài khoản tốt hơn',
+    
+    // Avatar section
+    avatarHint: 'Nhấp vào biểu tượng camera để tải lên avatar mới (tối đa 5MB)',
+    
+    // Profile form
+    firstName: 'Tên',
+    firstNamePlaceholder: 'Nhập tên của bạn',
+    lastName: 'Họ',
+    lastNamePlaceholder: 'Nhập họ của bạn',
+    emailAddress: 'Địa chỉ email',
+    emailPlaceholder: 'Nhập địa chỉ email của bạn',
+    displayName: 'Tên hiển thị',
+    displayNamePlaceholder: 'Nhập tên hiển thị của bạn',
+    
+    // Actions
+    editProfile: 'Chỉnh sửa hồ sơ',
+    saveChanges: 'Lưu thay đổi',
+    updating: 'Đang cập nhật...',
+    cancel: 'Hủy',
+    
+    // Password form
+    currentPassword: 'Mật khẩu hiện tại',
+    currentPasswordPlaceholder: 'Nhập mật khẩu hiện tại',
+    newPassword: 'Mật khẩu mới',
+    newPasswordPlaceholder: 'Nhập mật khẩu mới',
+    confirmNewPassword: 'Xác nhận mật khẩu mới',
+    confirmPasswordPlaceholder: 'Nhập lại mật khẩu mới',
+    changePassword: 'Đổi mật khẩu',
+    updateProfilePassword: 'Cập nhật hồ sơ & mật khẩu',
+    alsoUpdateProfile: 'Cập nhật thông tin hồ sơ của tôi',
+    alsoUpdateProfileHint: 'Chọn mục này để cập nhật tên và email cùng với việc thay đổi mật khẩu',
+    profileInformation: 'Thông tin hồ sơ',
+    
+    // Notifications
+    avatarUpdateSuccess: 'Cập nhật avatar thành công!',
+    avatarDeleteSuccess: 'Xóa avatar thành công!',
+    profileUpdateSuccess: 'Cập nhật hồ sơ và mật khẩu thành công!',
+    passwordChangeSuccess: 'Đổi mật khẩu thành công!',
+    avatarUploadError: 'Không thể tải lên avatar. Vui lòng thử lại.',
+    avatarDeleteError: 'Không thể xóa avatar. Vui lòng thử lại.',
+    fileSizeError: 'Kích thước file phải nhỏ hơn 5MB',
+    fileTypeError: 'Vui lòng chọn file hình ảnh hợp lệ',
+    updateProfileNote: 'Để cập nhật thông tin hồ sơ, vui lòng sử dụng phần Bảo mật bên dưới và cung cấp mật khẩu hiện tại.',
+    
+    // Password validation
+    currentPasswordRequired: 'Mật khẩu hiện tại là bắt buộc',
+    newPasswordRequired: 'Mật khẩu mới là bắt buộc',
+    passwordTooShort: 'Mật khẩu phải có ít nhất 8 ký tự',
+    passwordMissingUppercase: 'Mật khẩu phải chứa một chữ hoa',
+    passwordMissingLowercase: 'Mật khẩu phải chứa một chữ thường',
+    passwordMissingNumber: 'Mật khẩu phải chứa một số',
+    passwordMissingSpecial: 'Mật khẩu phải chứa một ký tự đặc biệt',
+    passwordsNotMatch: 'Mật khẩu không khớp',
+    currentPasswordWrong: 'Mật khẩu hiện tại của bạn không đúng. Vui lòng nhập lại.',
+  },
+  
+  wallets: {
+    title: 'Ví',
+    subtitle: 'Quản lý ví và tài khoản của bạn',
+    addWallet: 'Thêm ví',
+    editWallet: 'Chỉnh sửa ví',
+    deleteWallet: 'Xóa ví',
+    createWallet: 'Tạo ví',
+    walletName: 'Tên ví',
+    walletNamePlaceholder: 'Nhập tên ví',
+    initialBalance: 'Số dư ban đầu',
+    initialBalancePlaceholder: 'Nhập số dư ban đầu',
+    currency: 'Tiền tệ',
+    selectCurrency: 'Chọn tiền tệ',
+    description: 'Mô tả',
+    descriptionPlaceholder: 'Nhập mô tả ví (tùy chọn)',
+    
+    // Wallet types
+    checking: 'Tài khoản thanh toán',
+    savings: 'Tài khoản tiết kiệm',
+    credit: 'Thẻ tín dụng',
+    cash: 'Tiền mặt',
+    investment: 'Đầu tư',
+    // Wallet card
+    default: 'Mặc định',
+    viewTransactions: 'Xem giao dịch',
+    lastActivity: 'Hoạt động gần nhất',
+    currentBalance: 'Số dư hiện tại',
+    // Modal & confirm
+    deleteConfirmMessage: 'Bạn có chắc chắn muốn xóa ví này không?',
+    deleteWarning: 'Hành động này không thể hoàn tác!',
+    deleting: 'Đang xóa...',
+    deleteWalletBtn: 'Xóa ví',
+    
+    // Actions
+    creating: 'Đang tạo...',
+    updating: 'Đang cập nhật...',
+    create: 'Tạo ví',
+    update: 'Cập nhật ví',
+    save: 'Lưu',
+    cancel: 'Hủy',
+    edit: 'Chỉnh sửa',
+    delete: 'Xóa',
+    
+    // Wallet list
+    balance: 'Số dư',
+    totalBalance: 'Tổng số dư',
+    noWallets: 'Không tìm thấy ví',
+    noWalletsDescription: 'Tạo ví đầu tiên để bắt đầu theo dõi tài chính của bạn',
+    createFirstWallet: 'Tạo ví đầu tiên',
+    
+    // Notifications
+    createSuccess: 'Tạo ví thành công!',
+    updateSuccess: 'Cập nhật ví thành công!',
+    deleteSuccess: 'Xóa ví thành công!',
+    createError: 'Không thể tạo ví',
+    updateError: 'Không thể cập nhật ví',
+    deleteError: 'Không thể xóa ví',
+    
+    // Validation
+    nameRequired: 'Tên ví là bắt buộc',
+    balanceRequired: 'Số dư ban đầu là bắt buộc',
+    currencyRequired: 'Tiền tệ là bắt buộc',
+    
+    // Delete confirmation
+    deleteTitle: 'Xóa ví',
+    deleteMessage: 'Bạn có chắc chắn muốn xóa ví này? Hành động này không thể hoàn tác.',
+    deleteConfirm: 'Xóa',
   },
 };

@@ -373,7 +373,7 @@ export interface TranslationKeys {
     vnd: string;
     selectCurrency: string;
     switchTo: string;
-  }; // Errors
+  };   // Errors
   errors: {
     networkError: string;
     serverError: string;
@@ -386,5 +386,115 @@ export interface TranslationKeys {
       deleteError: string;
       searchError: string;
     };
+  };
+
+  // Settings
+  settings: {
+    title: string;
+    subtitle: string;
+    profileSettings: string;
+    profileDescription: string;
+    security: string;
+    securityDescription: string;
+    securitySettings: string;
+    securitySubtitle: string;
+    avatarHint: string;
+    firstName: string;
+    firstNamePlaceholder: string;
+    lastName: string;
+    lastNamePlaceholder: string;
+    emailAddress: string;
+    emailPlaceholder: string;
+    displayName: string;
+    displayNamePlaceholder: string;
+    editProfile: string;
+    saveChanges: string;
+    updating: string;
+    cancel: string;
+    currentPassword: string;
+    currentPasswordPlaceholder: string;
+    newPassword: string;
+    newPasswordPlaceholder: string;
+    confirmNewPassword: string;
+    confirmPasswordPlaceholder: string;
+    changePassword: string;
+    updateProfilePassword: string;
+    alsoUpdateProfile: string;
+    alsoUpdateProfileHint: string;
+    profileInformation: string;
+    avatarUpdateSuccess: string;
+    avatarDeleteSuccess: string;
+    profileUpdateSuccess: string;
+    passwordChangeSuccess: string;
+    avatarUploadError: string;
+    avatarDeleteError: string;
+    fileSizeError: string;
+    fileTypeError: string;
+    updateProfileNote: string;
+    currentPasswordRequired: string;
+    newPasswordRequired: string;
+    passwordTooShort: string;
+    passwordMissingUppercase: string;
+    passwordMissingLowercase: string;
+    passwordMissingNumber: string;
+    passwordMissingSpecial: string;
+    passwordsNotMatch: string;
+    currentPasswordWrong: string;
+  };
+
+  // Wallets
+  wallets: {
+    title: string;
+    subtitle: string;
+    addWallet: string;
+    editWallet: string;
+    deleteWallet: string;
+    createWallet: string;
+    walletName: string;
+    walletNamePlaceholder: string;
+    initialBalance: string;
+    initialBalancePlaceholder: string;
+    currency: string;
+    selectCurrency: string;
+    description: string;
+    descriptionPlaceholder: string;
+    checking: string;
+    savings: string;
+    credit: string;
+    cash: string;
+    investment: string;
+    creating: string;
+    updating: string;
+    create: string;
+    update: string;
+    save: string;
+    cancel: string;
+    edit: string;
+    delete: string;
+    balance: string;
+    totalBalance: string;
+    noWallets: string;
+    noWalletsDescription: string;
+    createFirstWallet: string;
+    createSuccess: string;
+    updateSuccess: string;
+    deleteSuccess: string;
+    createError: string;
+    updateError: string;
+    deleteError: string;
+    nameRequired: string;
+    balanceRequired: string;
+    currencyRequired: string;
+    deleteTitle: string;
+    deleteMessage: string;
+    deleteConfirm: string;
+    default: string;
+    viewTransactions: string;
+    lastActivity: string;
+    currentBalance: string;
+    deleteConfirmMessage: string;
+    deleteWarning: string;
+    deleting: string;
+    deleteWalletBtn: string;
   };
 }
