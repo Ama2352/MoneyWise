@@ -368,7 +368,7 @@ export interface TranslationKeys {
     progress: string;
     noGoals: string;
     noGoalsDescription: string;
-    
+
     // Form fields
     description: string;
     targetAmount: string;
@@ -377,7 +377,7 @@ export interface TranslationKeys {
     category: string;
     wallet: string;
     savedAmount: string;
-    
+
     // Status
     status: {
       notStarted: string;
@@ -393,30 +393,30 @@ export interface TranslationKeys {
       warning: string;
       danger: string;
     };
-    
+
     // Stats
     totalGoals: string;
     activeGoals: string;
     completedGoals: string;
     totalTargetAmount: string;
     totalSavedAmount: string;
-    
+
     // Actions
     create: string;
     update: string;
     delete: string;
     edit: string;
     view: string;
-    
+
     // Progress
     progressPercentage: string;
     daysRemaining: string;
     completed: string;
-    
+
     // Confirmations
     deleteConfirmTitle: string;
     deleteConfirmMessage: string;
-    
+
     // Search
     search: {
       title: string;
@@ -426,14 +426,15 @@ export interface TranslationKeys {
       endDate: string;
       category: string;
       wallet: string;
-      targetAmount: string;
+      minTargetAmount: string;
+      maxTargetAmount: string;
       allCategories: string;
       allWallets: string;
       resultsFound: string;
       noResults: string;
       clearSearch: string;
     };
-    
+
     notifications: {
       createSuccess: string;
       updateSuccess: string;
@@ -443,7 +444,7 @@ export interface TranslationKeys {
       deleteError: string;
       loadError: string;
     };
-    
+
     // Validation
     validation: {
       descriptionRequired: string;
@@ -488,7 +489,7 @@ export interface TranslationKeys {
     vnd: string;
     selectCurrency: string;
     switchTo: string;
-  }; 
+  };
   // Analytics
   analytics: {
     title: string;
@@ -529,7 +530,7 @@ export interface TranslationKeys {
     categories: string;
     categoriesCount: string;
   };
-  
+
   // Reports
   reports: {
     title: string;
@@ -539,7 +540,7 @@ export interface TranslationKeys {
     downloadReport: string;
     reportGenerated: string;
     reportFailed: string;
-    
+
     types: {
       categoryBreakdown: {
         title: string;
@@ -566,7 +567,7 @@ export interface TranslationKeys {
         description: string;
       };
     };
-    
+
     form: {
       reportType: string;
       selectReportType: string;
@@ -580,13 +581,13 @@ export interface TranslationKeys {
       cancel: string;
       reset: string;
     };
-    
+
     categories: {
       breakdown: string;
       summary: string;
       flow: string;
     };
-    
+
     messages: {
       selectType: string;
       selectStartDate: string;
@@ -597,7 +598,7 @@ export interface TranslationKeys {
       generationFailed: string;
       downloadFailed: string;
     };
-    
+
     progress: {
       preparing: string;
       processing: string;
@@ -605,7 +606,7 @@ export interface TranslationKeys {
       downloading: string;
     };
   };
-  
+
   // Errors
   errors: {
     networkError: string;

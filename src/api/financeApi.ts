@@ -18,6 +18,7 @@ import type {
   SavingGoalProgress,
   CreateSavingGoalRequest,
   UpdateSavingGoalRequest,
+  SearchSavingGoalRequest,
 } from '../types';
 
 /**
@@ -207,25 +208,12 @@ export const savingGoalApi = {
     return response.data;
   },
 
-  searchSavingGoals: async (params: {
-    startDate?: string;
-    endDate?: string;
-    keywords?: string;
-    categoryName?: string;
-    walletName?: string;
-    targetAmount?: number;
-  }): Promise<SavingGoalProgress[]> => {
-    const searchParams = new URLSearchParams();
-    
-    if (params.startDate) searchParams.append('startDate', params.startDate);
-    if (params.endDate) searchParams.append('endDate', params.endDate);
-    if (params.keywords) searchParams.append('keywords', params.keywords);
-    if (params.categoryName) searchParams.append('categoryName', params.categoryName);
-    if (params.walletName) searchParams.append('walletName', params.walletName);
-    if (params.targetAmount) searchParams.append('targetAmount', params.targetAmount.toString());
-
+  searchSavingGoals: async (
+    params: SearchSavingGoalRequest
+  ): Promise<SavingGoalProgress[]> => {
     const response = await httpClient.get<SavingGoalProgress[]>(
-      `${API_ENDPOINTS.SAVING_GOALS.SEARCH}?${searchParams.toString()}`
+      API_ENDPOINTS.SAVING_GOALS.SEARCH,
+      { params }
     );
     return response.data;
   },

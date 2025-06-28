@@ -48,16 +48,16 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
   const progressData = useMemo(() => {
     const targetAmount = goal.targetAmount || 0;
     const savedAmount = goal.savedAmount || 0;
-    const percentage = targetAmount > 0 ? (savedAmount / targetAmount) * 100 : 0;
-    
+    const percentage = Math.min(goal.savedPercentage, 100);
+
     const endDate = new Date(goal.endDate);
     const now = new Date();
     const diffTime = endDate.getTime() - now.getTime();
     const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     const isCompleted = percentage >= 100;
     const isOverdue = daysRemaining < 0 && !isCompleted;
-    
+
     return {
       percentage: Math.min(percentage, 100),
       daysRemaining,
@@ -71,12 +71,13 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
   useEffect(() => {
     const formatAmounts = async () => {
       try {
-        const [formattedSaved, formattedTarget, formattedRemaining] = await Promise.all([
-          convertAndFormat(goal.savedAmount),
-          convertAndFormat(goal.targetAmount),
-          convertAndFormat(progressData.remainingAmount),
-        ]);
-        
+        const [formattedSaved, formattedTarget, formattedRemaining] =
+          await Promise.all([
+            convertAndFormat(goal.savedAmount),
+            convertAndFormat(goal.targetAmount),
+            convertAndFormat(progressData.remainingAmount),
+          ]);
+
         setFormattedAmounts({
           savedAmount: formattedSaved,
           targetAmount: formattedTarget,
@@ -93,12 +94,17 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
     };
 
     formatAmounts();
-  }, [goal.savedAmount, goal.targetAmount, progressData.remainingAmount, convertAndFormat]);
+  }, [
+    goal.savedAmount,
+    goal.targetAmount,
+    progressData.remainingAmount,
+    convertAndFormat,
+  ]);
 
   // Get status icon and color based on backend status
   const getStatusInfo = useMemo(() => {
     const status = goal.progressStatus?.toLowerCase() || '';
-    
+
     // Map backend status to UI elements
     switch (status) {
       case 'not started':
@@ -173,7 +179,7 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
             text: translations.savingGoals.completed,
           };
         }
-        
+
         if (progressData.isOverdue) {
           return {
             icon: AlertTriangle,
@@ -181,14 +187,19 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
             text: translations.savingGoals.status.danger,
           };
         }
-        
+
         return {
           icon: Target,
           color: 'safe',
           text: translations.savingGoals.status.safe,
         };
     }
-  }, [goal.progressStatus, progressData.isCompleted, progressData.isOverdue, translations.savingGoals]);
+  }, [
+    goal.progressStatus,
+    progressData.isCompleted,
+    progressData.isOverdue,
+    translations.savingGoals,
+  ]);
 
   const statusInfo = getStatusInfo;
   const StatusIcon = statusInfo.icon;
@@ -210,7 +221,7 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
             <Target size={24} />
           )}
         </div>
-        
+
         <div className="saving-goal-card__title-section">
           <h3 className="saving-goal-card__title">{goal.description}</h3>
           <div className="saving-goal-card__meta">
@@ -220,7 +231,9 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
             {wallet && (
               <>
                 <span className="saving-goal-card__separator">•</span>
-                <span className="saving-goal-card__wallet">{wallet.walletName}</span>
+                <span className="saving-goal-card__wallet">
+                  {wallet.walletName}
+                </span>
               </>
             )}
           </div>
@@ -293,7 +306,9 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
       {/* Footer */}
       <div className="saving-goal-card__footer">
         {/* Status */}
-        <div className={`saving-goal-card__status saving-goal-card__status--${statusInfo.color}`}>
+        <div
+          className={`saving-goal-card__status saving-goal-card__status--${statusInfo.color}`}
+        >
           <StatusIcon size={16} />
           <span>{statusInfo.text}</span>
         </div>
@@ -311,7 +326,8 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
             </span>
           ) : (
             <span>
-              {progressData.daysRemaining} {translations.savingGoals.daysRemaining}
+              {progressData.daysRemaining}{' '}
+              {translations.savingGoals.daysRemaining}
             </span>
           )}
         </div>

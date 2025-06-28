@@ -9,8 +9,6 @@ interface ToastContainerProps {
 
 const ToastContainer: React.FC<ToastContainerProps> = memo(
   ({ toasts, onRemoveToast }) => {
-    console.log('ToastContainer rendered with toasts:', toasts);
-
     return (
       <>
         {toasts.map(toast => (

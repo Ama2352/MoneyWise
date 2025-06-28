@@ -41,6 +41,7 @@ export const useAmountInput = (options: UseAmountInputOptions = {}) => {
     (value: string) => {
       // Always allow the user to type freely
       setDisplayAmount(value);
+      console.log(`Input changed: ${value}`);
 
       // Handle empty input
       if (!value.trim()) {
@@ -52,6 +53,7 @@ export const useAmountInput = (options: UseAmountInputOptions = {}) => {
 
       // Parse the value to get numeric amount
       const rawValue = parseAmountFromDisplay(value);
+      console.log(`Parsed raw value: ${rawValue}`);
       setRawAmount(rawValue);
 
       // Basic validation
@@ -93,6 +95,7 @@ export const useAmountInput = (options: UseAmountInputOptions = {}) => {
     // Format the value when user finishes editing
     if (rawAmount > 0) {
       const formatted = formatAmountForDisplay(rawAmount);
+      console.log(`Formatted amount on blur: ${formatted}`);
       setDisplayAmount(formatted);
     }
   }, [rawAmount, formatAmountForDisplay, onError]);

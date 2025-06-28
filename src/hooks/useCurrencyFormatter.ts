@@ -5,6 +5,7 @@
 
 import { useCallback } from 'react';
 import { useCurrencyContext } from '../contexts';
+import { currencyService } from '../services';
 
 export const useCurrencyFormatter = () => {
   const { currency } = useCurrencyContext();
@@ -13,22 +14,7 @@ export const useCurrencyFormatter = () => {
   const formatAmountForDisplay = useCallback(
     (value: number): string => {
       if (!value) return '';
-
-      if (currency === 'vnd') {
-        // VND: format with dot as thousand separator, no decimals, symbol at the end
-        const formatted = new Intl.NumberFormat('vi-VN', {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        }).format(value);
-        return `${formatted}₫`;
-      } else {
-        // USD: format with comma as thousand separator, 2 decimals, symbol at the beginning
-        const formatted = new Intl.NumberFormat('en-US', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }).format(value);
-        return `$${formatted}`;
-      }
+      return currencyService.formatCurrency(value, currency);
     },
     [currency]
   );

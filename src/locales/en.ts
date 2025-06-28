@@ -337,7 +337,8 @@ export const en: TranslationKeys = {
   },
   analytics: {
     title: 'Financial Analytics',
-    subtitle: 'Visualize your financial data with interactive charts and insights',
+    subtitle:
+      'Visualize your financial data with interactive charts and insights',
     daily: 'Daily',
     weekly: 'Weekly',
     monthly: 'Monthly',
@@ -382,16 +383,18 @@ export const en: TranslationKeys = {
     downloadReport: 'Download Report',
     reportGenerated: 'Report Generated',
     reportFailed: 'Report Generation Failed',
-    
+
     // Report types
     types: {
       categoryBreakdown: {
         title: 'Category Breakdown',
-        description: 'Detailed analysis of income and expenses by category with budget tracking',
+        description:
+          'Detailed analysis of income and expenses by category with budget tracking',
       },
       cashFlow: {
         title: 'Cash Flow Summary',
-        description: 'Overview of total income and expenses for a specific period',
+        description:
+          'Overview of total income and expenses for a specific period',
       },
       dailySummary: {
         title: 'Daily Summary',
@@ -403,14 +406,15 @@ export const en: TranslationKeys = {
       },
       monthlySummary: {
         title: 'Monthly Summary',
-        description: 'Monthly financial overview with month-by-month comparison',
+        description:
+          'Monthly financial overview with month-by-month comparison',
       },
       yearlySummary: {
         title: 'Yearly Summary',
         description: 'Annual financial report with year-over-year analysis',
       },
     },
-    
+
     // Form fields
     form: {
       reportType: 'Report Type',
@@ -425,14 +429,14 @@ export const en: TranslationKeys = {
       cancel: 'Cancel',
       reset: 'Reset Form',
     },
-    
+
     // Categories
     categories: {
       breakdown: 'Breakdown Reports',
       summary: 'Summary Reports',
       flow: 'Cash Flow Reports',
     },
-    
+
     // Messages
     messages: {
       selectType: 'Please select a report type',
@@ -444,7 +448,7 @@ export const en: TranslationKeys = {
       generationFailed: 'Failed to generate report. Please try again.',
       downloadFailed: 'Failed to download report file',
     },
-    
+
     // Progress
     progress: {
       preparing: 'Preparing report...',
@@ -475,8 +479,9 @@ export const en: TranslationKeys = {
     goalDetails: 'Goal Details',
     progress: 'Progress',
     noGoals: 'No saving goals found',
-    noGoalsDescription: 'Create your first saving goal to start tracking your progress',
-    
+    noGoalsDescription:
+      'Create your first saving goal to start tracking your progress',
+
     // Form fields
     description: 'Description',
     targetAmount: 'Target Amount',
@@ -485,7 +490,7 @@ export const en: TranslationKeys = {
     category: 'Category',
     wallet: 'Wallet',
     savedAmount: 'Saved Amount',
-    
+
     // Status
     status: {
       notStarted: 'Not Started',
@@ -501,30 +506,31 @@ export const en: TranslationKeys = {
       warning: 'Behind Schedule',
       danger: 'Critical',
     },
-    
+
     // Stats
     totalGoals: 'Total Goals',
     activeGoals: 'Active Goals',
     completedGoals: 'Completed Goals',
     totalTargetAmount: 'Total Target',
     totalSavedAmount: 'Total Saved',
-    
+
     // Actions
     create: 'Create Goal',
     update: 'Update Goal',
     delete: 'Delete',
     edit: 'Edit',
     view: 'View Details',
-    
+
     // Progress
     progressPercentage: '% Progress',
     daysRemaining: 'days remaining',
     completed: 'Completed',
-    
+
     // Confirmations
     deleteConfirmTitle: 'Delete Saving Goal',
-    deleteConfirmMessage: 'Are you sure you want to delete this saving goal? This action cannot be undone.',
-    
+    deleteConfirmMessage:
+      'Are you sure you want to delete this saving goal? This action cannot be undone.',
+
     // Search
     search: {
       title: 'Search Saving Goals',
@@ -534,14 +540,15 @@ export const en: TranslationKeys = {
       endDate: 'End Date',
       category: 'Category',
       wallet: 'Wallet',
-      targetAmount: 'Target Amount',
+      minTargetAmount: 'Min Target Amount',
+      maxTargetAmount: 'Max Target Amount',
       allCategories: 'All Categories',
       allWallets: 'All Wallets',
       resultsFound: 'results found',
       noResults: 'No saving goals match your search criteria',
       clearSearch: 'Clear Search',
     },
-    
+
     notifications: {
       createSuccess: 'Saving goal created successfully',
       updateSuccess: 'Saving goal updated successfully',
@@ -551,7 +558,7 @@ export const en: TranslationKeys = {
       deleteError: 'Failed to delete saving goal',
       loadError: 'Failed to load saving goals',
     },
-    
+
     // Validation
     validation: {
       descriptionRequired: 'Description is required',

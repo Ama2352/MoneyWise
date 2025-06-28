@@ -33,6 +33,7 @@ import {
   type UpdateBudgetRequest,
   type SavingGoal,
   type Budget,
+  type SearchSavingGoalRequest,
 } from '../types/finance';
 
 export const useWalletMutations = () => {
@@ -377,17 +378,19 @@ export const useTransactionSearch = (filters?: SearchTransactionRequest) => {
 
 export const useSavingGoalProgress = (language?: string) => {
   // Include language in SWR key to force refetch when language changes
-  const swrKey = language 
+  const swrKey = language
     ? `${SWR_KEYS.SAVING_GOALS.PROGRESS}?lang=${language}`
     : SWR_KEYS.SAVING_GOALS.PROGRESS;
-    
-  const { data, error, isLoading, mutate: mutateSavingGoals } = useSWR<SavingGoalProgress[]>(
-    swrKey,
-    async () => {
-      const result = await savingGoalApi.getAllSavingGoalProgress();
-      return result;
-    }
-  );
+
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateSavingGoals,
+  } = useSWR<SavingGoalProgress[]>(swrKey, async () => {
+    const result = await savingGoalApi.getAllSavingGoalProgress();
+    return result;
+  });
 
   return {
     savingGoalProgress: data,
@@ -414,38 +417,32 @@ export const useBudgetProgress = () => {
   };
 };
 
-export const useSearchSavingGoals = (params?: {
-  startDate?: string;
-  endDate?: string;
-  keywords?: string;
-  categoryName?: string;
-  walletName?: string;
-  targetAmount?: number;
-}, language?: string) => {
+export const useSearchSavingGoals = (
+  params?: SearchSavingGoalRequest,
+  language?: string
+) => {
   // Generate unique key for search parameters and language
   const searchKey = useMemo(() => {
     if (!params || Object.keys(params).length === 0) return null;
-    
-    const searchParams = new URLSearchParams();
-    if (params.startDate) searchParams.append('startDate', params.startDate);
-    if (params.endDate) searchParams.append('endDate', params.endDate);
-    if (params.keywords) searchParams.append('keywords', params.keywords);
-    if (params.categoryName) searchParams.append('categoryName', params.categoryName);
-    if (params.walletName) searchParams.append('walletName', params.walletName);
-    if (params.targetAmount) searchParams.append('targetAmount', params.targetAmount.toString());
-    if (language) searchParams.append('lang', language);
-    
-    return `${SWR_KEYS.SAVING_GOALS.SEARCH}?${searchParams.toString()}`;
+
+    const keyObj = {
+      ...params,
+      lang: language || '', // Include language as a field
+    };
+
+    return `${SWR_KEYS.SAVING_GOALS.SEARCH}:${JSON.stringify(keyObj)}`;
   }, [params, language]);
 
-  const { data, error, isLoading, mutate: mutateSearch } = useSWR<SavingGoalProgress[]>(
-    searchKey,
-    async () => {
-      if (!params) return [];
-      const result = await savingGoalApi.searchSavingGoals(params);
-      return result;
-    }
-  );
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateSearch,
+  } = useSWR<SavingGoalProgress[]>(searchKey, async () => {
+    if (!params) return [];
+    const result = await savingGoalApi.searchSavingGoals(params);
+    return result;
+  });
 
   return {
     searchResults: data,
@@ -454,7 +451,6 @@ export const useSearchSavingGoals = (params?: {
     refreshSearch: () => mutateSearch(undefined, { revalidate: true }),
   };
 };
-
 
 export const useSavingGoalMutations = () => {
   const { translations } = useLanguageContext();
@@ -467,23 +463,24 @@ export const useSavingGoalMutations = () => {
     } catch (error: any) {
       console.error('Create saving goal error:', error);
       console.error('Response data:', error.response?.data);
-      
+
       // Try to extract detailed error message from various possible locations
       let errorMessage = translations.savingGoals.notifications.createError;
-      
+
       if (error.response?.data) {
         const responseData = error.response.data;
         // Try different possible error message fields from Spring Boot
-        errorMessage = responseData.message || 
-                     responseData.error || 
-                     responseData.detail || 
-                     responseData.title ||
-                     // Sometimes Spring Boot returns the exception message directly
-                     (typeof responseData === 'string' ? responseData : null) ||
-                     error.message ||
-                     translations.savingGoals.notifications.createError;
+        errorMessage =
+          responseData.message ||
+          responseData.error ||
+          responseData.detail ||
+          responseData.title ||
+          // Sometimes Spring Boot returns the exception message directly
+          (typeof responseData === 'string' ? responseData : null) ||
+          error.message ||
+          translations.savingGoals.notifications.createError;
       }
-      
+
       return {
         success: false,
         error: errorMessage,
@@ -499,23 +496,24 @@ export const useSavingGoalMutations = () => {
     } catch (error: any) {
       console.error('Update saving goal error:', error);
       console.error('Response data:', error.response?.data);
-      
+
       // Try to extract detailed error message from various possible locations
       let errorMessage = translations.savingGoals.notifications.updateError;
-      
+
       if (error.response?.data) {
         const responseData = error.response.data;
         // Try different possible error message fields from Spring Boot
-        errorMessage = responseData.message || 
-                     responseData.error || 
-                     responseData.detail || 
-                     responseData.title ||
-                     // Sometimes Spring Boot returns the exception message directly
-                     (typeof responseData === 'string' ? responseData : null) ||
-                     error.message ||
-                     translations.savingGoals.notifications.updateError;
+        errorMessage =
+          responseData.message ||
+          responseData.error ||
+          responseData.detail ||
+          responseData.title ||
+          // Sometimes Spring Boot returns the exception message directly
+          (typeof responseData === 'string' ? responseData : null) ||
+          error.message ||
+          translations.savingGoals.notifications.updateError;
       }
-      
+
       return {
         success: false,
         error: errorMessage,
@@ -530,10 +528,11 @@ export const useSavingGoalMutations = () => {
       return { success: true };
     } catch (error: any) {
       console.error('Delete saving goal error:', error);
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.title ||
-                          error.message ||
-                          translations.savingGoals.notifications.deleteError;
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.title ||
+        error.message ||
+        translations.savingGoals.notifications.deleteError;
       return {
         success: false,
         error: errorMessage,

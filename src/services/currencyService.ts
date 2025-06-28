@@ -33,7 +33,7 @@ class CurrencyService {
     this.validateAmount(amount);
 
     // Get exchange rate (with caching)
-    const exchangeRate = await this.getExchangeRateWithCache(from, to); // Calculate converted amount
+    const exchangeRate = await this.getConsistentExchangeRate(from, to); // Calculate converted amount
     const convertedAmount = this.calculateConversion(amount, exchangeRate, to);
 
     return {
@@ -44,6 +44,27 @@ class CurrencyService {
       exchangeRate,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Get consistent exchange rate for specific currency pair
+   * Handles VND-USD conversion specifically
+   */
+  async getConsistentExchangeRate(
+    from: CurrencyCode,
+    to: CurrencyCode
+  ): Promise<number> {
+    if (from === to) return 1;
+    // Always get VND->USD rate
+    if (from === 'vnd' && to === 'usd') {
+      return await this.getExchangeRateWithCache('vnd', 'usd');
+    }
+    if (from === 'usd' && to === 'vnd') {
+      const rate = await this.getExchangeRateWithCache('vnd', 'usd');
+      return 1 / rate;
+    }
+    // Add more currencies as needed
+    return await this.getExchangeRateWithCache(from, to);
   }
 
   /**

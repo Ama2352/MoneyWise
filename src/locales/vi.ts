@@ -378,20 +378,23 @@ export const vi: TranslationKeys = {
     downloadReport: 'Tải Báo Cáo',
     reportGenerated: 'Báo Cáo Đã Được Tạo',
     reportFailed: 'Tạo Báo Cáo Thất Bại',
-    
+
     // Report types
     types: {
       categoryBreakdown: {
         title: 'Phân Tích Theo Danh Mục',
-        description: 'Phân tích chi tiết thu nhập và chi tiêu theo danh mục với theo dõi ngân sách',
+        description:
+          'Phân tích chi tiết thu nhập và chi tiêu theo danh mục với theo dõi ngân sách',
       },
       cashFlow: {
         title: 'Tóm Tắt Dòng Tiền',
-        description: 'Tổng quan về tổng thu nhập và chi tiêu trong một khoảng thời gian cụ thể',
+        description:
+          'Tổng quan về tổng thu nhập và chi tiêu trong một khoảng thời gian cụ thể',
       },
       dailySummary: {
         title: 'Tóm Tắt Hàng Ngày',
-        description: 'Tóm tắt tài chính hàng ngày đầy đủ với bối cảnh hàng tuần',
+        description:
+          'Tóm tắt tài chính hàng ngày đầy đủ với bối cảnh hàng tuần',
       },
       weeklySummary: {
         title: 'Tóm Tắt Hàng Tuần',
@@ -406,7 +409,7 @@ export const vi: TranslationKeys = {
         description: 'Báo cáo tài chính hàng năm với phân tích từng năm',
       },
     },
-    
+
     // Form fields
     form: {
       reportType: 'Loại Báo Cáo',
@@ -421,14 +424,14 @@ export const vi: TranslationKeys = {
       cancel: 'Hủy',
       reset: 'Đặt Lại Form',
     },
-    
+
     // Categories
     categories: {
       breakdown: 'Báo Cáo Phân Tích',
       summary: 'Báo Cáo Tóm Tắt',
       flow: 'Báo Cáo Dòng Tiền',
     },
-    
+
     // Messages
     messages: {
       selectType: 'Vui lòng chọn loại báo cáo',
@@ -440,7 +443,7 @@ export const vi: TranslationKeys = {
       generationFailed: 'Không thể tạo báo cáo. Vui lòng thử lại.',
       downloadFailed: 'Không thể tải file báo cáo',
     },
-    
+
     // Progress
     progress: {
       preparing: 'Đang chuẩn bị báo cáo...',
@@ -464,15 +467,17 @@ export const vi: TranslationKeys = {
   },
   savingGoals: {
     title: 'Mục Tiêu Tiết Kiệm',
-    subtitle: 'Theo dõi tiến độ tiết kiệm và đạt được mục tiêu tài chính của bạn',
+    subtitle:
+      'Theo dõi tiến độ tiết kiệm và đạt được mục tiêu tài chính của bạn',
     addNew: 'Thêm Mục Tiêu Mới',
     editGoal: 'Chỉnh Sửa Mục Tiêu',
     deleteGoal: 'Xóa Mục Tiêu',
     goalDetails: 'Chi Tiết Mục Tiêu',
     progress: 'Tiến Độ',
     noGoals: 'Không có mục tiêu tiết kiệm nào',
-    noGoalsDescription: 'Tạo mục tiêu tiết kiệm đầu tiên để bắt đầu theo dõi tiến độ',
-    
+    noGoalsDescription:
+      'Tạo mục tiêu tiết kiệm đầu tiên để bắt đầu theo dõi tiến độ',
+
     // Form fields
     description: 'Mô Tả',
     targetAmount: 'Số Tiền Mục Tiêu',
@@ -481,7 +486,7 @@ export const vi: TranslationKeys = {
     category: 'Danh Mục',
     wallet: 'Ví',
     savedAmount: 'Số Tiền Đã Tiết Kiệm',
-    
+
     // Status
     status: {
       notStarted: 'Chưa Bắt Đầu',
@@ -497,30 +502,31 @@ export const vi: TranslationKeys = {
       warning: 'Chậm Tiến Độ',
       danger: 'Nguy Hiểm',
     },
-    
+
     // Stats
     totalGoals: 'Tổng Mục Tiêu',
     activeGoals: 'Mục Tiêu Đang Hoạt Động',
     completedGoals: 'Mục Tiêu Đã Hoàn Thành',
     totalTargetAmount: 'Tổng Mục Tiêu',
     totalSavedAmount: 'Tổng Đã Tiết Kiệm',
-    
+
     // Actions
     create: 'Tạo Mục Tiêu',
     update: 'Cập Nhật Mục Tiêu',
     delete: 'Xóa',
     edit: 'Chỉnh Sửa',
     view: 'Xem Chi Tiết',
-    
+
     // Progress
     progressPercentage: '% Tiến Độ',
     daysRemaining: 'ngày còn lại',
     completed: 'Hoàn Thành',
-    
+
     // Confirmations
     deleteConfirmTitle: 'Xóa Mục Tiêu Tiết Kiệm',
-    deleteConfirmMessage: 'Bạn có chắc chắn muốn xóa mục tiêu tiết kiệm này? Hành động này không thể hoàn tác.',
-    
+    deleteConfirmMessage:
+      'Bạn có chắc chắn muốn xóa mục tiêu tiết kiệm này? Hành động này không thể hoàn tác.',
+
     // Search
     search: {
       title: 'Tìm Kiếm Mục Tiêu Tiết Kiệm',
@@ -530,14 +536,15 @@ export const vi: TranslationKeys = {
       endDate: 'Ngày Kết Thúc',
       category: 'Danh Mục',
       wallet: 'Ví',
-      targetAmount: 'Số Tiền Mục Tiêu',
+      minTargetAmount: 'Số Tiền Mục Tiêu Tối Thiểu',
+      maxTargetAmount: 'Số Tiền Mục Tiêu Tối Đa',
       allCategories: 'Tất Cả Danh Mục',
       allWallets: 'Tất Cả Ví',
       resultsFound: 'kết quả được tìm thấy',
       noResults: 'Không tìm thấy mục tiêu tiết kiệm nào phù hợp',
       clearSearch: 'Xóa Tìm Kiếm',
     },
-    
+
     notifications: {
       createSuccess: 'Tạo mục tiêu tiết kiệm thành công',
       updateSuccess: 'Cập nhật mục tiêu tiết kiệm thành công',
@@ -547,7 +554,7 @@ export const vi: TranslationKeys = {
       deleteError: 'Không thể xóa mục tiêu tiết kiệm',
       loadError: 'Không thể tải mục tiêu tiết kiệm',
     },
-    
+
     // Validation
     validation: {
       descriptionRequired: 'Mô tả là bắt buộc',
