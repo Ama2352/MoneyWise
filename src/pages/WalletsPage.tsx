@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { walletApi } from '../api/walletApi';
 import { useToastContext } from '../contexts';
+import { useTranslations } from '../hooks';
 import type { Wallet, CreateWalletRequest, UpdateWalletRequest, WalletWithMetadata } from '../types/wallet';
 import '../styles/pages.css';
 import '../styles/wallets.css';
@@ -26,6 +27,7 @@ const WalletsPage: React.FC = () => {
   // State management
   const [wallets, setWallets] = useState<WalletWithMetadata[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { translations: t, language } = useTranslations();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
   const [deletingWalletId, setDeletingWalletId] = useState<string | null>(null);
@@ -44,10 +46,25 @@ const WalletsPage: React.FC = () => {
 
   // Wallet type configurations for better UI
   const walletTypes = [
-    { id: 'personal', name: 'Personal', icon: Banknote, color: 'var(--primary-500)' },
-    { id: 'savings', name: 'Savings', icon: PiggyBank, color: 'var(--success-500)' },
-    { id: 'business', name: 'Business', icon: CreditCard, color: 'var(--warning-500)' },
+    { id: 'personal', name: t.wallets.cash, icon: Banknote, color: 'var(--primary-500)' },
+    { id: 'savings', name: t.wallets.savings, icon: PiggyBank, color: 'var(--success-500)' },
+    { id: 'business', name: t.wallets.checking, icon: CreditCard, color: 'var(--warning-500)' },
   ];
+
+  // Hàm format thời gian hoạt động gần nhất
+  function formatRelativeTime(hours: number) {
+    if (language === 'vi') {
+      if (hours === 0) return 'Vừa xong';
+      if (hours < 24) return `${hours} giờ trước`;
+      const days = Math.floor(hours / 24);
+      return days === 1 ? '1 ngày trước' : `${days} ngày trước`;
+    } else {
+      if (hours === 0) return 'Just now';
+      if (hours < 24) return `${hours} hours ago`;
+      const days = Math.floor(hours / 24);
+      return days === 1 ? '1 day ago' : `${days} days ago`;
+    }
+  }
 
   // Load wallets from backend
   const loadWallets = async () => {
@@ -56,17 +73,20 @@ const WalletsPage: React.FC = () => {
       const walletsData = await walletApi.getAll();
       
       // Enhance with UI metadata
-      const enhancedWallets: WalletWithMetadata[] = walletsData.map((wallet, index) => ({
-        ...wallet,
-        type: ['personal', 'savings', 'business'][index % 3] as any,
-        color: walletTypes[index % 3].color,
-        lastActivity: `${Math.floor(Math.random() * 24)} hours ago`,
-        isDefault: index === 0,
-      }));
+      const enhancedWallets: WalletWithMetadata[] = walletsData.map((wallet, index) => {
+        const hours = Math.floor(Math.random() * 24);
+        return {
+          ...wallet,
+          type: ['personal', 'savings', 'business'][index % 3] as any,
+          color: walletTypes[index % 3].color,
+          lastActivity: formatRelativeTime(hours),
+          isDefault: index === 0,
+        };
+      });
       
       setWallets(enhancedWallets);
     } catch (error) {
-      showError('Failed to load wallets. Please try again.');
+      showError(t.wallets.deleteError);
       console.error('Error loading wallets:', error);
     } finally {
       setIsLoading(false);
@@ -95,9 +115,9 @@ const WalletsPage: React.FC = () => {
       setWallets(prev => [...prev, enhancedWallet]);
       setShowCreateModal(false);
       resetForm();
-      showSuccess('Wallet created successfully!');
+      showSuccess(t.wallets.createSuccess);
     } catch (error) {
-      showError('Failed to create wallet. Please try again.');
+      showError(t.wallets.createError);
       console.error('Error creating wallet:', error);
     } finally {
       setIsSubmitting(false);
@@ -128,9 +148,9 @@ const WalletsPage: React.FC = () => {
       
       setEditingWallet(null);
       resetForm();
-      showSuccess('Wallet updated successfully!');
+      showSuccess(t.wallets.updateSuccess);
     } catch (error) {
-      showError('Failed to update wallet. Please try again.');
+      showError(t.wallets.updateError);
       console.error('Error updating wallet:', error);
     } finally {
       setIsSubmitting(false);
@@ -152,11 +172,11 @@ const WalletsPage: React.FC = () => {
       await walletApi.delete(walletToDelete.walletId);
       
       setWallets(prev => prev.filter(wallet => wallet.walletId !== walletToDelete.walletId));
-      showSuccess('Wallet deleted successfully!');
+      showSuccess(t.wallets.deleteSuccess);
       setShowDeleteConfirm(false);
       setWalletToDelete(null);
     } catch (error) {
-      showError('Failed to delete wallet. Please try again.');
+      showError(t.wallets.deleteError);
       console.error('Error deleting wallet:', error);
     } finally {
       setDeletingWalletId(null);
@@ -174,13 +194,13 @@ const WalletsPage: React.FC = () => {
     const errors: {[key: string]: string} = {};
     
     if (!formData.walletName.trim()) {
-      errors.walletName = 'Wallet name is required';
+      errors.walletName = t.wallets.nameRequired;
     } else if (formData.walletName.length < 3) {
-      errors.walletName = 'Wallet name must be at least 3 characters';
+      errors.walletName = t.validation.minLength;
     }
     
     if (isNaN(formData.balance)) {
-      errors.balance = 'Please enter a valid amount';
+      errors.balance = t.validation.amountInvalid;
     }
     
     setFormErrors(errors);
@@ -252,7 +272,7 @@ const WalletsPage: React.FC = () => {
           gap: 'var(--space-4)'
         }}>
           <Loader size={40} className="animate-spin" style={{ color: 'var(--primary-500)' }} />
-          <p style={{ color: 'var(--gray-600)' }}>Loading your wallets...</p>
+          <p style={{ color: 'var(--gray-600)' }}>{t.common.loading}</p>
         </div>
       </div>
     );
@@ -269,15 +289,15 @@ const WalletsPage: React.FC = () => {
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">💳 Wallet Management</h1>
+          <h1 className="page-title">💳 {t.wallets.title}</h1>
           <p className="page-subtitle">
-            Manage your financial accounts and track balances in real-time
+            {t.wallets.subtitle}
           </p>
         </div>
         <div className="page-actions">
           <button className="btn btn--primary hover-lift ripple" onClick={openCreateModal}>
             <Plus size={18} />
-            Add New Wallet
+{t.wallets.addWallet}
           </button>
         </div>
       </div>
@@ -335,11 +355,11 @@ const WalletsPage: React.FC = () => {
                         borderRadius: 'var(--radius-sm)',
                         marginLeft: 'var(--space-2)'
                       }}>
-                        Default
+                        {t.wallets.default}
                       </span>
                     )}
                   </h3>
-                  <p className="wallet-bank">{walletType.name} Wallet</p>
+                  <p className="wallet-bank">{`Ví ${walletType.name.toLowerCase()}`}</p>
 
                   <div
                     className={`wallet-balance ${wallet.balance < 0 ? 'wallet-balance--negative' : ''}`}
@@ -350,7 +370,7 @@ const WalletsPage: React.FC = () => {
                   <div className="wallet-meta">
                     <span className="wallet-type">{walletType.name}</span>
                     <span className="wallet-activity">
-                      Last activity: {wallet.lastActivity}
+                      {t.wallets.lastActivity}: {wallet.lastActivity}
                     </span>
                   </div>
                 </div>
@@ -358,7 +378,7 @@ const WalletsPage: React.FC = () => {
                 <div className="wallet-actions">
                   <button className="wallet-action-btn hover-glow ripple">
                     <TrendingUp size={16} />
-                    View Transactions
+                    {t.wallets.viewTransactions}
                   </button>
                 </div>
               </div>
@@ -376,13 +396,13 @@ const WalletsPage: React.FC = () => {
             border: '2px dashed var(--gray-200)'
           }}>
             <CreditCard size={48} style={{ color: 'var(--gray-400)', marginBottom: 'var(--space-4)' }} />
-            <h3 style={{ color: 'var(--gray-700)', marginBottom: 'var(--space-2)' }}>No wallets yet</h3>
+            <h3 style={{ color: 'var(--gray-700)', marginBottom: 'var(--space-2)' }}>{t.wallets.noWallets}</h3>
             <p style={{ color: 'var(--gray-500)', marginBottom: 'var(--space-6)' }}>
-              Create your first wallet to start managing your finances
+              {t.wallets.noWalletsDescription}
             </p>
             <button className="btn btn--primary hover-lift animate-pulse ripple" onClick={openCreateModal}>
               <Plus size={18} />
-              Create Your First Wallet
+{t.wallets.createFirstWallet}
             </button>
           </div>
         )}
@@ -397,7 +417,7 @@ const WalletsPage: React.FC = () => {
             {/* Modal Header */}
             <div className="modal-header">
               <h2 className="modal-title">
-                {editingWallet ? '✏️ Edit Wallet' : '➕ Create New Wallet'}
+{editingWallet ? `✏️ ${t.wallets.editWallet}` : `➕ ${t.wallets.createWallet}`}
               </h2>
               <button className="modal-close hover-scale" onClick={closeModals}>
                 <X size={20} />
@@ -408,13 +428,13 @@ const WalletsPage: React.FC = () => {
             <form onSubmit={editingWallet ? handleUpdateWallet : handleCreateWallet}>
               <div className="form-group">
                 <label className="form-label">
-                  Wallet Name
+                  {t.wallets.walletName}
                 </label>
                 <input
                   type="text"
                   value={formData.walletName}
                   onChange={e => setFormData(prev => ({ ...prev, walletName: e.target.value }))}
-                  placeholder="Enter wallet name (e.g., Personal Wallet, Savings)"
+                  placeholder={t.wallets.walletNamePlaceholder}
                   className={`form-input ${formErrors.walletName ? 'error' : ''}`}
                 />
                 {formErrors.walletName && (
@@ -426,7 +446,7 @@ const WalletsPage: React.FC = () => {
 
               <div className="form-group">
                 <label className="form-label">
-                  Initial Balance (USD)
+                  {t.wallets.initialBalance}
                 </label>
                 <input
                   type="number"
@@ -451,7 +471,7 @@ const WalletsPage: React.FC = () => {
                   className="btn-secondary hover-lift ripple"
                   disabled={isSubmitting}
                 >
-                  Cancel
+{t.common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -461,12 +481,12 @@ const WalletsPage: React.FC = () => {
                   {isSubmitting ? (
                     <>
                       <Loader size={16} className="animate-spin" />
-                      {editingWallet ? 'Updating...' : 'Creating...'}
+{editingWallet ? t.wallets.updating : t.wallets.creating}
                     </>
                   ) : (
                     <>
                       <Save size={16} />
-                      {editingWallet ? 'Update Wallet' : 'Create Wallet'}
+{editingWallet ? t.wallets.update : t.wallets.create}
                     </>
                   )}
                 </button>
@@ -483,7 +503,7 @@ const WalletsPage: React.FC = () => {
             {/* Modal Header */}
             <div className="modal-header">
               <h2 className="modal-title" style={{ color: 'var(--error-600)' }}>
-                ⚠️ Delete Wallet
+                ⚠️ {t.wallets.deleteWallet}
               </h2>
               <button className="modal-close hover-scale" onClick={cancelDelete}>
                 <X size={20} />
@@ -503,16 +523,13 @@ const WalletsPage: React.FC = () => {
               >
                 <AlertCircle size={48} style={{ color: 'var(--error-500)', marginBottom: 'var(--space-3)' }} />
                 <h3 style={{ color: 'var(--gray-900)', marginBottom: 'var(--space-2)' }}>
-                  Are you sure you want to delete this wallet?
+                  {t.wallets.deleteConfirmMessage}
                 </h3>
                 <p style={{ color: 'var(--gray-600)', marginBottom: 'var(--space-4)' }}>
-                  <strong>"{walletToDelete.walletName}"</strong> with balance{' '}
-                  <strong style={{ color: walletToDelete.balance >= 0 ? 'var(--success-600)' : 'var(--error-600)' }}>
-                    {formatCurrency(walletToDelete.balance)}
-                  </strong>
+                  <strong>"{walletToDelete.walletName}"</strong> {t.wallets.currentBalance} <strong style={{ color: walletToDelete.balance >= 0 ? 'var(--success-600)' : 'var(--error-600)' }}>{formatCurrency(walletToDelete.balance)}</strong>
                 </p>
                 <p style={{ color: 'var(--error-600)', fontSize: '0.875rem', fontWeight: 'var(--font-weight-medium)' }}>
-                  This action cannot be undone!
+                  {t.wallets.deleteWarning}
                 </p>
               </div>
             </div>
@@ -525,7 +542,7 @@ const WalletsPage: React.FC = () => {
                 className="btn-secondary hover-lift ripple"
                 disabled={!!deletingWalletId}
               >
-                Cancel
+                {t.common.cancel}
               </button>
               <button
                 type="button"
@@ -540,117 +557,12 @@ const WalletsPage: React.FC = () => {
                 {deletingWalletId === walletToDelete.walletId ? (
                   <>
                     <Loader size={16} className="animate-spin" />
-                    Deleting...
+                    {t.wallets.deleting}
                   </>
                 ) : (
                   <>
                     <Trash2 size={16} />
-                    Delete Wallet
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && walletToDelete && (
-        <div className="modal-overlay" onClick={cancelDelete}>
-          <div className="modal-container animate-scaleIn" onClick={e => e.stopPropagation()}>
-            {/* Modal Header */}
-            <div className="modal-header">
-              <h2 className="modal-title" style={{ color: 'var(--error-600)' }}>
-                ⚠️ Delete Wallet
-              </h2>
-              <button className="modal-close hover-scale" onClick={cancelDelete}>
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Warning Content */}
-            <div style={{ textAlign: 'center', padding: 'var(--space-4) 0' }}>
-              <div style={{
-                width: '80px',
-                height: '80px',
-                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.05))',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto var(--space-4)',
-                border: '3px solid rgba(239, 68, 68, 0.2)'
-              }}>
-                <AlertCircle size={40} style={{ color: 'var(--error-500)' }} />
-              </div>
-              
-              <h3 style={{ 
-                color: 'var(--gray-900)', 
-                marginBottom: 'var(--space-2)',
-                fontSize: '1.25rem',
-                fontWeight: 'var(--font-weight-bold)'
-              }}>
-                Are you sure you want to delete this wallet?
-              </h3>
-              
-              <div style={{
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.6))',
-                border: '1px solid rgba(226, 232, 240, 0.8)',
-                borderRadius: 'var(--radius-lg)',
-                padding: 'var(--space-4)',
-                margin: 'var(--space-4) 0',
-                textAlign: 'left'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-                  <CreditCard size={20} style={{ color: 'var(--primary-500)' }} />
-                  <strong style={{ color: 'var(--gray-900)' }}>{walletToDelete.walletName}</strong>
-                </div>
-                <div style={{ color: 'var(--gray-600)', fontSize: '0.875rem' }}>
-                  Current Balance: <strong style={{ color: walletToDelete.balance >= 0 ? 'var(--success-600)' : 'var(--error-600)' }}>
-                    {formatCurrency(walletToDelete.balance)}
-                  </strong>
-                </div>
-              </div>
-
-              <p style={{ 
-                color: 'var(--gray-600)', 
-                fontSize: '0.875rem',
-                lineHeight: '1.5',
-                marginBottom: 'var(--space-6)'
-              }}>
-                This action cannot be undone. All transaction history and data associated with this wallet will be permanently deleted.
-              </p>
-            </div>
-
-            {/* Actions */}
-            <div className="form-actions">
-              <button
-                type="button"
-                onClick={cancelDelete}
-                className="btn-secondary hover-lift ripple"
-                disabled={!!deletingWalletId}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteWallet}
-                className="btn-primary hover-lift ripple"
-                disabled={!!deletingWalletId}
-                style={{
-                  background: 'linear-gradient(135deg, var(--error-500), var(--error-600))',
-                  borderColor: 'var(--error-500)'
-                }}
-              >
-                {deletingWalletId ? (
-                  <>
-                    <Loader size={16} className="animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 size={16} />
-                    Delete Wallet
+                    {t.wallets.deleteWalletBtn}
                   </>
                 )}
               </button>

@@ -214,10 +214,7 @@
   animation: slideInLeft 0.3s ease;
 }
 
-.form-error::before {
-  content: '⚠️';
-  font-size: 0.75rem;
-}
+
 
 /* =============================================================================
    FORM ACTIONS
