@@ -1,755 +1,628 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  User,
-  Mail,
-  Camera,
-  Save,
-  Loader,
-  Edit3,
-  X,
-  Shield,
-  Key,
-  Trash2,
-  Eye,
-  EyeOff,
-} from 'lucide-react';
-import { settingsApi } from '../api/settingsApi';
-import { useAuthContext, useToastContext } from '../contexts';
-import { useTranslations } from '../hooks';
-import '../styles/pages.css';
-import '../styles/modals.css';
-import '../styles/settings.css';
-
-interface SettingsSection {
-  id: string;
-  title: string;
-  icon: React.ElementType;
-  description: string;
-}
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useLanguageContext, useToastContext } from '../contexts';
+import { useProfileMutations, useProfile } from '../hooks';
+import { Input, ConfirmDialog } from '../components/ui';
+import './SettingsPage.css';
 
 const SettingsPage: React.FC = () => {
-  // Use AuthContext instead of ProfileContext for better synchronization
-  const { userProfile, isLoading } = useAuthContext();
-  const { translations: t } = useTranslations();
-  
-  // Local state
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [activeSection, setActiveSection] = useState('profile');
-  
-  // Form state
+  const { userProfile } = useProfile();
+  const { translations: t } = useLanguageContext();
+  const { updateProfile, uploadAvatar, removeAvatar } = useProfileMutations();
+  const { showSuccess, showError } = useToastContext();
+
+  // State for profile fields
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     displayName: '',
   });
-  const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
-  
-  // Avatar upload
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const { showSuccess, showError } = useToastContext();
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
-  // Password management state
+  // State for password fields
   const [pwForm, setPwForm] = useState({
     currentPassword: '',
     newPassword: '',
     confirmNewPassword: '',
   });
-  const [pwErrors, setPwErrors] = useState<{[key: string]: string}>({});
-  const [pwLoading, setPwLoading] = useState(false);
-  const [pwShow, setPwShow] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
-  const [updateProfileWithPassword, setUpdateProfileWithPassword] = useState(false);
+  const [pwErrors, setPwErrors] = useState<{ [key: string]: string }>({});
 
-  // Settings sections
-  const settingsSections: SettingsSection[] = [
-    {
-      id: 'profile',
-      title: t.settings.profileSettings,
-      icon: User,
-      description: t.settings.profileDescription,
-    },
-    {
-      id: 'security',
-      title: t.settings.security,
-      icon: Shield,
-      description: t.settings.securityDescription,
-    },
-  ];
+  // Loading state
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isRemovingAvatar, setIsRemovingAvatar] = useState(false);
 
-  // Update formData whenever userProfile changes (from AuthContext)
+  // Confirmation dialog state
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+
+  // File input ref for avatar upload
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Populate form data from userProfile only once on mount or when userProfile changes for the first time
+  const didInit = useRef(false);
   useEffect(() => {
-    if (userProfile) {
+    if (userProfile && !didInit.current) {
       setFormData({
         firstName: userProfile.firstName || '',
         lastName: userProfile.lastName || '',
         email: userProfile.email || '',
         displayName: userProfile.displayName || '',
       });
+      didInit.current = true;
     }
-  }, [userProfile]);
+  }, [userProfile?.id]); // Only depend on userProfile.id instead of the entire object
 
-  // Handle profile update
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-    
-    setIsUpdating(true);
-    try {
-      console.log('📤 [PROFILE] Updating profile with data:', formData);
-      
-      // Note: Profile-only updates require a current password for security
-      // For now, we'll show a message asking user to use the password section
-      showError(t.settings.updateProfileNote);
-      setEditMode(false);
-      
-    } catch (error: any) {
-      console.error('❌ [PROFILE] Update failed:', error);
-      
-      const errorMessage = error.response?.data?.message || 
-                          error.message || 
-                          'Failed to update profile. Please try again.';
-      showError(errorMessage);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+  // Handle input change for profile fields
+  const handleInputChange = useCallback(
+    (field: string, value: string) => {
+      setFormData(prev => ({ ...prev, [field]: value }));
+      if (formErrors[field]) {
+        setFormErrors(prev => ({ ...prev, [field]: '' }));
+      }
+    },
+    [formErrors]
+  );
+
+  // Handle input change for password fields
+  const handlePasswordInputChange = useCallback(
+    (field: string, value: string) => {
+      setPwForm(prev => ({ ...prev, [field]: value }));
+      if (pwErrors[field]) {
+        setPwErrors(prev => ({ ...prev, [field]: '' }));
+      }
+    },
+    [pwErrors]
+  );
+
+  // Clear all form errors
+  const clearAllErrors = useCallback(() => {
+    setFormErrors({});
+    setPwErrors({});
+  }, []);
 
   // Handle avatar upload
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      showError(t.settings.fileSizeError);
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      showError(t.settings.fileTypeError);
-      return;
-    }
-
-    setIsUploadingAvatar(true);
-    try {
-      // Convert to base64 for localStorage
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        // Store avatar in localStorage
-        localStorage.setItem('moneywise_avatar', base64String);
-        showSuccess(t.settings.avatarUpdateSuccess);
-        // Force page reload to refresh with new avatar
-        window.location.reload();
-      };
-      reader.readAsDataURL(file);
-
-    } catch (error) {
-      console.error('❌ [AVATAR] Upload failed:', error);
-      showError(t.settings.avatarUploadError);
-    } finally {
-      setIsUploadingAvatar(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+  const handleAvatarUpload = useCallback(
+    async (file: File) => {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showError(
+          t.settings.fileTypeError || 'Please select a valid image file'
+        );
+        return;
       }
-    }
-  };
 
-  // File input handler
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleAvatarUpload(e);
-    }
-  };
+      // Validate file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        showError(
+          t.settings.fileSizeError || 'File size must be less than 5MB'
+        );
+        return;
+      }
 
-  // Delete avatar handler
-  const handleDeleteAvatar = async () => {
-    if (!userProfile?.avatar) return;
-    
+      setIsUploadingAvatar(true);
+      try {
+        const result = await uploadAvatar(file);
+        if (result.success) {
+          showSuccess(
+            t.settings.avatarUpdateSuccess || 'Avatar updated successfully!'
+          );
+        } else {
+          showError(
+            result.error ||
+              t.settings.avatarUploadError ||
+              'Failed to upload avatar'
+          );
+        }
+      } catch (error: any) {
+        showError(t.settings.avatarUploadError || 'Failed to upload avatar');
+      } finally {
+        setIsUploadingAvatar(false);
+      }
+    },
+    [uploadAvatar, showSuccess, showError, t.settings]
+  );
+
+  // Handle avatar removal
+  const handleRemoveAvatar = useCallback(async () => {
+    setIsRemovingAvatar(true);
     try {
-      console.log('🗑️ [AVATAR] Deleting avatar...');
-      
-      localStorage.removeItem('moneywise_avatar');
-      showSuccess(t.settings.avatarDeleteSuccess);
-      console.log('✅ [AVATAR] Avatar deleted successfully');
-      
-      // Force page reload to refresh without avatar
-      window.location.reload();
-      
-    } catch (error) {
-      console.error('❌ [AVATAR] Error deleting avatar:', error);
-      showError(t.settings.avatarDeleteError);
+      const result = await removeAvatar();
+      if (result.success) {
+        showSuccess(
+          t.settings.avatarDeleteSuccess || 'Avatar removed successfully!'
+        );
+        setShowRemoveConfirm(false);
+      } else {
+        showError(
+          result.error ||
+            t.settings.avatarDeleteError ||
+            'Failed to remove avatar'
+        );
+      }
+    } catch (error: any) {
+      showError(t.settings.avatarDeleteError || 'Failed to remove avatar');
+    } finally {
+      setIsRemovingAvatar(false);
     }
-  };
+  }, [removeAvatar, showSuccess, showError, t.settings]);
 
-  // Validation
-  const validateForm = (): boolean => {
-    const errors: {[key: string]: string} = {};
-    
+  // Show remove confirmation dialog
+  const showRemoveConfirmation = useCallback(() => {
+    setShowRemoveConfirm(true);
+  }, []);
+
+  // Handle file input change
+  const handleFileInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        handleAvatarUpload(file);
+      }
+      // Reset the input value so the same file can be selected again
+      if (event.target) {
+        event.target.value = '';
+      }
+    },
+    [handleAvatarUpload]
+  );
+
+  // Trigger file input click
+  const triggerFileInput = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  // Validate profile fields (displayName is read-only, not validated)
+  const validateForm = useCallback((): boolean => {
+    const errors: { [key: string]: string } = {};
     if (!formData.firstName.trim()) {
       errors.firstName = t.settings.firstNameRequired;
     }
     if (!formData.lastName.trim()) {
       errors.lastName = t.settings.lastNameRequired;
     }
-    if (!formData.displayName.trim()) {
-      errors.displayName = t.settings.displayNameRequired;
-    }
-    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
-  };
+  }, [
+    formData.firstName,
+    formData.lastName,
+    t.settings.firstNameRequired,
+    t.settings.lastNameRequired,
+  ]);
 
-  // Handle input change
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (formErrors[field]) {
-      setFormErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
+  // Validate password fields (new/confirm not required, but must match if filled)
+  const validatePasswordForm = useCallback((): boolean => {
+    const errors: { [key: string]: string } = {};
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{6,}$/;
 
-  const cancelEdit = () => {
-    setEditMode(false);
-    setFormErrors({});
-    // Reset form data to original values
-    if (userProfile) {
-      setFormData({
-        firstName: userProfile.firstName || '',
-        lastName: userProfile.lastName || '',
-        email: userProfile.email || '',
-        displayName: userProfile.displayName || '',
-      });
-    }
-  };
-
-  const validatePasswordForm = () => {
-    const errors: {[key: string]: string} = {};
-    
+    // Always require current password
     if (!pwForm.currentPassword) {
       errors.currentPassword = t.settings.currentPasswordRequired;
     }
-    if (!pwForm.newPassword) {
-      errors.newPassword = t.settings.newPasswordRequired;
+
+    // If any password field is filled, validate all password fields
+    if (pwForm.newPassword || pwForm.confirmNewPassword) {
+      if (pwForm.newPassword && !passwordRegex.test(pwForm.newPassword)) {
+        errors.newPassword =
+          t.settings.passwordComplexity ||
+          'Password must be at least 6 characters, include 1 uppercase and 1 special character.';
+      }
+      if (!pwForm.newPassword) {
+        errors.newPassword = t.settings.newPasswordRequired;
+      }
+      if (!pwForm.confirmNewPassword) {
+        errors.confirmNewPassword = t.settings.confirmPasswordRequired;
+      }
+      if (
+        pwForm.newPassword &&
+        pwForm.confirmNewPassword &&
+        pwForm.newPassword !== pwForm.confirmNewPassword
+      ) {
+        errors.confirmNewPassword = t.settings.passwordsMustMatch;
+      }
     }
-    if (pwForm.newPassword && pwForm.newPassword.length < 8) {
-      errors.newPassword = t.settings.passwordMinLength;
-    }
-    if (!pwForm.confirmNewPassword) {
-      errors.confirmNewPassword = t.settings.confirmPasswordRequired;
-    }
-    if (pwForm.newPassword && pwForm.confirmNewPassword && pwForm.newPassword !== pwForm.confirmNewPassword) {
-      errors.confirmNewPassword = t.settings.passwordsMustMatch;
-    }
-    
     setPwErrors(errors);
     return Object.keys(errors).length === 0;
-  };
+  }, [pwForm, t.settings]);
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validatePasswordForm()) return;
-    
-    setPwLoading(true);
-    try {
-      // If updating profile, validate profile form too
-      if (updateProfileWithPassword && !validateForm()) {
-        setPwLoading(false);
+  // Handle API errors using existing httpClient error handling
+  const handleApiError = useCallback(
+    (error: any) => {
+      let errorMessage = 'An unexpected error occurred';
+      let responseData = error;
+      // If error has response.data, use that
+      if (error?.response?.data) {
+        responseData = error.response.data;
+      }
+      if (typeof responseData === 'string') {
+        errorMessage = responseData;
+      } else if (responseData?.errors?.CurrentPassword) {
+        errorMessage = responseData.errors.CurrentPassword[0];
+        setPwErrors(prev => ({ ...prev, currentPassword: errorMessage }));
+        showError(t.settings.updateError);
         return;
+      } else if (responseData?.message) {
+        errorMessage = responseData.message;
+      } else if (responseData?.error) {
+        errorMessage = responseData.error;
+      } else if (responseData?.title) {
+        errorMessage = responseData.title;
       }
-      
-      // Use profile data if updating profile, otherwise use current userProfile data
-      const profileData = updateProfileWithPassword ? formData : {
-        firstName: userProfile?.firstName || '',
-        lastName: userProfile?.lastName || '',
-        email: userProfile?.email || '',
-        displayName: userProfile?.displayName || '',
-      };
-      
-      console.log('📤 [SECURITY] Updating with data:', {
-        ...profileData,
-        includeProfile: updateProfileWithPassword,
-      });
-      
-      const result = await settingsApi.changePassword({
-        currentPassword: pwForm.currentPassword,
-        newPassword: pwForm.newPassword,
-        confirmNewPassword: pwForm.confirmNewPassword,
-        // Include profile data if checkbox is checked
-        ...(updateProfileWithPassword && {
-          firstName: profileData.firstName,
-          lastName: profileData.lastName,
-          displayName: profileData.displayName,
-        }),
-      });
-      
-      const successMessage = updateProfileWithPassword 
-        ? t.settings.profileAndPasswordUpdated 
-        : t.settings.passwordChanged;
-      
-      console.log('✅ [SECURITY] Update successful, showing toast:', successMessage);
-      showSuccess(successMessage);
-      
-      console.log('✅ [SECURITY] Clearing forms...');
-      setPwForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
-      setPwErrors({});
-      setUpdateProfileWithPassword(false);
-      
-      console.log('✅ [SECURITY] Profile updated, will reload in 2 seconds...');
-      setTimeout(() => {
-        console.log('✅ [SECURITY] Reloading page now...');
-        window.location.reload();
-      }, 2000);
-      
-    } catch (error: any) {
-      console.error('❌ [SECURITY] Update failed:', error);
-      
-      const backendMsg = error.response?.data?.message || error.message || '';
-      
-      // Nếu backendMsg là lỗi current password
-      if (/current password|invalid/i.test(backendMsg)) {
-        setPwErrors({ currentPassword: t.settings.currentPasswordWrong });
-        // Focus vào trường current password
-        const currentPwInput = document.getElementById('pw-currentPassword');
-        currentPwInput?.focus();
-      } else {
-        showError(backendMsg || t.settings.updateError);
+      if (
+        errorMessage.toLowerCase().includes('password') ||
+        errorMessage.toLowerCase().includes('current') ||
+        errorMessage.toLowerCase().includes('incorrect')
+      ) {
+        setPwErrors(prev => ({ ...prev, currentPassword: errorMessage }));
       }
-    } finally {
-      setPwLoading(false);
-    }
-  };
+      showError(t.settings.updateError);
+    },
+    [showError]
+  );
 
-  const getAvatarSrc = () => {
-    const storedAvatar = localStorage.getItem('moneywise_avatar');
-    return storedAvatar || userProfile?.avatar || null;
-  };
+  // Unified submit handler
+  const handleCombinedUpdate = useCallback(
+    async (e?: React.FormEvent) => {
+      if (e) e.preventDefault();
 
-  if (isLoading) {
-    return (
-      <div className="page-container">
-        <div className="loading-center">
-          <Loader size={24} className="animate-spin" />
-          <span>{t.common.loading}</span>
-        </div>
-      </div>
-    );
-  }
+      // Clear previous errors
+      clearAllErrors();
 
+      // Validate forms
+      if (!validateForm()) return;
+      if (!validatePasswordForm()) return;
+
+      setIsUpdating(true);
+      try {
+        const result = await updateProfile({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          currentPassword: pwForm.currentPassword,
+          newPassword: pwForm.newPassword,
+          confirmNewPassword: pwForm.confirmNewPassword,
+        });
+
+        console.log('Update profile result:', result); // Debug: log the result
+
+        if (result.success) {
+          showSuccess(t.settings.profileAndPasswordUpdated);
+          // Clear password form on success
+          setPwForm({
+            currentPassword: '',
+            newPassword: '',
+            confirmNewPassword: '',
+          });
+          setPwErrors({});
+        } else {
+          // Handle API error response
+          handleApiError(result.error);
+        }
+      } catch (error: any) {
+        // Handle thrown errors
+        handleApiError(error);
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [
+      formData,
+      pwForm,
+      validateForm,
+      validatePasswordForm,
+      updateProfile,
+      showSuccess,
+      handleApiError,
+      clearAllErrors,
+      t.settings,
+    ]
+  );
+
+  // Get avatar source
+  const avatarSrc = userProfile?.avatarUrl || '/default-avatar.png'; // Use a default avatar image if none exists
   return (
-    <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">{t.settings.title}</h1>
-        <p className="page-subtitle">{t.settings.subtitle}</p>
+    <div className="settings-container">
+      <div className="settings-header">
+        <h1 className="page-title">{t.settings.title || 'Account Settings'}</h1>
+        <p className="page-subtitle">
+          {t.settings.subtitle ||
+            'Manage your profile information and account security'}
+        </p>
       </div>
 
-      <div className="settings-container">
-        {/* Sidebar */}
-        <div className="settings-sidebar">
-          <nav className="settings-nav">
-            {settingsSections.map((section) => {
-              const Icon = section.icon;
-              return (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`settings-nav-item ${activeSection === section.id ? 'active' : ''}`}
-                >
-                  <Icon size={20} />
-                  <div className="settings-nav-content">
-                    <span className="settings-nav-title">{section.title}</span>
-                    <span className="settings-nav-description">{section.description}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Main Content */}
-        <div className="settings-content">
-          {/* Profile Section */}
-          {activeSection === 'profile' && (
-            <div className="settings-section">
-              <div className="settings-section-header">
-                <h2>{t.settings.profileSettings}</h2>
-                <p>{t.settings.profileDescription}</p>
-              </div>
-
-              {/* Avatar Upload Section */}
-              <div className="avatar-section" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-                {/* Avatar + overlay buttons */}
-                <div className="avatar-container" style={{ position: 'relative', width: 96, height: 96, minWidth: 96 }}>
-                  {getAvatarSrc() ? (
+      <form onSubmit={handleCombinedUpdate} className="settings-form">
+        {/* Avatar Section */}
+        <div className="settings-card">
+          <div className="card-header">
+            <h2 className="section-title">
+              {t.settings.profileSettings || 'Profile Information'}
+            </h2>
+            <p className="section-subtitle">
+              {t.settings.profileDescription ||
+                'Update your personal details and avatar'}
+            </p>
+          </div>
+          <div className="card-content">
+            {/* Avatar Upload Section */}
+            <div className="avatar-section">
+              <div className="avatar-container">
+                <div className="avatar-wrapper">
+                  {userProfile?.avatarUrl ? (
                     <img
-                      src={getAvatarSrc()!}
-                      alt="Profile Avatar"
+                      src={avatarSrc}
+                      alt="User avatar"
                       className="avatar-image"
-                      style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', background: '#e5e7eb', border: '4px solid #fff' }}
                     />
                   ) : (
-                    <div className="avatar-placeholder" style={{ width: 96, height: 96, borderRadius: '50%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '4px solid #fff' }}>
-                      <User size={44} color="#9ca3af" />
+                    <div className="avatar-placeholder">
+                      <svg
+                        width="32"
+                        height="32"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
                     </div>
                   )}
-                  {/* Camera icon bottom right */}
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="avatar-btn-camera"
-                    disabled={isUploadingAvatar}
-                    style={{ position: 'absolute', right: -8, bottom: -8, width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', cursor: 'pointer', zIndex: 2, padding: 0 }}
-                    title={t.settings.uploadAvatar}
+                    className="avatar-upload-btn"
+                    onClick={triggerFileInput}
+                    disabled={isUploadingAvatar || isRemovingAvatar}
+                    title={t.settings.uploadAvatar || 'Upload Avatar'}
                   >
-                    {isUploadingAvatar ? <Loader size={15} className="animate-spin" /> : <Camera size={16} color="#8b5cf6" />}
+                    {isUploadingAvatar ? (
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className="loading-spinner"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7,10 12,15 17,10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                        <circle cx="12" cy="13" r="4" />
+                      </svg>
+                    )}
                   </button>
-                  {/* Trash icon bottom left */}
-                  {getAvatarSrc() && (
+                  {userProfile?.avatarUrl && (
                     <button
                       type="button"
-                      onClick={handleDeleteAvatar}
-                      className="avatar-btn-trash"
-                      style={{ position: 'absolute', left: -8, bottom: -8, width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#fff1f2', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', cursor: 'pointer', zIndex: 2, padding: 0 }}
-                      title={t.settings.deleteAvatar}
+                      className="avatar-delete-btn"
+                      onClick={showRemoveConfirmation}
+                      disabled={isUploadingAvatar || isRemovingAvatar}
+                      title={t.settings.deleteAvatar || 'Delete Avatar'}
                     >
-                      <Trash2 size={15} color="#ef4444" />
+                      {isRemovingAvatar ? (
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="loading-spinner"
+                        >
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7,10 12,15 17,10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                        </svg>
+                      )}
                     </button>
                   )}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="avatar-input"
-                    style={{ display: 'none' }}
-                  />
-                </div>
-                {/* Info bên phải avatar */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                  <div style={{ fontWeight: 700, fontSize: 20, color: 'var(--gray-900)' }} className="display-name">{formData.displayName || userProfile?.displayName || ''}</div>
-                  <div className="user-email" style={{ fontSize: 15, marginBottom: 2 }}>{formData.email || userProfile?.email || ''}</div>
-                  <div className="avatar-hint-text" style={{ fontSize: 13, marginTop: 4 }}>
-                    {t.settings.avatarHint}
-                  </div>
                 </div>
               </div>
-
-              {/* Profile Form */}
-              <form onSubmit={handleUpdateProfile} className="profile-form">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">
-                      <User size={16} />
-                      {t.settings.firstName}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      disabled={!editMode}
-                      className={`form-input ${formErrors.firstName ? 'error' : ''}`}
-                      placeholder={t.settings.firstNamePlaceholder}
-                    />
-                    {formErrors.firstName && (
-                      <div className="form-error">
-                        {formErrors.firstName}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">
-                      <User size={16} />
-                      {t.settings.lastName}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      disabled={!editMode}
-                      className={`form-input ${formErrors.lastName ? 'error' : ''}`}
-                      placeholder={t.settings.lastNamePlaceholder}
-                    />
-                    {formErrors.lastName && (
-                      <div className="form-error">
-                        {formErrors.lastName}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">
-                      <Mail size={16} />
-                      {t.settings.emailAddress}
-                    </label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      disabled={true}
-                      className="form-input"
-                      placeholder={t.settings.emailPlaceholder}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">
-                      <User size={16} />
-                      {t.settings.displayName}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.displayName}
-                      onChange={(e) => handleInputChange('displayName', e.target.value)}
-                      disabled={!editMode}
-                      className="form-input"
-                      placeholder={t.settings.displayNamePlaceholder}
-                    />
-                  </div>
-                </div>
-
-                {/* Form Actions */}
-                <div className="form-actions">
-                  {!editMode ? (
-                    <button
-                      type="button"
-                      onClick={() => setEditMode(true)}
-                      className="btn btn--primary"
-                    >
-                      <Edit3 size={16} />
-                      {t.settings.editProfile}
-                    </button>
-                  ) : (
-                    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-                      <button
-                        type="submit"
-                        disabled={isUpdating}
-                        className="btn btn--primary"
-                      >
-                        {isUpdating ? (
-                          <>
-                            <Loader size={16} className="animate-spin" />
-                            {t.settings.updating}
-                          </>
-                        ) : (
-                          <>
-                            <Save size={16} />
-                            {t.settings.saveChanges}
-                          </>
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={cancelEdit}
-                        className="btn btn--secondary"
-                        disabled={isUpdating}
-                      >
-                        <X size={16} />
-                        {t.settings.cancel}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Security Section */}
-          {activeSection === 'security' && (
-            <div className="settings-section">
-              <div className="settings-section-header">
-                <h2>{t.settings.securitySettings}</h2>
-                <p>{t.settings.securitySubtitle}</p>
-              </div>
-              <form onSubmit={handleChangePassword} className="profile-form" autoComplete="off">
-                
-                {/* Option to update profile with password */}
-                <div className="security-checkbox-container">
-                  <label className="security-checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={updateProfileWithPassword}
-                      onChange={(e) => setUpdateProfileWithPassword(e.target.checked)}
-                    />
-                    {t.settings.alsoUpdateProfile}
-                  </label>
-                  <div className="security-checkbox-hint">
-                    {t.settings.alsoUpdateProfileHint}
-                  </div>
-                </div>
-
-                {/* Profile fields (shown when checkbox is checked) */}
-                {updateProfileWithPassword && (
-                  <div className="profile-update-container">
-                    <h4 className="profile-update-title">{t.settings.profileInformation}</h4>
-                    
-                    <div className="form-grid">
-                      <div className="form-group">
-                        <label className="form-label">
-                          <User size={16} />
-                          {t.settings.firstName}
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.firstName}
-                          onChange={(e) => handleInputChange('firstName', e.target.value)}
-                          className={`form-input ${formErrors.firstName ? 'error' : ''}`}
-                          placeholder={t.settings.firstNamePlaceholder}
-                        />
-                        {formErrors.firstName && (
-                          <div className="form-error">
-                            {formErrors.firstName}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">
-                          <User size={16} />
-                          {t.settings.lastName}
-                        </label>
-                        <input
-                          type="text"
-                          value={formData.lastName}
-                          onChange={(e) => handleInputChange('lastName', e.target.value)}
-                          className={`form-input ${formErrors.lastName ? 'error' : ''}`}
-                          placeholder={t.settings.lastNamePlaceholder}
-                        />
-                        {formErrors.lastName && (
-                          <div className="form-error">
-                            {formErrors.lastName}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                        <label className="form-label">
-                          <Mail size={16} />
-                          {t.settings.emailAddress}
-                        </label>
-                        <input
-                          type="email"
-                          value={formData.email}
-                          disabled={true}
-                          className="form-input"
-                          placeholder={t.settings.emailPlaceholder}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">
-                      <Key size={16} /> {t.settings.currentPassword}
-                    </label>
-                    <div className="password-input-container">
-                      <input
-                        type={pwShow.current ? 'text' : 'password'}
-                        value={pwForm.currentPassword}
-                        onChange={e => setPwForm(f => ({ ...f, currentPassword: e.target.value }))}
-                        className={`form-input password-input ${pwErrors.currentPassword ? 'error' : ''}`}
-                        placeholder={t.settings.currentPasswordPlaceholder}
-                        autoComplete="current-password"
-                        id="pw-currentPassword"
-                      />
-                      <button 
-                        type="button" 
-                        className="password-toggle-btn"
-                        tabIndex={-1} 
-                        onClick={() => setPwShow(s => ({ ...s, current: !s.current }))}
-                      >
-                        {pwShow.current ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                    {pwErrors.currentPassword && <div className="form-error">{pwErrors.currentPassword}</div>}
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      <Key size={16} /> {t.settings.newPassword}
-                    </label>
-                    <div className="password-input-container">
-                      <input
-                        type={pwShow.new ? 'text' : 'password'}
-                        value={pwForm.newPassword}
-                        onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))}
-                        className={`form-input password-input ${pwErrors.newPassword ? 'error' : ''}`}
-                        placeholder={t.settings.newPasswordPlaceholder}
-                        autoComplete="new-password"
-                        id="pw-newPassword"
-                      />
-                      <button 
-                        type="button" 
-                        className="password-toggle-btn"
-                        tabIndex={-1} 
-                        onClick={() => setPwShow(s => ({ ...s, new: !s.new }))}
-                      >
-                        {pwShow.new ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                    {pwErrors.newPassword && <div className="form-error">{pwErrors.newPassword}</div>}
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      <Key size={16} /> {t.settings.confirmNewPassword}
-                    </label>
-                    <div className="password-input-container">
-                      <input
-                        type={pwShow.confirm ? 'text' : 'password'}
-                        value={pwForm.confirmNewPassword}
-                        onChange={e => setPwForm(f => ({ ...f, confirmNewPassword: e.target.value }))}
-                        className={`form-input password-input ${pwErrors.confirmNewPassword ? 'error' : ''}`}
-                        placeholder={t.settings.confirmPasswordPlaceholder}
-                        autoComplete="new-password"
-                        id="pw-confirmNewPassword"
-                      />
-                      <button 
-                        type="button" 
-                        className="password-toggle-btn"
-                        tabIndex={-1} 
-                        onClick={() => setPwShow(s => ({ ...s, confirm: !s.confirm }))}
-                      >
-                        {pwShow.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
-                    </div>
-                    {pwErrors.confirmNewPassword && <div className="form-error">{pwErrors.confirmNewPassword}</div>}
-                  </div>
-                </div>
-                <div className="form-actions">
-                  <button type="submit" className="btn btn--primary" disabled={pwLoading}>
-                    {pwLoading ? <Loader size={16} className="animate-spin" /> : <Save size={16} />} 
-                    {updateProfileWithPassword ? t.settings.updateProfilePassword : t.settings.changePassword}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Other sections placeholder */}
-          {activeSection !== 'profile' && activeSection !== 'security' && (
-            <div className="settings-section">
-              <div className="coming-soon">
-                <h3>Coming Soon</h3>
-                <p>This section is under development.</p>
+              <div className="avatar-info">
+                <h3>{t.settings.uploadAvatar || 'Upload Avatar'}</h3>
+                <p>
+                  {t.settings.avatarHint ||
+                    'Click the camera icon to upload a new avatar'}
+                </p>
+                <p className="avatar-hint">
+                  {t.settings.avatarFileHint ||
+                    'Supported formats: JPG, PNG, GIF. Maximum size: 10MB'}
+                </p>
               </div>
             </div>
-          )}
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileInputChange}
+              style={{ display: 'none' }}
+            />
+
+            {/* Profile Form Fields */}
+            <div className="form-grid">
+              <Input
+                label={t.settings.firstName || 'First Name'}
+                type="text"
+                value={formData.firstName}
+                onChange={value => handleInputChange('firstName', value)}
+                error={formErrors.firstName}
+                required={true}
+                disabled={isUpdating}
+                placeholder={
+                  t.settings.firstNamePlaceholder || 'Enter your first name'
+                }
+              />
+
+              <Input
+                label={t.settings.lastName || 'Last Name'}
+                type="text"
+                value={formData.lastName}
+                onChange={value => handleInputChange('lastName', value)}
+                error={formErrors.lastName}
+                required={true}
+                disabled={isUpdating}
+                placeholder={
+                  t.settings.lastNamePlaceholder || 'Enter your last name'
+                }
+              />
+
+              <Input
+                label={t.settings.emailAddress || 'Email Address'}
+                type="email"
+                value={formData.email}
+                onChange={() => {}} // Read-only
+                error=""
+                required={false}
+                disabled={true}
+                placeholder={
+                  t.settings.emailPlaceholder || 'Enter your email address'
+                }
+              />
+
+              <Input
+                label={t.settings.displayName || 'Display Name'}
+                type="text"
+                value={formData.displayName}
+                onChange={() => {}} // Read-only
+                error=""
+                required={false}
+                disabled={true}
+                placeholder={
+                  t.settings.displayNamePlaceholder || 'Enter your display name'
+                }
+              />
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* Change Password Card */}
+        <div className="settings-card">
+          <div className="card-header">
+            <h2 className="section-title">
+              {t.settings.securitySettings || 'Change Password'}
+            </h2>
+            <p className="section-subtitle">
+              {t.settings.securitySubtitle ||
+                'Update your account password (optional)'}
+            </p>
+          </div>
+          <div className="card-content">
+            <div className="form-grid password-grid">
+              <Input
+                label={t.settings.currentPassword || 'Current Password'}
+                type="password"
+                value={pwForm.currentPassword}
+                onChange={value =>
+                  handlePasswordInputChange('currentPassword', value)
+                }
+                error={pwErrors.currentPassword}
+                required={true}
+                disabled={isUpdating}
+                placeholder={
+                  t.settings.currentPasswordPlaceholder ||
+                  'Enter current password'
+                }
+                showPasswordToggle={true}
+              />
+
+              <Input
+                label={t.settings.newPassword || 'New Password'}
+                type="password"
+                value={pwForm.newPassword}
+                onChange={value =>
+                  handlePasswordInputChange('newPassword', value)
+                }
+                error={pwErrors.newPassword}
+                required={false}
+                disabled={isUpdating}
+                placeholder={
+                  t.settings.newPasswordPlaceholder || 'Enter new password'
+                }
+                showPasswordToggle={true}
+              />
+
+              <Input
+                label={t.settings.confirmNewPassword || 'Confirm New Password'}
+                type="password"
+                value={pwForm.confirmNewPassword}
+                onChange={value =>
+                  handlePasswordInputChange('confirmNewPassword', value)
+                }
+                error={pwErrors.confirmNewPassword}
+                required={false}
+                disabled={isUpdating}
+                placeholder={
+                  t.settings.confirmPasswordPlaceholder ||
+                  'Confirm new password'
+                }
+                showPasswordToggle={true}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="form-actions">
+          <button
+            type="submit"
+            className={`btn-primary ${isUpdating ? 'loading' : ''}`}
+            disabled={isUpdating}
+          >
+            {isUpdating ? (
+              <>
+                <span className="loading-spinner"></span>
+                {t.settings.updating || 'Updating...'}
+              </>
+            ) : (
+              t.settings.saveChanges || 'Save Changes'
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* Remove Avatar Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showRemoveConfirm}
+        title={t.settings.deleteAvatar || 'Delete Avatar'}
+        message={
+          t.settings.deleteAvatarConfirm ||
+          'Are you sure you want to delete your avatar? This action cannot be undone.'
+        }
+        confirmText={t.settings.delete || 'Delete'}
+        cancelText={t.settings.cancel || 'Cancel'}
+        type="danger"
+        onConfirm={handleRemoveAvatar}
+        onCancel={() => setShowRemoveConfirm(false)}
+      />
     </div>
   );
 };
 
-export default SettingsPage; 
+export default SettingsPage;

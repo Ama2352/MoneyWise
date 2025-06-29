@@ -72,6 +72,18 @@ export const swrConfig: SWRConfiguration = {
  * Use these constants instead of hardcoded strings
  */
 export const SWR_KEYS = {
+  AUTH: {
+    LOGIN: '/Accounts/SignIn',
+    REGISTER: '/Accounts/SignUp',
+    REFRESH: '/Accounts/RefreshToken',
+  },
+
+  ACCOUNT: {
+    PROFILE: '/Accounts/profile',
+    AVATAR: '/Accounts/avatar',
+    USER_BY_ID: (userId: string) => `/Accounts/users/${userId}`,
+  },
+
   CATEGORIES: {
     ALL: '/Categories',
     BY_ID: (categoryId: string) => `/Categories/${categoryId}`,

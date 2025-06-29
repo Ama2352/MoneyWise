@@ -1,18 +1,11 @@
 ﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  User,
-  Menu,
-  Globe,
-  ChevronDown,
-  Settings,
-  LogOut,
-} from 'lucide-react';
-import { useLanguageContext } from '../../contexts';
-import { CurrencySelector } from '../ui';
-import { LANGUAGE_OPTIONS } from '../../constants';
+import { User, Menu, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { CurrencySelector, LanguageSelector } from '../ui';
 import './AppHeader.css';
+import { useProfile } from '../../hooks';
+import { useLanguageContext } from '../../contexts';
 
 interface AppHeaderProps {
   onMobileMenuToggle: () => void;
@@ -21,28 +14,23 @@ interface AppHeaderProps {
 
 const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false);
-  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = React.useState(false);
-  const { language, setLanguage, translations } = useLanguageContext();
-  const { logout, userProfile } = useAuthContext();
+  const { logout } = useAuthContext();
+  const { userProfile } = useProfile();
+  const { translations } = useLanguageContext();
   const navigate = useNavigate();
 
   // Get display data from userProfile (AuthContext)
-  const displayName = userProfile?.displayName || 
-                     `${userProfile?.firstName || ''} ${userProfile?.lastName || ''}`.trim() || 
-                     'User';
+  const displayName =
+    userProfile?.displayName ||
+    `${userProfile?.firstName || ''} ${userProfile?.lastName || ''}`.trim() ||
+    'User';
   const userEmail = userProfile?.email || 'user@example.com';
-  const avatarSrc = userProfile?.avatar || 
-                   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
-
-  // Close dropdowns when clicking outside
+  const avatarSrc = userProfile?.avatarUrl || '/default-avatar.png'; // Use a default avatar image if none exists
+  // Close dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (
-        !target.closest('.app-header__language') &&
-        !target.closest('.app-header__profile')
-      ) {
-        setIsLanguageMenuOpen(false);
+      if (!target.closest('.app-header__profile')) {
         setIsProfileMenuOpen(false);
       }
     };
@@ -82,72 +70,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
 
       <div className="app-header__right">
         {/* Language selector */}
-        <div className="app-header__language">
-          {' '}
-          <button
-            className="app-header__language-trigger"
-            onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-            aria-label={translations.language.switchTo}
-          >
-            {' '}
-            <div className="app-header__language-display">
-              <span className="app-header__language-code">
-                {language.toUpperCase()}
-              </span>
-            </div>
-            <ChevronDown
-              size={14}
-              className={`app-header__language-chevron ${
-                isLanguageMenuOpen ? 'app-header__language-chevron--open' : ''
-              }`}
-            />
-          </button>
-          {/* Language dropdown menu */}
-          {isLanguageMenuOpen && (
-            <div className="app-header__language-dropdown">
-              <div className="app-header__language-dropdown-header">
-                <Globe
-                  size={16}
-                  className="app-header__language-dropdown-icon"
-                />{' '}
-                <span className="app-header__language-dropdown-title">
-                  {translations.language.selectLanguage}
-                </span>
-              </div>
-              <div className="app-header__language-options">
-                {LANGUAGE_OPTIONS.map(langOption => (
-                  <button
-                    key={langOption.code}
-                    className={`app-header__language-option ${
-                      language === langOption.code
-                        ? 'app-header__language-option--active'
-                        : ''
-                    }`}
-                    onClick={() => {
-                      setLanguage(langOption.code);
-                      setIsLanguageMenuOpen(false);
-                    }}
-                  >
-                    {' '}
-                    <div className="app-header__language-option-content">
-                      <div className="app-header__language-option-text">
-                        <span className="app-header__language-option-name">
-                          {langOption.name}
-                        </span>
-                        <span className="app-header__language-option-code">
-                          {langOption.code.toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                    {language === langOption.code && (
-                      <div className="app-header__language-option-check">✓</div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}{' '}
-        </div>
+        <LanguageSelector />
         {/* Currency selector */}
         <CurrencySelector />
         {/* Profile dropdown */}
@@ -167,7 +90,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
             </div>
             <div className="app-header__user-info">
               <span className="app-header__user-name">{displayName}</span>
-              <span className="app-header__user-role">Premium User</span>
+              <span className="app-header__user-status">
+                {translations.header.userStatus}
+              </span>
             </div>
             <ChevronDown
               size={16}
@@ -180,32 +105,27 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
             <div className="app-header__dropdown">
               <div className="app-header__dropdown-header">
                 <div className="app-header__dropdown-avatar">
-                  <img
-                    src={avatarSrc}
-                    alt="User avatar"
-                  />
+                  <img src={avatarSrc} alt="User avatar" />
                 </div>
                 <div>
                   <div className="app-header__dropdown-name">{displayName}</div>
-                  <div className="app-header__dropdown-email">
-                    {userEmail}
-                  </div>
+                  <div className="app-header__dropdown-email">{userEmail}</div>
                 </div>
-              </div>{' '}
+              </div>
               <div className="app-header__dropdown-section">
-                <button 
+                <button
                   className="app-header__dropdown-item"
                   onClick={handleProfileClick}
                 >
                   <User size={16} />
-                  <span>{translations.common.profile}</span>
+                  <span>Profile</span>
                 </button>
-                <button 
+                <button
                   className="app-header__dropdown-item"
                   onClick={handleSettingsClick}
                 >
                   <Settings size={16} />
-                  <span>{translations.common.settings}</span>
+                  <span>Settings</span>
                 </button>
               </div>
               <div className="app-header__dropdown-section">
@@ -214,7 +134,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
                   onClick={handleLogout}
                 >
                   <LogOut size={16} />
-                  <span>{translations.common.signOut}</span>
+                  <span>Sign Out</span>
                 </button>
               </div>
             </div>

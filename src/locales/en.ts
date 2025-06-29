@@ -138,6 +138,7 @@ export const en: TranslationKeys = {
     dashboard: 'Dashboard',
     welcome: 'Welcome',
     logout: 'Logout',
+    userStatus: 'Active',
   },
 
   dashboard: {
@@ -361,7 +362,7 @@ export const en: TranslationKeys = {
       deleteError: 'Failed to delete budget',
     },
   },
-  
+
   settings: {
     title: 'Settings',
     subtitle: 'Manage your account settings and preferences',
@@ -371,10 +372,11 @@ export const en: TranslationKeys = {
     securityDescription: 'Password and security settings',
     securitySettings: 'Security Settings',
     securitySubtitle: 'Change your password for better account protection',
-    
+
     // Avatar section
-    avatarHint: 'Click the camera icon to upload a new avatar (max 5MB)',
-    
+    avatarHint: 'Click the camera icon to upload a new avatar',
+    avatarFileHint: 'Supported formats: JPG, PNG, GIF. Maximum size: 10MB',
+
     // Profile form
     firstName: 'First Name',
     firstNamePlaceholder: 'Enter your first name',
@@ -384,13 +386,13 @@ export const en: TranslationKeys = {
     emailPlaceholder: 'Enter your email address',
     displayName: 'Display Name',
     displayNamePlaceholder: 'Enter your display name',
-    
+
     // Actions
     editProfile: 'Edit Profile',
     saveChanges: 'Save Changes',
     updating: 'Updating...',
     cancel: 'Cancel',
-    
+
     // Password form
     currentPassword: 'Current Password',
     currentPasswordPlaceholder: 'Enter current password',
@@ -401,9 +403,10 @@ export const en: TranslationKeys = {
     changePassword: 'Change Password',
     updateProfilePassword: 'Update Profile & Password',
     alsoUpdateProfile: 'Also update my profile information',
-    alsoUpdateProfileHint: 'Check this to update your name and email along with password change',
+    alsoUpdateProfileHint:
+      'Check this to update your name and email along with password change',
     profileInformation: 'Profile Information',
-    
+
     // Notifications
     avatarUpdateSuccess: 'Avatar updated successfully!',
     avatarDeleteSuccess: 'Avatar deleted successfully!',
@@ -413,8 +416,9 @@ export const en: TranslationKeys = {
     avatarDeleteError: 'Failed to delete avatar. Please try again.',
     fileSizeError: 'File size must be less than 5MB',
     fileTypeError: 'Please select a valid image file',
-    updateProfileNote: 'To update profile information, please use the Security section below and provide your current password.',
-    
+    updateProfileNote:
+      'To update profile information, please use the Security section below and provide your current password.',
+
     // Password validation
     currentPasswordRequired: 'Current password is required',
     newPasswordRequired: 'New password is required',
@@ -425,63 +429,21 @@ export const en: TranslationKeys = {
     passwordMissingSpecial: 'Password must contain a special character',
     passwordsNotMatch: 'Passwords do not match',
     currentPasswordWrong: 'Your current password is wrong. Please enter again.',
-  },
-  
-  wallets: {
-    title: 'Wallets',
-    subtitle: 'Manage your financial accounts',
-    addWallet: 'Add Wallet',
-    editWallet: 'Edit Wallet',
-    deleteWallet: 'Delete Wallet',
-    createWallet: 'Create Wallet',
-    walletName: 'Wallet Name',
-    walletNamePlaceholder: 'Enter wallet name',
-    initialBalance: 'Initial Balance',
-    initialBalancePlaceholder: 'Enter initial balance',
-    currency: 'Currency',
-    selectCurrency: 'Select currency',
-    description: 'Description',
-    descriptionPlaceholder: 'Enter wallet description (optional)',
-    checking: 'Checking',
-    savings: 'Savings',
-    credit: 'Credit Card',
-    cash: 'Cash',
-    investment: 'Investment',
-    creating: 'Creating...',
-    updating: 'Updating...',
-    create: 'Create Wallet',
-    update: 'Update Wallet',
-    save: 'Save',
-    cancel: 'Cancel',
-    edit: 'Edit',
+
+    // Additional keys for SettingsPage
+    firstNameRequired: 'First name is required',
+    lastNameRequired: 'Last name is required',
+    displayNameRequired: 'Display name is required',
+    profileAndPasswordUpdated: 'Profile and password updated successfully!',
+    passwordChanged: 'Password changed successfully!',
+    uploadAvatar: 'Upload Avatar',
+    deleteAvatar: 'Delete Avatar',
+    deleteAvatarConfirm: 'Are you sure you want to delete your avatar? This action cannot be undone.',
     delete: 'Delete',
-    balance: 'Balance',
-    totalBalance: 'Total Balance',
-    totalAssets: 'Total Assets',
-    totalLiabilities: 'Total Liabilities',
-    noWallets: 'No wallets found',
-    noWalletsDescription: 'Create your first wallet to start tracking your finances',
-    createFirstWallet: 'Create First Wallet',
-    createSuccess: 'Wallet created successfully!',
-    updateSuccess: 'Wallet updated successfully!',
-    deleteSuccess: 'Wallet deleted successfully!',
-    createError: 'Failed to create wallet',
-    updateError: 'Failed to update wallet',
-    deleteError: 'Failed to delete wallet',
-    nameRequired: 'Wallet name is required',
-    balanceRequired: 'Initial balance is required',
-    currencyRequired: 'Currency is required',
-    deleteTitle: 'Delete Wallet',
-    deleteMessage: 'Are you sure you want to delete this wallet? This action cannot be undone.',
-    deleteConfirm: 'Delete',
-    default: 'Default',
-    viewTransactions: 'View Transactions',
-    lastActivity: 'Last activity',
-    currentBalance: 'Current Balance',
-    deleteConfirmMessage: 'Are you sure you want to delete this wallet?',
-    deleteWarning: 'This action cannot be undone.',
-    deleting: 'Deleting...',
-    deleteWalletBtn: 'Delete Wallet',
-    walletLabel: "Wallet",
+    passwordsMustMatch: 'Passwords must match',
+    confirmPasswordRequired: 'Please confirm your new password',
+    updateError: 'Failed to update. Please try again.',
+    passwordComplexity:
+      'Password must be at least 6 characters, include 1 uppercase and 1 special character.',
   },
 };

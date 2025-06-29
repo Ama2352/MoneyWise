@@ -144,6 +144,7 @@ export interface TranslationKeys {
     dashboard: string;
     welcome: string;
     logout: string;
+    userStatus: string;
   };
 
   // Dashboard
@@ -373,7 +374,7 @@ export interface TranslationKeys {
     vnd: string;
     selectCurrency: string;
     switchTo: string;
-  };   // Errors
+  }; // Errors
   errors: {
     networkError: string;
     serverError: string;
@@ -399,6 +400,7 @@ export interface TranslationKeys {
     securitySettings: string;
     securitySubtitle: string;
     avatarHint: string;
+    avatarFileHint: string;
     firstName: string;
     firstNamePlaceholder: string;
     lastName: string;
@@ -440,64 +442,20 @@ export interface TranslationKeys {
     passwordMissingSpecial: string;
     passwordsNotMatch: string;
     currentPasswordWrong: string;
-  };
 
-  // Wallets
-  wallets: {
-    title: string;
-    subtitle: string;
-    addWallet: string;
-    editWallet: string;
-    deleteWallet: string;
-    createWallet: string;
-    walletName: string;
-    walletNamePlaceholder: string;
-    initialBalance: string;
-    initialBalancePlaceholder: string;
-    currency: string;
-    selectCurrency: string;
-    description: string;
-    descriptionPlaceholder: string;
-    checking: string;
-    savings: string;
-    credit: string;
-    cash: string;
-    investment: string;
-    creating: string;
-    updating: string;
-    create: string;
-    update: string;
-    save: string;
-    cancel: string;
-    edit: string;
+    // Add these keys for SettingsPage compatibility
+    firstNameRequired: string;
+    lastNameRequired: string;
+    displayNameRequired: string;
+    profileAndPasswordUpdated: string;
+    passwordChanged: string;
+    uploadAvatar: string;
+    deleteAvatar: string;
+    deleteAvatarConfirm: string;
     delete: string;
-    balance: string;
-    totalBalance: string;
-    noWallets: string;
-    noWalletsDescription: string;
-    createFirstWallet: string;
-    createSuccess: string;
-    updateSuccess: string;
-    deleteSuccess: string;
-    createError: string;
+    passwordsMustMatch: string;
+    confirmPasswordRequired: string;
     updateError: string;
-    deleteError: string;
-    nameRequired: string;
-    balanceRequired: string;
-    currencyRequired: string;
-    deleteTitle: string;
-    deleteMessage: string;
-    deleteConfirm: string;
-    default: string;
-    viewTransactions: string;
-    lastActivity: string;
-    currentBalance: string;
-    deleteConfirmMessage: string;
-    deleteWarning: string;
-    deleting: string;
-    deleteWalletBtn: string;
-    totalAssets: string;
-    totalLiabilities: string;
-    walletLabel: string;
+    passwordComplexity: string;
   };
 }

@@ -6,7 +6,6 @@ import type {
   RegisterRequest,
   LoginResponse,
   RegisterResponse,
-  UserProfile,
   RefreshTokenResponse,
 } from '../types';
 
@@ -49,15 +48,6 @@ export const authApi = {
     const response = await httpClient.post<RefreshTokenResponse>(
       API_ENDPOINTS.AUTH.REFRESH,
       { expiredToken: refreshToken || accessToken } // Use refresh token if available, otherwise expired access token
-    );
-    return response.data;
-  },
-  /**
-   * Get current user profile
-   */
-  getProfile: async (): Promise<UserProfile> => {
-    const response = await httpClient.get<UserProfile>(
-      API_ENDPOINTS.AUTH.PROFILE
     );
     return response.data;
   },

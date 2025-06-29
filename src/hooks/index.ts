@@ -2,7 +2,6 @@
  * Re-export all custom hooks
  */
 
-export { useApi } from './useApi';
 export { useToast } from './useToast';
 export { useAuthentication } from './useAuth';
 export { useTranslations } from './useLanguage';
@@ -18,6 +17,8 @@ export {
 export { useCategoryIcon } from './useCategoryIcon';
 export { useForm } from './useForm';
 export { useDateFormatter } from './useDateFormatter';
-export { useCrudOperations } from './useCrudOperations';
 export * from './useLanguage';
 export * from './useToast';
+export { useProfile, useProfileMutations } from './useSetting';
+export { useCrudOperations } from './useCrudOperations';
+export * from './useSetting';

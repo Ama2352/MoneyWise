@@ -10,7 +10,7 @@ export const API_BASE_URL = '/api';
 if (import.meta.env.DEV) {
   console.log('🔧 [CONFIG] API Configuration:', {
     API_BASE_URL,
-    MODE: import.meta.env.MODE
+    MODE: import.meta.env.MODE,
   });
 }
 
@@ -30,14 +30,12 @@ export const API_ENDPOINTS = {
     LOGIN: '/Accounts/SignIn',
     REGISTER: '/Accounts/SignUp',
     REFRESH: '/Accounts/RefreshToken',
-    PROFILE: '/Accounts/profile',
   },
 
-  // Users
-  USERS: {
-    BASE: '/users',
-    PROFILE: '/users/profile',
-    UPDATE: '/users/update',
+  ACCOUNT: {
+    BASE: '/Accounts',
+    PROFILE: '/Accounts/profile',
+    AVATAR: '/Accounts/avatar',
   },
 
   // Money Management specific endpoints

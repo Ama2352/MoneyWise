@@ -80,12 +80,6 @@ const navigationItems: NavigationItem[] = [
     icon: Target,
     path: ROUTES.SAVING_GOALS,
   },
-  {
-    id: 'settings',
-    label: 'Settings',
-    icon: Settings,
-    path: ROUTES.SETTINGS,
-  },
 ];
 
 interface SidebarProps {

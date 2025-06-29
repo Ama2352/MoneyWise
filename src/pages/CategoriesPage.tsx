@@ -27,7 +27,7 @@ export const CategoriesPage: React.FC = () => {
 
   // Use CRUD operations hook for consistent error handling
   const {
-    handleCreate: crudCreate,
+    handleCreate: crudCreate, // means: crudCreate = handleCreate from the hook
     handleUpdate: crudUpdate,
     handleDelete: crudDelete,
   } = useCrudOperations(

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { authApi } from '../api';
 import { STORAGE_KEYS } from '../constants';
 import type {
-  UserProfile,
   LoginRequest,
   RegisterRequest,
   LoginResponse,
@@ -10,13 +9,12 @@ import type {
 } from '../types';
 
 export interface UseAuthenticationReturn {
-  userProfile: UserProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   tokenExpired: boolean;
   login: (
     credentials: LoginRequest
-  ) => Promise<{ success: boolean; user?: UserProfile | null; error?: string }>;
+  ) => Promise<{ success: boolean; error?: string }>;
   register: (
     userData: RegisterRequest
   ) => Promise<{ success: boolean; message?: string; error?: string }>;
@@ -31,19 +29,15 @@ export interface UseAuthenticationReturn {
 
 // Hook for managing authentication state and operations
 export const useAuthentication = (): UseAuthenticationReturn => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [tokenExpired, setTokenExpired] = useState(false);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
+
   // Logout function
   const logout = useCallback((isManual: boolean = true) => {
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    // Clear profile/avatar on logout
-    localStorage.removeItem('moneywise_profile');
-    localStorage.removeItem('moneywise_avatar');
-    setUserProfile(null);
     setIsAuthenticated(false);
 
     // Clear SWR cache on logout to prevent data leakage
@@ -62,6 +56,7 @@ export const useAuthentication = (): UseAuthenticationReturn => {
   const clearTokenExpired = useCallback(() => {
     setTokenExpired(false);
   }, []);
+
   // Check if user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -75,16 +70,7 @@ export const useAuthentication = (): UseAuthenticationReturn => {
 
       if (token) {
         try {
-          const userData = await authApi.getProfile();
-          
-          // Add avatar from localStorage if available
-          const avatar = localStorage.getItem('moneywise_avatar');
-          const userProfileWithAvatar = {
-            ...userData,
-            avatar: avatar || userData.avatar
-          };
-          
-          setUserProfile(userProfileWithAvatar);
+          // Only set isAuthenticated, don't fetch user profile
           setIsAuthenticated(true);
         } catch (error) {
           // Token is invalid/expired, clear tokens and let the interceptor handle the state updates
@@ -102,7 +88,6 @@ export const useAuthentication = (): UseAuthenticationReturn => {
     const handleTokenExpired = () => {
       setTokenExpired(true);
       setIsAuthenticated(false);
-      setUserProfile(null);
     };
 
     window.addEventListener('token-expired', handleTokenExpired);
@@ -113,28 +98,16 @@ export const useAuthentication = (): UseAuthenticationReturn => {
       window.removeEventListener('token-expired', handleTokenExpired);
     };
   }, [initialCheckDone]); // Remove isAuthenticated from dependencies to prevent re-runs
+
   const login = useCallback(async (credentials: LoginRequest) => {
     setIsLoading(true);
-    // Clear profile/avatar on login
-    localStorage.removeItem('moneywise_profile');
-    localStorage.removeItem('moneywise_avatar');
+
     try {
       const response: LoginResponse = await authApi.login(credentials);
       // Store the token
       localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.token);
 
-      // Fetch user profile using the token
       try {
-        const userData = await authApi.getProfile();
-        
-        // Add avatar from localStorage if available
-        const avatar = localStorage.getItem('moneywise_avatar');
-        const userProfileWithAvatar = {
-          ...userData,
-          avatar: avatar || userData.avatar
-        };
-        
-        setUserProfile(userProfileWithAvatar);
         setIsAuthenticated(true);
 
         // Clear SWR cache on login to get fresh user-specific data
@@ -143,11 +116,11 @@ export const useAuthentication = (): UseAuthenticationReturn => {
           mutate(() => true, undefined, { revalidate: true });
         });
 
-        return { success: true, user: userProfileWithAvatar };
+        return { success: true };
       } catch (profileError) {
         // Still authenticated even if profile fetch fails
         setIsAuthenticated(true);
-        return { success: true, user: null };
+        return { success: true };
       }
     } catch (error) {
       return { success: false, error: 'Login failed' };
@@ -197,7 +170,6 @@ export const useAuthentication = (): UseAuthenticationReturn => {
   }, []);
 
   return {
-    userProfile,
     isLoading,
     isAuthenticated,
     tokenExpired,

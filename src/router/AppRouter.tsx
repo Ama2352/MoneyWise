@@ -5,7 +5,6 @@ import { AppLayout } from '../components/layout';
 import {
   ModernDashboard,
   TransactionsPage,
-  WalletsPage,
   CategoriesPage,
   SettingsPage,
 } from '../pages';
@@ -24,8 +23,8 @@ const AppRouter: React.FC = () => {
         <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
         <Route path={ROUTES.DASHBOARD} element={<ModernDashboard />} />
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
-        <Route path={ROUTES.WALLETS} element={<WalletsPage />} />{' '}
-        <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />{' '}
+        <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
+        <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
         <Route
           path={ROUTES.ANALYTICS}
           element={
