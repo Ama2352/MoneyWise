@@ -1,0 +1,260 @@
+/* Analytics Bar Chart Styles */
+.analytics-bar-chart {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-bar-chart__header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.analytics-bar-chart__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(135deg, #059669, #10b981);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.analytics-bar-chart__summary {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.analytics-bar-chart__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.analytics-bar-chart__stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.analytics-bar-chart__stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.analytics-bar-chart__stat--income .analytics-bar-chart__stat-label {
+  color: #059669;
+}
+
+.analytics-bar-chart__stat--income .analytics-bar-chart__stat-value {
+  color: #10b981;
+}
+
+.analytics-bar-chart__stat--expense .analytics-bar-chart__stat-label {
+  color: #dc2626;
+}
+
+.analytics-bar-chart__stat--expense .analytics-bar-chart__stat-value {
+  color: #ef4444;
+}
+
+.analytics-bar-chart__stat--net .analytics-bar-chart__stat-label {
+  color: #4338ca;
+}
+
+.analytics-bar-chart__stat--net.positive .analytics-bar-chart__stat-value {
+  color: #10b981;
+}
+
+.analytics-bar-chart__stat--net.negative .analytics-bar-chart__stat-value {
+  color: #ef4444;
+}
+
+.analytics-bar-chart__content {
+  flex: 1;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+/* Loading State */
+.analytics-bar-chart__loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.analytics-bar-chart__spinner {
+  margin-bottom: 1rem;
+}
+
+.analytics-bar-chart__loading p {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Empty State */
+.analytics-bar-chart__empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.analytics-bar-chart__empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.analytics-bar-chart__empty p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+}
+
+.analytics-bar-chart__empty span {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Custom Tooltip */
+.analytics-bar-tooltip {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.analytics-bar-tooltip__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.analytics-bar-tooltip__item {
+  font-size: 0.8rem;
+  color: #4b5563;
+  margin: 0.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.analytics-bar-tooltip__color {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.analytics-bar-tooltip__value {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Chart content styling */
+.analytics-bar-chart__content {
+  flex: 1;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+/* Custom recharts legend styling */
+.recharts-legend-wrapper {
+  margin-top: 20px !important;
+}
+
+.recharts-legend-item {
+  margin-right: 40px !important; /* Increased spacing between legend items */
+}
+
+/* Custom styling for XAxis labels */
+.recharts-cartesian-axis-tick-value {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .analytics-bar-chart__header {
+    padding: 1rem;
+  }
+  
+  .analytics-bar-chart__title {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .analytics-bar-chart__summary {
+    gap: 1rem;
+  }
+  
+  .analytics-bar-chart__stat-value {
+    font-size: 0.875rem;
+  }
+  
+  .analytics-bar-chart__content {
+    padding: 0.5rem;
+  }
+  
+  .analytics-bar-chart__empty {
+    padding: 2rem 1rem;
+  }
+  
+  .analytics-bar-chart__loading {
+    padding: 2rem 1rem;
+  }
+  
+  .recharts-legend-item {
+    margin-right: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .analytics-bar-chart__summary {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .analytics-bar-chart__stat {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .analytics-bar-chart__empty-icon {
+    font-size: 2rem;
+  }
+  
+  .recharts-legend-wrapper {
+    margin-top: 10px !important;
+  }
+  
+  .recharts-legend-item {
+    margin-right: 15px !important;
+    font-size: 12px !important;
+  }
+}

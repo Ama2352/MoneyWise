@@ -18,6 +18,7 @@ import type {
   SavingGoalProgress,
   CreateSavingGoalRequest,
   UpdateSavingGoalRequest,
+  SearchSavingGoalRequest,
 } from '../types';
 
 /**
@@ -200,9 +201,21 @@ export const budgetApi = {
 };
 
 export const savingGoalApi = {
-  getAllSavingGoalProgress: async (): Promise<SavingGoalProgress[]> => {
+  getAllSavingGoalProgress: async (currency?: string): Promise<SavingGoalProgress[]> => {
+    const params = currency ? { currency } : {};
     const response = await httpClient.get<SavingGoalProgress[]>(
-      API_ENDPOINTS.SAVING_GOALS.BASE
+      API_ENDPOINTS.SAVING_GOALS.PROGRESS,
+      { params }
+    );
+    return response.data;
+  },
+
+  searchSavingGoals: async (
+    params: SearchSavingGoalRequest
+  ): Promise<SavingGoalProgress[]> => {
+    const response = await httpClient.get<SavingGoalProgress[]>(
+      API_ENDPOINTS.SAVING_GOALS.SEARCH,
+      { params }
     );
     return response.data;
   },
@@ -228,7 +241,7 @@ export const savingGoalApi = {
     savingGoal: UpdateSavingGoalRequest
   ): Promise<SavingGoal> => {
     const response = await httpClient.put<SavingGoal>(
-      `${API_ENDPOINTS.SAVING_GOALS.BASE}`,
+      `${API_ENDPOINTS.SAVING_GOALS.BASE}/${savingGoal.savingGoalId}`,
       savingGoal
     );
     return response.data;

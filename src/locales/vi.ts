@@ -21,6 +21,7 @@ export const vi: TranslationKeys = {
     retry: 'Thử lại',
     createdAt: 'Ngày tạo:',
     search: 'Tìm kiếm',
+    searching: 'Đang tìm...',
     back: 'Quay lại',
     next: 'Tiếp theo',
     previous: 'Trước',
@@ -331,6 +332,127 @@ export const vi: TranslationKeys = {
     selectCurrency: 'Chọn Tiền Tệ',
     switchTo: 'Chuyển sang',
   },
+  analytics: {
+    title: 'Phân Tích Tài Chính',
+    subtitle: 'Hình dung dữ liệu tài chính với biểu đồ và thống kê tương tác',
+    daily: 'Hàng Ngày',
+    weekly: 'Hàng Tuần',
+    monthly: 'Hàng Tháng',
+    yearly: 'Hàng Năm',
+    income: 'Thu Nhập',
+    expenses: 'Chi Phí',
+    net: 'Ròng',
+    overview: 'Tổng Quan',
+    categoryBreakdown: 'Phân Tích Theo Danh Mục',
+    incomeVsExpenses: 'Thu Nhập vs Chi Phí',
+    totalIncome: 'Tổng Thu Nhập',
+    totalExpenses: 'Tổng Chi Phí',
+    netAmount: 'Số Tiền Ròng',
+    refresh: 'Làm Mới',
+    refreshing: 'Đang làm mới...',
+    loading: 'Đang tải...',
+    noData: 'Không có dữ liệu',
+    noDataDescription: 'Dữ liệu sẽ hiển thị khi bạn có giao dịch',
+    chartView: 'Kiểu Biểu Đồ',
+    pieChartType: 'Loại Biểu Đồ',
+    customDateRange: 'Khoảng Thời Gian Tùy Chỉnh',
+    selectDateRange: 'Chọn Khoảng Thời Gian',
+    startDate: 'Ngày Bắt Đầu',
+    endDate: 'Ngày Kết Thúc',
+    applyDateRange: 'Áp Dụng Khoảng Thời Gian',
+    dateRange: 'Khoảng Thời Gian',
+    preset: 'Có Sẵn',
+    custom: 'Tùy Chỉnh',
+    byCategory: 'theo Danh Mục',
+    failedToLoad: 'Không Thể Tải Phân Tích',
+    errorTitle: 'Không Thể Tải Phân Tích',
+    dismiss: 'Bỏ Qua',
+    retry: 'Thử Lại',
+    categories: 'danh mục',
+    categoriesCount: 'danh mục', // "5 danh mục"
+  },
+  reports: {
+    title: 'Báo Cáo',
+    subtitle: 'Tạo báo cáo tài chính chi tiết',
+    generateReport: 'Tạo Báo Cáo',
+    generating: 'Đang Tạo Báo Cáo...',
+    downloadReport: 'Tải Báo Cáo',
+    reportGenerated: 'Báo Cáo Đã Được Tạo',
+    reportFailed: 'Tạo Báo Cáo Thất Bại',
+
+    // Report types
+    types: {
+      categoryBreakdown: {
+        title: 'Phân Tích Theo Danh Mục',
+        description:
+          'Phân tích chi tiết thu nhập và chi tiêu theo danh mục với theo dõi ngân sách',
+      },
+      cashFlow: {
+        title: 'Tóm Tắt Dòng Tiền',
+        description:
+          'Tổng quan về tổng thu nhập và chi tiêu trong một khoảng thời gian cụ thể',
+      },
+      dailySummary: {
+        title: 'Tóm Tắt Hàng Ngày',
+        description:
+          'Tóm tắt tài chính hàng ngày đầy đủ với bối cảnh hàng tuần',
+      },
+      weeklySummary: {
+        title: 'Tóm Tắt Hàng Tuần',
+        description: 'Phân tích tài chính hàng tuần với chi tiết từng ngày',
+      },
+      monthlySummary: {
+        title: 'Tóm Tắt Hàng Tháng',
+        description: 'Tổng quan tài chính hàng tháng với so sánh từng tháng',
+      },
+      yearlySummary: {
+        title: 'Tóm Tắt Hàng Năm',
+        description: 'Báo cáo tài chính hàng năm với phân tích từng năm',
+      },
+    },
+
+    // Form fields
+    form: {
+      reportType: 'Loại Báo Cáo',
+      selectReportType: 'Chọn loại báo cáo',
+      dateRange: 'Khoảng Thời Gian',
+      startDate: 'Ngày Bắt Đầu',
+      endDate: 'Ngày Kết Thúc',
+      currency: 'Tiền Tệ',
+      format: 'Định Dạng',
+      language: 'Ngôn Ngữ',
+      generate: 'Tạo Báo Cáo',
+      cancel: 'Hủy',
+      reset: 'Đặt Lại Form',
+    },
+
+    // Categories
+    categories: {
+      breakdown: 'Báo Cáo Phân Tích',
+      summary: 'Báo Cáo Tóm Tắt',
+      flow: 'Báo Cáo Dòng Tiền',
+    },
+
+    // Messages
+    messages: {
+      selectType: 'Vui lòng chọn loại báo cáo',
+      selectStartDate: 'Vui lòng chọn ngày bắt đầu',
+      selectEndDate: 'Ngày kết thúc là bắt buộc cho loại báo cáo này',
+      invalidDateRange: 'Ngày kết thúc phải sau ngày bắt đầu',
+      generating: 'Đang tạo báo cáo của bạn...',
+      downloadStarted: 'Bắt đầu tải báo cáo',
+      generationFailed: 'Không thể tạo báo cáo. Vui lòng thử lại.',
+      downloadFailed: 'Không thể tải file báo cáo',
+    },
+
+    // Progress
+    progress: {
+      preparing: 'Đang chuẩn bị báo cáo...',
+      processing: 'Đang xử lý dữ liệu...',
+      generating: 'Đang tạo PDF...',
+      downloading: 'Bắt đầu tải xuống...',
+    },
+  },
   errors: {
     networkError: 'Lỗi mạng. Vui lòng kiểm tra kết nối.',
     serverError: 'Lỗi máy chủ. Vui lòng thử lại sau.',
@@ -345,10 +467,105 @@ export const vi: TranslationKeys = {
     },
   },
   savingGoals: {
+    title: 'Mục Tiêu Tiết Kiệm',
+    subtitle:
+      'Theo dõi tiến độ tiết kiệm và đạt được mục tiêu tài chính của bạn',
+    addNew: 'Thêm Mục Tiêu Mới',
+    editGoal: 'Chỉnh Sửa Mục Tiêu',
+    deleteGoal: 'Xóa Mục Tiêu',
+    goalDetails: 'Chi Tiết Mục Tiêu',
+    progress: 'Tiến Độ',
+    noGoals: 'Không có mục tiêu tiết kiệm nào',
+    noGoalsDescription:
+      'Tạo mục tiêu tiết kiệm đầu tiên để bắt đầu theo dõi tiến độ',
+
+    // Form fields
+    description: 'Mô Tả',
+    targetAmount: 'Số Tiền Mục Tiêu',
+    startDate: 'Ngày Bắt Đầu',
+    endDate: 'Ngày Kết Thúc',
+    category: 'Danh Mục',
+    wallet: 'Ví',
+    savedAmount: 'Số Tiền Đã Tiết Kiệm',
+
+    // Status
+    status: {
+      notStarted: 'Chưa Bắt Đầu',
+      achieved: 'Đã Đạt Được',
+      partiallyAchieved: 'Đạt Một Phần',
+      missedTarget: 'Không Đạt Mục Tiêu',
+      achievedEarly: 'Đạt Mục Tiêu Sớm',
+      ahead: 'Vượt Tiến Độ',
+      onTrack: 'Đúng Tiến Độ',
+      slightlyBehind: 'Hơi Chậm Tiến Độ',
+      atRisk: 'Có Nguy Cơ',
+      safe: 'Đúng Tiến Độ',
+      warning: 'Chậm Tiến Độ',
+      danger: 'Nguy Hiểm',
+    },
+
+    // Stats
+    totalGoals: 'Tổng Mục Tiêu',
+    activeGoals: 'Mục Tiêu Đang Hoạt Động',
+    completedGoals: 'Mục Tiêu Đã Hoàn Thành',
+    totalTargetAmount: 'Tổng Mục Tiêu',
+    totalSavedAmount: 'Tổng Đã Tiết Kiệm',
+
+    // Actions
+    create: 'Tạo Mục Tiêu',
+    update: 'Cập Nhật Mục Tiêu',
+    delete: 'Xóa',
+    edit: 'Chỉnh Sửa',
+    view: 'Xem Chi Tiết',
+
+    // Progress
+    progressPercentage: '% Tiến Độ',
+    daysRemaining: 'ngày còn lại',
+    completed: 'Hoàn Thành',
+
+    // Confirmations
+    deleteConfirmTitle: 'Xóa Mục Tiêu Tiết Kiệm',
+    deleteConfirmMessage:
+      'Bạn có chắc chắn muốn xóa mục tiêu tiết kiệm này? Hành động này không thể hoàn tác.',
+
+    // Search
+    search: {
+      title: 'Tìm Kiếm Mục Tiêu Tiết Kiệm',
+      keywords: 'Từ Khóa',
+      keywordsPlaceholder: 'Tìm theo mô tả...',
+      startDate: 'Ngày Bắt Đầu',
+      endDate: 'Ngày Kết Thúc',
+      category: 'Danh Mục',
+      wallet: 'Ví',
+      minTargetAmount: 'Số Tiền Mục Tiêu Tối Thiểu',
+      maxTargetAmount: 'Số Tiền Mục Tiêu Tối Đa',
+      allCategories: 'Tất Cả Danh Mục',
+      allWallets: 'Tất Cả Ví',
+      resultsFound: 'kết quả được tìm thấy',
+      noResults: 'Không tìm thấy mục tiêu tiết kiệm nào phù hợp',
+      clearSearch: 'Xóa Tìm Kiếm',
+    },
+
     notifications: {
+      createSuccess: 'Tạo mục tiêu tiết kiệm thành công',
+      updateSuccess: 'Cập nhật mục tiêu tiết kiệm thành công',
+      deleteSuccess: 'Xóa mục tiêu tiết kiệm thành công',
       createError: 'Không thể tạo mục tiêu tiết kiệm',
       updateError: 'Không thể cập nhật mục tiêu tiết kiệm',
       deleteError: 'Không thể xóa mục tiêu tiết kiệm',
+      loadError: 'Không thể tải mục tiêu tiết kiệm',
+    },
+
+    // Validation
+    validation: {
+      descriptionRequired: 'Mô tả là bắt buộc',
+      targetAmountRequired: 'Số tiền mục tiêu là bắt buộc',
+      targetAmountPositive: 'Số tiền mục tiêu phải lớn hơn 0',
+      startDateRequired: 'Ngày bắt đầu là bắt buộc',
+      endDateRequired: 'Ngày kết thúc là bắt buộc',
+      endDateAfterStart: 'Ngày kết thúc phải sau ngày bắt đầu',
+      categoryRequired: 'Danh mục là bắt buộc',
+      walletRequired: 'Ví là bắt buộc',
     },
   },
   budgets: {

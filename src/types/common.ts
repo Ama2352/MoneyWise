@@ -2,6 +2,29 @@
  * Common type definitions used across the application
  */
 
+export interface ApiResponse<T> {
+  data: T;
+  message: string;
+  success: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  first: boolean;
+}
+
+export interface ApiError {
+  message: string;
+  status: number;
+  error: string;
+  timestamp: string;
+}
+
 export interface SelectOption {
   value: string | number;
   label: string;
@@ -45,6 +68,7 @@ export interface TranslationKeys {
     retry: string;
     createdAt: string;
     search: string;
+    searching: string;
     back: string;
     next: string;
     previous: string;
@@ -336,10 +360,102 @@ export interface TranslationKeys {
   };
   // Saving Goals
   savingGoals: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    editGoal: string;
+    deleteGoal: string;
+    goalDetails: string;
+    progress: string;
+    noGoals: string;
+    noGoalsDescription: string;
+
+    // Form fields
+    description: string;
+    targetAmount: string;
+    startDate: string;
+    endDate: string;
+    category: string;
+    wallet: string;
+    savedAmount: string;
+
+    // Status
+    status: {
+      notStarted: string;
+      achieved: string;
+      partiallyAchieved: string;
+      missedTarget: string;
+      achievedEarly: string;
+      ahead: string;
+      onTrack: string;
+      slightlyBehind: string;
+      atRisk: string;
+      safe: string;
+      warning: string;
+      danger: string;
+    };
+
+    // Stats
+    totalGoals: string;
+    activeGoals: string;
+    completedGoals: string;
+    totalTargetAmount: string;
+    totalSavedAmount: string;
+
+    // Actions
+    create: string;
+    update: string;
+    delete: string;
+    edit: string;
+    view: string;
+
+    // Progress
+    progressPercentage: string;
+    daysRemaining: string;
+    completed: string;
+
+    // Confirmations
+    deleteConfirmTitle: string;
+    deleteConfirmMessage: string;
+
+    // Search
+    search: {
+      title: string;
+      keywords: string;
+      keywordsPlaceholder: string;
+      startDate: string;
+      endDate: string;
+      category: string;
+      wallet: string;
+      minTargetAmount: string;
+      maxTargetAmount: string;
+      allCategories: string;
+      allWallets: string;
+      resultsFound: string;
+      noResults: string;
+      clearSearch: string;
+    };
+
     notifications: {
+      createSuccess: string;
+      updateSuccess: string;
+      deleteSuccess: string;
       createError: string;
       updateError: string;
       deleteError: string;
+      loadError: string;
+    };
+
+    // Validation
+    validation: {
+      descriptionRequired: string;
+      targetAmountRequired: string;
+      targetAmountPositive: string;
+      startDateRequired: string;
+      endDateRequired: string;
+      endDateAfterStart: string;
+      categoryRequired: string;
+      walletRequired: string;
     };
   };
 
@@ -374,7 +490,125 @@ export interface TranslationKeys {
     vnd: string;
     selectCurrency: string;
     switchTo: string;
-  }; // Errors
+  };
+  // Analytics
+  analytics: {
+    title: string;
+    subtitle: string;
+    daily: string;
+    weekly: string;
+    monthly: string;
+    yearly: string;
+    income: string;
+    expenses: string;
+    net: string;
+    overview: string;
+    categoryBreakdown: string;
+    incomeVsExpenses: string;
+    totalIncome: string;
+    totalExpenses: string;
+    netAmount: string;
+    refresh: string;
+    refreshing: string;
+    loading: string;
+    noData: string;
+    noDataDescription: string;
+    chartView: string;
+    pieChartType: string;
+    customDateRange: string;
+    selectDateRange: string;
+    startDate: string;
+    endDate: string;
+    applyDateRange: string;
+    dateRange: string;
+    preset: string;
+    custom: string;
+    byCategory: string;
+    failedToLoad: string;
+    errorTitle: string;
+    dismiss: string;
+    retry: string;
+    categories: string;
+    categoriesCount: string;
+  };
+
+  // Reports
+  reports: {
+    title: string;
+    subtitle: string;
+    generateReport: string;
+    generating: string;
+    downloadReport: string;
+    reportGenerated: string;
+    reportFailed: string;
+
+    types: {
+      categoryBreakdown: {
+        title: string;
+        description: string;
+      };
+      cashFlow: {
+        title: string;
+        description: string;
+      };
+      dailySummary: {
+        title: string;
+        description: string;
+      };
+      weeklySummary: {
+        title: string;
+        description: string;
+      };
+      monthlySummary: {
+        title: string;
+        description: string;
+      };
+      yearlySummary: {
+        title: string;
+        description: string;
+      };
+    };
+
+    form: {
+      reportType: string;
+      selectReportType: string;
+      dateRange: string;
+      startDate: string;
+      endDate: string;
+      currency: string;
+      format: string;
+      language: string;
+      generate: string;
+      cancel: string;
+      reset: string;
+    };
+
+    categories: {
+      breakdown: string;
+      summary: string;
+      flow: string;
+    };
+
+    messages: {
+      selectType: string;
+      selectStartDate: string;
+      selectEndDate: string;
+      invalidDateRange: string;
+      generating: string;
+      downloadStarted: string;
+      generationFailed: string;
+      downloadFailed: string;
+    };
+
+    progress: {
+      preparing: string;
+      processing: string;
+      generating: string;
+      downloading: string;
+    };
+  };
+
+  // Errors
   errors: {
     networkError: string;
     serverError: string;

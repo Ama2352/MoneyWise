@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { CurrencyCode } from '../types';
 import { DEFAULT_CURRENCY, STORAGE_KEYS } from '../constants';
@@ -42,18 +42,18 @@ export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({
     setIsLoading(false);
   }, []);
 
-  const setCurrency = (newCurrency: CurrencyCode) => {
+  const setCurrency = useCallback((newCurrency: CurrencyCode) => {
     setCurrencyState(newCurrency);
     localStorage.setItem(STORAGE_KEYS.CURRENCY, newCurrency);
-  };
+  }, []);
 
-  const toggleCurrency = () => {
+  const toggleCurrency = useCallback(() => {
     const newCurrency = currency === 'usd' ? 'vnd' : 'usd';
     setCurrency(newCurrency);
-  };
+  }, [currency, setCurrency]);
 
   // Convert from VND (stored) to display currency and format
-  const convertAndFormat = async (amountInVnd: number): Promise<string> => {
+  const convertAndFormat = useCallback(async (amountInVnd: number): Promise<string> => {
     try {
       if (currency === 'vnd') {
         // No conversion needed, just format VND
@@ -72,10 +72,10 @@ export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({
       // Fallback: format as VND
       return formatCurrency(amountInVnd, 'vnd');
     }
-  };
+  }, [currency, formatCurrency, convertCurrency]);
 
   // Convert from display currency back to VND for storage
-  const convertFromDisplay = async (displayAmount: number): Promise<number> => {
+  const convertFromDisplay = useCallback(async (displayAmount: number): Promise<number> => {
     try {
       if (currency === 'vnd') {
         // No conversion needed
@@ -94,18 +94,18 @@ export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({
       // Fallback: return as-is
       return displayAmount;
     }
-  };
+  }, [currency, convertCurrency]);
+
+  const contextValue = useMemo(() => ({
+    currency,
+    setCurrency,
+    toggleCurrency,
+    isLoading,
+    convertAndFormat,
+    convertFromDisplay,
+  }), [currency, setCurrency, toggleCurrency, isLoading, convertAndFormat, convertFromDisplay]);
   return (
-    <CurrencyContext.Provider
-      value={{
-        currency,
-        setCurrency,
-        toggleCurrency,
-        isLoading,
-        convertAndFormat,
-        convertFromDisplay,
-      }}
-    >
+    <CurrencyContext.Provider value={contextValue}>
       {children}
     </CurrencyContext.Provider>
   );

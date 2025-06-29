@@ -112,5 +112,6 @@ export const SWR_KEYS = {
     ALL: '/SavingGoals',
     BY_ID: (savingGoalId: string) => `/SavingGoals/${savingGoalId}`,
     PROGRESS: `/SavingGoals/progress`,
+    SEARCH: '/SavingGoals/search',
   },
 } as const;

@@ -21,9 +21,14 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   const lang = useTranslations();
 
   // Memoize the context value to prevent unnecessary re-renders
+  // but force re-render when language or translations change
   const value = useMemo(
-    () => lang,
-    [lang.language, lang.translations, lang.isLoading]
+    () => ({
+      ...lang,
+      // Force component re-renders when language changes
+      _version: `${lang.language}-${Date.now()}`
+    }),
+    [lang.language, lang.translations, lang.isLoading, lang.setLanguage, lang.toggleLanguage]
   );
 
   return (

@@ -1,14 +1,17 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { BarChart3, FileText, PiggyBank, Target, Settings } from 'lucide-react';
+import { PiggyBank } from 'lucide-react';
 import { AppLayout } from '../components/layout';
 import {
   ModernDashboard,
   TransactionsPage,
   CategoriesPage,
   SettingsPage,
+  AnalyticsPage,
+  ReportsPage,
+  SavingGoalsPage,
 } from '../pages';
-import { PlaceholderPage } from '../components/ui';
+import { PlaceholderPage, ErrorBoundary } from '../components/ui';
 import { ROUTES } from '../constants';
 import '../styles/pages.css';
 
@@ -23,30 +26,17 @@ const AppRouter: React.FC = () => {
         <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
         <Route path={ROUTES.DASHBOARD} element={<ModernDashboard />} />
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
-        <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />
-        <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />
+        <Route path={ROUTES.WALLETS} element={<ModernDashboard />} />{' '}
+        <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />{' '}
         <Route
           path={ROUTES.ANALYTICS}
           element={
-            <PlaceholderPage
-              title="Analytics"
-              description="Deep insights into your financial habits with advanced charts and metrics"
-              icon={BarChart3}
-              comingSoon={true}
-            />
+            <ErrorBoundary>
+              <AnalyticsPage />
+            </ErrorBoundary>
           }
         />{' '}
-        <Route
-          path={ROUTES.REPORTS}
-          element={
-            <PlaceholderPage
-              title="Reports"
-              description="Generate detailed financial reports and export your data"
-              icon={FileText}
-              comingSoon={true}
-            />
-          }
-        />
+        <Route path={ROUTES.REPORTS} element={<ReportsPage />} />
         <Route
           path={ROUTES.BUDGET}
           element={
@@ -61,12 +51,9 @@ const AppRouter: React.FC = () => {
         <Route
           path={ROUTES.SAVING_GOALS}
           element={
-            <PlaceholderPage
-              title="Saving Goals"
-              description="Set and track your savings goals to achieve financial milestones"
-              icon={Target}
-              comingSoon={true}
-            />
+            <ErrorBoundary>
+              <SavingGoalsPage />
+            </ErrorBoundary>
           }
         />{' '}
         <Route path={ROUTES.SETTINGS} element={<SettingsPage />} />

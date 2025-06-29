@@ -80,6 +80,16 @@ export type UpdateSavingGoalRequest = Omit<
   'createdAt' | 'savedAmount'
 >;
 
+export interface SearchSavingGoalRequest {
+  startDate?: string;
+  endDate?: string;
+  categoryName?: string;
+  walletName?: string;
+  minTargetAmount?: number;
+  maxTargetAmount?: number;
+  keywords?: string;
+}
+
 export interface BudgetProgress {
   budgetId: string;
   categoryId: string;

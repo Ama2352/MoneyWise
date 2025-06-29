@@ -7,3 +7,5 @@ export { transactionApi, categoryApi, budgetApi, walletApi as financeWalletApi }
 export { walletApi } from './walletApi';
 export { settingsApi } from './settingsApi';
 export { default as httpClient } from './httpClient';
+export { analyticsApi } from './analyticsApi';
+export { reportsApi } from './reportsApi';

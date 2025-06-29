@@ -21,6 +21,7 @@ export const en: TranslationKeys = {
     retry: 'Try Again',
     createdAt: 'Created:',
     search: 'Search',
+    searching: 'Searching...',
     back: 'Back',
     next: 'Next',
     previous: 'Previous',
@@ -335,6 +336,128 @@ export const en: TranslationKeys = {
     selectCurrency: 'Select Currency',
     switchTo: 'Switch to',
   },
+  analytics: {
+    title: 'Financial Analytics',
+    subtitle:
+      'Visualize your financial data with interactive charts and insights',
+    daily: 'Daily',
+    weekly: 'Weekly',
+    monthly: 'Monthly',
+    yearly: 'Yearly',
+    income: 'Income',
+    expenses: 'Expenses',
+    net: 'Net',
+    overview: 'Overview',
+    categoryBreakdown: 'Category Breakdown',
+    incomeVsExpenses: 'Income vs Expenses',
+    totalIncome: 'Total Income',
+    totalExpenses: 'Total Expenses',
+    netAmount: 'Net Amount',
+    refresh: 'Refresh',
+    refreshing: 'Refreshing...',
+    loading: 'Loading...',
+    noData: 'No data available',
+    noDataDescription: 'Data will appear here once you have transactions',
+    chartView: 'Chart View',
+    pieChartType: 'Chart Type',
+    customDateRange: 'Custom Date Range',
+    selectDateRange: 'Select Date Range',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    applyDateRange: 'Apply Date Range',
+    dateRange: 'Date Range',
+    preset: 'Preset',
+    custom: 'Custom',
+    byCategory: 'by Category',
+    failedToLoad: 'Failed to Load Analytics',
+    errorTitle: 'Failed to Load Analytics',
+    dismiss: 'Dismiss',
+    retry: 'Retry',
+    categories: 'categories',
+    categoriesCount: 'categories',
+  },
+  reports: {
+    title: 'Reports',
+    subtitle: 'Generate detailed financial reports',
+    generateReport: 'Generate Report',
+    generating: 'Generating Report...',
+    downloadReport: 'Download Report',
+    reportGenerated: 'Report Generated',
+    reportFailed: 'Report Generation Failed',
+
+    // Report types
+    types: {
+      categoryBreakdown: {
+        title: 'Category Breakdown',
+        description:
+          'Detailed analysis of income and expenses by category with budget tracking',
+      },
+      cashFlow: {
+        title: 'Cash Flow Summary',
+        description:
+          'Overview of total income and expenses for a specific period',
+      },
+      dailySummary: {
+        title: 'Daily Summary',
+        description: 'Complete daily financial summary with weekly context',
+      },
+      weeklySummary: {
+        title: 'Weekly Summary',
+        description: 'Weekly financial analysis with day-by-day breakdown',
+      },
+      monthlySummary: {
+        title: 'Monthly Summary',
+        description:
+          'Monthly financial overview with month-by-month comparison',
+      },
+      yearlySummary: {
+        title: 'Yearly Summary',
+        description: 'Annual financial report with year-over-year analysis',
+      },
+    },
+
+    // Form fields
+    form: {
+      reportType: 'Report Type',
+      selectReportType: 'Select a report type',
+      dateRange: 'Date Range',
+      startDate: 'Start Date',
+      endDate: 'End Date',
+      currency: 'Currency',
+      format: 'Format',
+      language: 'Language',
+      generate: 'Generate Report',
+      cancel: 'Cancel',
+      reset: 'Reset Form',
+    },
+
+    // Categories
+    categories: {
+      breakdown: 'Breakdown Reports',
+      summary: 'Summary Reports',
+      flow: 'Cash Flow Reports',
+    },
+
+    // Messages
+    messages: {
+      selectType: 'Please select a report type',
+      selectStartDate: 'Please select a start date',
+      selectEndDate: 'End date is required for this report type',
+      invalidDateRange: 'End date must be after start date',
+      generating: 'Generating your report...',
+      downloadStarted: 'Report download started',
+      generationFailed: 'Failed to generate report. Please try again.',
+      downloadFailed: 'Failed to download report file',
+    },
+
+    // Progress
+    progress: {
+      preparing: 'Preparing report...',
+      processing: 'Processing data...',
+      generating: 'Generating PDF...',
+      downloading: 'Starting download...',
+    },
+  },
   errors: {
     networkError: 'Network error. Please check your connection.',
     serverError: 'Server error. Please try again later.',
@@ -349,10 +472,104 @@ export const en: TranslationKeys = {
     },
   },
   savingGoals: {
+    title: 'Saving Goals',
+    subtitle: 'Track your savings progress and achieve your financial goals',
+    addNew: 'Add New Goal',
+    editGoal: 'Edit Goal',
+    deleteGoal: 'Delete Goal',
+    goalDetails: 'Goal Details',
+    progress: 'Progress',
+    noGoals: 'No saving goals found',
+    noGoalsDescription:
+      'Create your first saving goal to start tracking your progress',
+
+    // Form fields
+    description: 'Description',
+    targetAmount: 'Target Amount',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    category: 'Category',
+    wallet: 'Wallet',
+    savedAmount: 'Saved Amount',
+
+    // Status
+    status: {
+      notStarted: 'Not Started',
+      achieved: 'Achieved',
+      partiallyAchieved: 'Partially Achieved',
+      missedTarget: 'Missed Target',
+      achievedEarly: 'Achieved Early',
+      ahead: 'Ahead of Schedule',
+      onTrack: 'On Track',
+      slightlyBehind: 'Slightly Behind',
+      atRisk: 'At Risk',
+      safe: 'On Track',
+      warning: 'Behind Schedule',
+      danger: 'Critical',
+    },
+
+    // Stats
+    totalGoals: 'Total Goals',
+    activeGoals: 'Active Goals',
+    completedGoals: 'Completed Goals',
+    totalTargetAmount: 'Total Target',
+    totalSavedAmount: 'Total Saved',
+
+    // Actions
+    create: 'Create Goal',
+    update: 'Update Goal',
+    delete: 'Delete',
+    edit: 'Edit',
+    view: 'View Details',
+
+    // Progress
+    progressPercentage: '% Progress',
+    daysRemaining: 'days remaining',
+    completed: 'Completed',
+
+    // Confirmations
+    deleteConfirmTitle: 'Delete Saving Goal',
+    deleteConfirmMessage:
+      'Are you sure you want to delete this saving goal? This action cannot be undone.',
+
+    // Search
+    search: {
+      title: 'Search Saving Goals',
+      keywords: 'Keywords',
+      keywordsPlaceholder: 'Search by description...',
+      startDate: 'Start Date',
+      endDate: 'End Date',
+      category: 'Category',
+      wallet: 'Wallet',
+      minTargetAmount: 'Min Target Amount',
+      maxTargetAmount: 'Max Target Amount',
+      allCategories: 'All Categories',
+      allWallets: 'All Wallets',
+      resultsFound: 'results found',
+      noResults: 'No saving goals match your search criteria',
+      clearSearch: 'Clear Search',
+    },
+
     notifications: {
+      createSuccess: 'Saving goal created successfully',
+      updateSuccess: 'Saving goal updated successfully',
+      deleteSuccess: 'Saving goal deleted successfully',
       createError: 'Failed to create saving goal',
       updateError: 'Failed to update saving goal',
       deleteError: 'Failed to delete saving goal',
+      loadError: 'Failed to load saving goals',
+    },
+
+    // Validation
+    validation: {
+      descriptionRequired: 'Description is required',
+      targetAmountRequired: 'Target amount is required',
+      targetAmountPositive: 'Target amount must be positive',
+      startDateRequired: 'Start date is required',
+      endDateRequired: 'End date is required',
+      endDateAfterStart: 'End date must be after start date',
+      categoryRequired: 'Category is required',
+      walletRequired: 'Wallet is required',
     },
   },
   budgets: {

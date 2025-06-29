@@ -23,11 +23,7 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div
       className={`modal ${className}`}
-      onClick={e => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
+      // Remove onClick to prevent closing when clicking outside
     >
       <div className="dialog-content">
         <div className="dialog-header">

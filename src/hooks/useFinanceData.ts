@@ -33,6 +33,7 @@ import {
   type UpdateBudgetRequest,
   type SavingGoal,
   type Budget,
+  type SearchSavingGoalRequest,
 } from '../types/finance';
 
 export const useWalletMutations = () => {
@@ -375,20 +376,33 @@ export const useTransactionSearch = (filters?: SearchTransactionRequest) => {
   };
 };
 
-export const useSavingGoalProgress = () => {
-  const { data, error, isLoading } = useSWR<SavingGoalProgress[]>(
-    SWR_KEYS.SAVING_GOALS.PROGRESS,
-    async () => {
-      const result = await savingGoalApi.getAllSavingGoalProgress();
-      return result;
-    }
-  );
+export const useSavingGoalProgress = (language?: string, currency?: string) => {
+  // Include language and currency in SWR key to force refetch when they change
+  const swrKey = useMemo(() => {
+    const params = new URLSearchParams();
+    if (language) params.append('lang', language);
+    if (currency) params.append('currency', currency);
+    const queryString = params.toString();
+    return queryString 
+      ? `${SWR_KEYS.SAVING_GOALS.PROGRESS}?${queryString}`
+      : SWR_KEYS.SAVING_GOALS.PROGRESS;
+  }, [language, currency]);
+
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateSavingGoals,
+  } = useSWR<SavingGoalProgress[]>(swrKey, async () => {
+    const result = await savingGoalApi.getAllSavingGoalProgress(currency);
+    return result;
+  });
 
   return {
     savingGoalProgress: data,
     isLoading,
     error,
-    refresh: () => mutate(SWR_KEYS.SAVING_GOALS.PROGRESS),
+    refresh: () => mutateSavingGoals(undefined, { revalidate: true }),
   };
 };
 
@@ -409,6 +423,41 @@ export const useBudgetProgress = () => {
   };
 };
 
+export const useSearchSavingGoals = (
+  params?: SearchSavingGoalRequest,
+  language?: string
+) => {
+  // Generate unique key for search parameters and language
+  const searchKey = useMemo(() => {
+    if (!params || Object.keys(params).length === 0) return null;
+
+    const keyObj = {
+      ...params,
+      lang: language || '', // Include language as a field
+    };
+
+    return `${SWR_KEYS.SAVING_GOALS.SEARCH}:${JSON.stringify(keyObj)}`;
+  }, [params, language]);
+
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateSearch,
+  } = useSWR<SavingGoalProgress[]>(searchKey, async () => {
+    if (!params) return [];
+    const result = await savingGoalApi.searchSavingGoals(params);
+    return result;
+  });
+
+  return {
+    searchResults: data,
+    isSearching: isLoading,
+    searchError: error,
+    refreshSearch: () => mutateSearch(undefined, { revalidate: true }),
+  };
+};
+
 export const useSavingGoalMutations = () => {
   const { translations } = useLanguageContext();
 
@@ -418,11 +467,29 @@ export const useSavingGoalMutations = () => {
       mutate(SWR_KEYS.SAVING_GOALS.PROGRESS);
       return { success: true, data: newGoal };
     } catch (error: any) {
+      console.error('Create saving goal error:', error);
+      console.error('Response data:', error.response?.data);
+
+      // Try to extract detailed error message from various possible locations
+      let errorMessage = translations.savingGoals.notifications.createError;
+
+      if (error.response?.data) {
+        const responseData = error.response.data;
+        // Try different possible error message fields from Spring Boot
+        errorMessage =
+          responseData.message ||
+          responseData.error ||
+          responseData.detail ||
+          responseData.title ||
+          // Sometimes Spring Boot returns the exception message directly
+          (typeof responseData === 'string' ? responseData : null) ||
+          error.message ||
+          translations.savingGoals.notifications.createError;
+      }
+
       return {
         success: false,
-        error:
-          error.response?.data?.message ||
-          translations.savingGoals.notifications.createError,
+        error: errorMessage,
       };
     }
   };
@@ -433,11 +500,29 @@ export const useSavingGoalMutations = () => {
       mutate(SWR_KEYS.SAVING_GOALS.PROGRESS);
       return { success: true, data: updatedGoal };
     } catch (error: any) {
+      console.error('Update saving goal error:', error);
+      console.error('Response data:', error.response?.data);
+
+      // Try to extract detailed error message from various possible locations
+      let errorMessage = translations.savingGoals.notifications.updateError;
+
+      if (error.response?.data) {
+        const responseData = error.response.data;
+        // Try different possible error message fields from Spring Boot
+        errorMessage =
+          responseData.message ||
+          responseData.error ||
+          responseData.detail ||
+          responseData.title ||
+          // Sometimes Spring Boot returns the exception message directly
+          (typeof responseData === 'string' ? responseData : null) ||
+          error.message ||
+          translations.savingGoals.notifications.updateError;
+      }
+
       return {
         success: false,
-        error:
-          error.response?.data?.message ||
-          translations.savingGoals.notifications.updateError,
+        error: errorMessage,
       };
     }
   };
@@ -448,11 +533,15 @@ export const useSavingGoalMutations = () => {
       mutate(SWR_KEYS.SAVING_GOALS.PROGRESS);
       return { success: true };
     } catch (error: any) {
+      console.error('Delete saving goal error:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.title ||
+        error.message ||
+        translations.savingGoals.notifications.deleteError;
       return {
         success: false,
-        error:
-          error.response?.data?.message ||
-          translations.savingGoals.notifications.deleteError,
+        error: errorMessage,
       };
     }
   };
