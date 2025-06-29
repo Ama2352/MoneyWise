@@ -201,9 +201,11 @@ export const budgetApi = {
 };
 
 export const savingGoalApi = {
-  getAllSavingGoalProgress: async (): Promise<SavingGoalProgress[]> => {
+  getAllSavingGoalProgress: async (currency?: string): Promise<SavingGoalProgress[]> => {
+    const params = currency ? { currency } : {};
     const response = await httpClient.get<SavingGoalProgress[]>(
-      API_ENDPOINTS.SAVING_GOALS.PROGRESS
+      API_ENDPOINTS.SAVING_GOALS.PROGRESS,
+      { params }
     );
     return response.data;
   },

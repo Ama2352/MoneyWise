@@ -17,7 +17,8 @@ import { useLanguageContext } from '../../contexts/LanguageContext';
 import { useCurrencyContext } from '../../contexts/CurrencyContext';
 import { useCategories, useWallets } from '../../hooks/useFinanceData';
 import { useAmountInput } from '../../hooks';
-import { Button } from '../ui';
+import { Button, DateInput } from '../ui';
+import { parseInputDateToISO } from '../../utils/dateUtils';
 import './SavingGoalSearchForm.css';
 import type { SearchSavingGoalRequest } from '../../types';
 
@@ -32,7 +33,7 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
   onReset,
   isSearching = false,
 }) => {
-  const { translations } = useLanguageContext();
+  const { translations, language } = useLanguageContext();
   const { convertFromDisplay } = useCurrencyContext();
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { wallets, isLoading: walletsLoading } = useWallets();
@@ -66,6 +67,14 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
 
     const params = { ...searchParams };
 
+    // Convert dates to ISO format if specified
+    if (params.startDate) {
+      params.startDate = parseInputDateToISO(params.startDate, language);
+    }
+    if (params.endDate) {
+      params.endDate = parseInputDateToISO(params.endDate, language);
+    }
+
     // Convert amount to VND if specified
     if (minAmountInput.rawAmount > 0)
       params.minTargetAmount = await convertFromDisplay(
@@ -93,10 +102,17 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
         className="search-form-header"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <h3 className="search-form-title">
-          <Search size={18} />
-          {translations.savingGoals.search.title}
-        </h3>
+        <div className="search-form-title-section">
+          <h3 className="search-form-title">
+            <Search size={18} />
+            {translations.savingGoals.search.title}
+          </h3>
+          {!isExpanded && Object.keys(searchParams).length > 0 && (
+            <span className="search-active-badge">
+              {Object.keys(searchParams).length} filters active
+            </span>
+          )}
+        </div>
         <button type="button" className="search-form-toggle">
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
         </button>
@@ -130,10 +146,10 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
                   <Calendar size={16} />
                   {translations.savingGoals.search.startDate}
                 </label>
-                <input
-                  type="date"
+                <DateInput
                   value={searchParams.startDate || ''}
-                  onChange={e => handleInputChange('startDate', e.target.value)}
+                  onChange={(value) => handleInputChange('startDate', value)}
+                  language={language}
                   className="form-input"
                   disabled={isSearching}
                 />
@@ -144,10 +160,10 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
                   <Calendar size={16} />
                   {translations.savingGoals.search.endDate}
                 </label>
-                <input
-                  type="date"
+                <DateInput
                   value={searchParams.endDate || ''}
-                  onChange={e => handleInputChange('endDate', e.target.value)}
+                  onChange={(value) => handleInputChange('endDate', value)}
+                  language={language}
                   className="form-input"
                   disabled={isSearching}
                 />

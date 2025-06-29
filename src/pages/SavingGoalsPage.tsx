@@ -36,7 +36,7 @@ import { SavingGoalSearchForm } from '../components';
 const SavingGoalsPage: React.FC = () => {
   const { translations, language } = useLanguageContext();
   const { showSuccess, showError } = useToastContext();
-  const { convertAndFormat } = useCurrencyContext();
+  const { convertAndFormat, currency } = useCurrencyContext();
 
   // Data hooks
   const {
@@ -44,7 +44,7 @@ const SavingGoalsPage: React.FC = () => {
     isLoading,
     error,
     refresh: refreshSavingGoals,
-  } = useSavingGoalProgress(language);
+  } = useSavingGoalProgress(language, currency);
 
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { wallets, isLoading: walletsLoading } = useWallets();
@@ -180,6 +180,20 @@ const SavingGoalsPage: React.FC = () => {
     summaryStats.totalSavedAmount,
     convertAndFormat,
   ]);
+
+  // Force refresh data when language changes
+  React.useEffect(() => {
+    if (language) {
+      refreshSavingGoals();
+    }
+  }, [language]); // Remove refreshSavingGoals from dependencies
+
+  // Force refresh data when currency changes
+  React.useEffect(() => {
+    if (currency) {
+      refreshSavingGoals();
+    }
+  }, [currency]); // Remove refreshSavingGoals from dependencies
 
   // Helper functions
   const getCategoryById = useCallback(

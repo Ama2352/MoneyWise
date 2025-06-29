@@ -2,13 +2,14 @@
  * Saving Goal Form Component
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Calendar, DollarSign, FileText, Folder, Wallet } from 'lucide-react';
 import { useLanguageContext } from '../../contexts/LanguageContext';
 import { useCurrencyContext } from '../../contexts/CurrencyContext';
 import { useCategories, useWallets } from '../../hooks/useFinanceData';
-import { useAmountInput, useCurrencyFormatter } from '../../hooks';
-import { Button, Loading } from '../ui';
+import { useAmountInput } from '../../hooks';
+import { Button, Loading, DateInput } from '../ui';
+import { formatDateForInput, parseInputDateToISO, convertDateBetweenLanguages } from '../../utils/dateUtils';
 import type {
   CreateSavingGoalRequest,
   UpdateSavingGoalRequest,
@@ -33,10 +34,8 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
   onCancel,
   isSubmitting = false,
 }) => {
-  const { translations } = useLanguageContext();
-  const { currency, convertFromDisplay, convertAndFormat } =
-    useCurrencyContext();
-  const { parseAmountFromDisplay } = useCurrencyFormatter();
+  const { translations, language } = useLanguageContext();
+  const { currency, convertFromDisplay } = useCurrencyContext();
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { wallets, isLoading: walletsLoading } = useWallets();
 
@@ -71,20 +70,21 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
 
   // Track initialization to avoid re-setting amount on currency changes
   const initializationRef = useRef<number | null>(null);
+  const previousLanguageRef = useRef<'en' | 'vi'>(language);
 
-  // Helper function to parse date from backend
-  const parseDate = (dateString: string): string => {
+  // Helper function to parse date from backend and format for input
+  const parseDateForDisplay = useCallback((dateString: string): string => {
     if (!dateString) return '';
     try {
       // Backend returns format: "2025-07-07 15:16:42"
-      // Extract only the date part: "2025-07-07"
+      // Extract only the date part and format for input based on language
       const datePart = dateString.split(' ')[0];
-      return datePart;
+      return formatDateForInput(datePart, language);
     } catch (error) {
       console.error('Error parsing date:', dateString, error);
       return '';
     }
-  };
+  }, [language]);
 
   // Initialize amount when editing - similar to TransactionForm
   useEffect(() => {
@@ -110,19 +110,13 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
           });
       }
     }
-  }, [
-    goal?.targetAmount,
-    currency,
-    convertAndFormat,
-    parseAmountFromDisplay,
-    amountInput.setAmount,
-  ]);
+  }, [goal?.targetAmount, currency]); // Remove amountInput.setAmount and other unstable dependencies
 
   // Update form data when goal changes
   useEffect(() => {
     if (goal) {
-      const startDate = parseDate(goal.startDate);
-      const endDate = parseDate(goal.endDate);
+      const startDate = parseDateForDisplay(goal.startDate);
+      const endDate = parseDateForDisplay(goal.endDate);
 
       setFormData({
         description: goal.description || '',
@@ -143,7 +137,22 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
       // Reset amount using the hook
       amountInput.setAmount(0);
     }
-  }, [goal, amountInput.setAmount]);
+  }, [goal, parseDateForDisplay]); // Remove amountInput.setAmount
+
+  // Handle language change - convert date formats
+  useEffect(() => {
+    if (previousLanguageRef.current !== language) {
+      const prevLanguage = previousLanguageRef.current;
+      previousLanguageRef.current = language;
+
+      // Convert existing dates to new language format
+      setFormData(prev => ({
+        ...prev,
+        startDate: prev.startDate ? convertDateBetweenLanguages(prev.startDate, prevLanguage, language) : prev.startDate,
+        endDate: prev.endDate ? convertDateBetweenLanguages(prev.endDate, prevLanguage, language) : prev.endDate,
+      }));
+    }
+  }, [language]); // Remove formData dependencies to avoid infinite loop
 
   // Validation
   const validateForm = (): boolean => {
@@ -170,10 +179,19 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
 
     if (
       formData.startDate &&
-      formData.endDate &&
-      formData.startDate >= formData.endDate
+      formData.endDate
     ) {
-      newErrors.endDate = translations.savingGoals.validation.endDateAfterStart;
+      try {
+        const startDateISO = parseInputDateToISO(formData.startDate, language);
+        const endDateISO = parseInputDateToISO(formData.endDate, language);
+        
+        if (startDateISO >= endDateISO) {
+          newErrors.endDate = translations.savingGoals.validation.endDateAfterStart;
+        }
+      } catch (error) {
+        console.error('Error validating dates:', error);
+        newErrors.endDate = translations.savingGoals.validation.endDateAfterStart;
+      }
     }
 
     if (!formData.categoryId) {
@@ -204,11 +222,15 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
         `Converted ${amountInput.rawAmount} ${currency.toUpperCase()} to ${vndAmount} VND`
       );
 
+      // Parse dates from input format to ISO format for backend
+      const startDateISO = parseInputDateToISO(formData.startDate, language);
+      const endDateISO = parseInputDateToISO(formData.endDate, language);
+
       const submitData = {
         ...formData,
         targetAmount: vndAmount,
-        startDate: new Date(formData.startDate).toISOString(),
-        endDate: new Date(formData.endDate).toISOString(),
+        startDate: new Date(startDateISO).toISOString(),
+        endDate: new Date(endDateISO).toISOString(),
       };
 
       if (goal) {
@@ -285,44 +307,44 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
         {errors.targetAmount && (
           <span className="form-error">{errors.targetAmount}</span>
         )}
-      </div>
+      </div>        {/* Date Range */}
+        <div className="form-row">
+          <div className="form-group">
+            <label className="form-label">
+              <Calendar size={16} />
+              {translations.savingGoals.startDate}
+            </label>
+            <DateInput
+              value={formData.startDate}
+              onChange={(value) => handleInputChange('startDate', value)}
+              language={language}
+              className={`form-input ${errors.startDate ? 'form-input--error' : ''}`}
+              disabled={isSubmitting}
+              error={!!errors.startDate}
+            />
+            {errors.startDate && (
+              <span className="form-error">{errors.startDate}</span>
+            )}
+          </div>
 
-      {/* Date Range */}
-      <div className="form-row">
-        <div className="form-group">
-          <label className="form-label">
-            <Calendar size={16} />
-            {translations.savingGoals.startDate}
-          </label>
-          <input
-            type="date"
-            value={formData.startDate}
-            onChange={e => handleInputChange('startDate', e.target.value)}
-            className={`form-input ${errors.startDate ? 'form-input--error' : ''}`}
-            disabled={isSubmitting}
-          />
-          {errors.startDate && (
-            <span className="form-error">{errors.startDate}</span>
-          )}
+          <div className="form-group">
+            <label className="form-label">
+              <Calendar size={16} />
+              {translations.savingGoals.endDate}
+            </label>
+            <DateInput
+              value={formData.endDate}
+              onChange={(value) => handleInputChange('endDate', value)}
+              language={language}
+              className={`form-input ${errors.endDate ? 'form-input--error' : ''}`}
+              disabled={isSubmitting}
+              error={!!errors.endDate}
+            />
+            {errors.endDate && (
+              <span className="form-error">{errors.endDate}</span>
+            )}
+          </div>
         </div>
-
-        <div className="form-group">
-          <label className="form-label">
-            <Calendar size={16} />
-            {translations.savingGoals.endDate}
-          </label>
-          <input
-            type="date"
-            value={formData.endDate}
-            onChange={e => handleInputChange('endDate', e.target.value)}
-            className={`form-input ${errors.endDate ? 'form-input--error' : ''}`}
-            disabled={isSubmitting}
-          />
-          {errors.endDate && (
-            <span className="form-error">{errors.endDate}</span>
-          )}
-        </div>
-      </div>
 
       {/* Category and Wallet */}
       <div className="form-row">

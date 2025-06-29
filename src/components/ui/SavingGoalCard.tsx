@@ -16,6 +16,7 @@ import {
 import { useLanguageContext } from '../../contexts/LanguageContext';
 import { useCurrencyContext } from '../../contexts/CurrencyContext';
 import { CategoryIcon } from '../ui/CategoryIcon';
+import { formatDateForLanguage } from '../../utils/dateUtils';
 import type { SavingGoalProgress, Category, Wallet } from '../../types/finance';
 import './SavingGoalCard.css';
 
@@ -34,7 +35,7 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const { translations } = useLanguageContext();
+  const { translations, language } = useLanguageContext();
   const { convertAndFormat } = useCurrencyContext();
 
   // State for formatted currency values
@@ -206,8 +207,7 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
 
   // Format dates
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
+    return formatDateForLanguage(dateString, language);
   };
 
   return (

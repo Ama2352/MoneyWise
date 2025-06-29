@@ -376,11 +376,17 @@ export const useTransactionSearch = (filters?: SearchTransactionRequest) => {
   };
 };
 
-export const useSavingGoalProgress = (language?: string) => {
-  // Include language in SWR key to force refetch when language changes
-  const swrKey = language
-    ? `${SWR_KEYS.SAVING_GOALS.PROGRESS}?lang=${language}`
-    : SWR_KEYS.SAVING_GOALS.PROGRESS;
+export const useSavingGoalProgress = (language?: string, currency?: string) => {
+  // Include language and currency in SWR key to force refetch when they change
+  const swrKey = useMemo(() => {
+    const params = new URLSearchParams();
+    if (language) params.append('lang', language);
+    if (currency) params.append('currency', currency);
+    const queryString = params.toString();
+    return queryString 
+      ? `${SWR_KEYS.SAVING_GOALS.PROGRESS}?${queryString}`
+      : SWR_KEYS.SAVING_GOALS.PROGRESS;
+  }, [language, currency]);
 
   const {
     data,
@@ -388,7 +394,7 @@ export const useSavingGoalProgress = (language?: string) => {
     isLoading,
     mutate: mutateSavingGoals,
   } = useSWR<SavingGoalProgress[]>(swrKey, async () => {
-    const result = await savingGoalApi.getAllSavingGoalProgress();
+    const result = await savingGoalApi.getAllSavingGoalProgress(currency);
     return result;
   });
 

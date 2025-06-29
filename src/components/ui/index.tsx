@@ -22,4 +22,5 @@ export { WalletBalance } from './WalletBalance';
 export { StatCard } from './StatCard';
 export { Modal } from './Modal';
 export { SavingGoalCard } from './SavingGoalCard';
+export { DateInput } from './DateInput';
 export { default as ErrorBoundary } from './ErrorBoundary';
