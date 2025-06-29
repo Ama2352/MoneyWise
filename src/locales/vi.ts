@@ -574,4 +574,70 @@ export const vi: TranslationKeys = {
       deleteError: 'Không thể xóa ngân sách',
     },
   },
+  wallets: {
+    title: 'Ví',
+    subtitle: 'Quản lý các tài khoản và theo dõi số dư trong tất cả ví của bạn',
+    addNew: 'Thêm Ví',
+    create: 'Tạo Ví',
+    edit: 'Chỉnh Sửa Ví',
+    delete: 'Xóa Ví',
+    
+    // Summary stats
+    totalBalance: 'Tổng Số Dư',
+    positiveWallets: 'Ví Dương',
+    negativeWallets: 'Ví Âm',
+    walletsCount: 'ví',
+    
+    // Empty state
+    noWallets: 'Không tìm thấy ví nào',
+    noWalletsDescription: 'Tạo ví đầu tiên để bắt đầu theo dõi tài chính của bạn',
+    
+    // Form fields
+    name: 'Tên Ví',
+    namePlaceholder: 'Nhập tên ví',
+    balance: 'Số Dư Ban Đầu',
+    balancePlaceholder: 'Nhập số dư ban đầu',
+    currency: 'Loại Tiền',
+    type: 'Loại Ví',
+    description: 'Mô Tả',
+    descriptionPlaceholder: 'Nhập mô tả ví (tùy chọn)',
+    
+    // Wallet types
+    types: {
+      cash: 'Tiền Mặt',
+      bank: 'Tài Khoản Ngân Hàng',
+      card: 'Thẻ Tín Dụng/Ghi Nợ',
+      savings: 'Tài Khoản Tiết Kiệm',
+      investment: 'Tài Khoản Đầu Tư',
+      other: 'Khác',
+    },
+    
+    // Actions
+    refresh: 'Làm Mới',
+    tryAgain: 'Thử Lại',
+    
+    // Confirmations
+    deleteConfirmTitle: 'Xóa Ví',
+    deleteConfirmMessage: 'Bạn có chắc chắn muốn xóa ví này? Hành động này không thể hoàn tác.',
+    
+    // Notifications
+    notifications: {
+      createSuccess: 'Tạo ví thành công',
+      updateSuccess: 'Cập nhật ví thành công',
+      deleteSuccess: 'Xóa ví thành công',
+      createError: 'Không thể tạo ví',
+      updateError: 'Không thể cập nhật ví',
+      deleteError: 'Không thể xóa ví',
+      loadError: 'Không thể tải danh sách ví',
+    },
+    
+    // Validation
+    validation: {
+      nameRequired: 'Tên ví là bắt buộc',
+      nameMinLength: 'Tên ví phải có ít nhất 2 ký tự',
+      balanceRequired: 'Số dư ban đầu là bắt buộc',
+      balanceNumber: 'Số dư phải là một số hợp lệ',
+      typeRequired: 'Loại ví là bắt buộc',
+    },
+  },
 };

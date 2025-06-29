@@ -12,7 +12,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useWallets, useWalletMutations } from '../hooks/useFinanceData';
-import { useLanguageContext } from '../contexts/LanguageContext';
+import { useLanguageContext, useToastContext } from '../contexts';
 import { WalletCard } from '../components/ui/WalletCard';
 import { WalletForm } from '../components/forms/WalletForm';
 import { ConfirmDialog, Loading } from '../components/ui';
@@ -23,6 +23,7 @@ import './WalletsPage.css';
 
 const WalletsPage: React.FC = () => {
   const { translations } = useLanguageContext();
+  const { showSuccess, showError } = useToastContext();
 
   // Data fetching
   const { wallets, isLoading, error, refresh } = useWallets();
@@ -37,6 +38,7 @@ const WalletsPage: React.FC = () => {
     walletName?: string;
   }>({ show: false });
   const [formLoading, setFormLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Calculate totals
   const { totalBalance, positiveWallets, negativeWallets } = useMemo(() => {
@@ -93,29 +95,63 @@ const WalletsPage: React.FC = () => {
           : await createWallet(data as CreateWalletRequest);
 
         if (result.success) {
+          // Close form first
           setShowForm(false);
           setEditingWallet(null);
-          await refresh(); // Refresh the wallet list
+          
+          // Manually refresh data after mutation
+          await refresh();
+          
+          // Show success message
+          showSuccess(
+            editingWallet 
+              ? translations.wallets.notifications.updateSuccess
+              : translations.wallets.notifications.createSuccess
+          );
+        } else {
+          showError(
+            result.error || (editingWallet 
+              ? translations.wallets.notifications.updateError
+              : translations.wallets.notifications.createError)
+          );
         }
       } catch (error) {
         console.error('Form submission error:', error);
+        showError(
+          editingWallet 
+            ? translations.wallets.notifications.updateError
+            : translations.wallets.notifications.createError
+        );
       } finally {
         setFormLoading(false);
       }
     },
-    [editingWallet, createWallet, updateWallet, refresh]
+    [editingWallet, createWallet, updateWallet, refresh, showSuccess, showError, translations.wallets.notifications]
   );
 
   const handleConfirmDelete = useCallback(async () => {
     if (!deleteConfirm.walletId) return;
 
-    const result = await deleteWallet(deleteConfirm.walletId);
-    
-    if (result.success) {
-      setDeleteConfirm({ show: false });
-      await refresh(); // Refresh the wallet list
+    try {
+      const result = await deleteWallet(deleteConfirm.walletId);
+      
+      if (result.success) {
+        // Close dialog first
+        setDeleteConfirm({ show: false });
+        
+        // Manually refresh data after deletion
+        await refresh();
+        
+        // Show success message
+        showSuccess(translations.wallets.notifications.deleteSuccess);
+      } else {
+        showError(result.error || translations.wallets.notifications.deleteError);
+      }
+    } catch (error) {
+      console.error('Delete wallet error:', error);
+      showError(translations.wallets.notifications.deleteError);
     }
-  }, [deleteConfirm.walletId, deleteWallet, refresh]);
+  }, [deleteConfirm.walletId, deleteWallet, refresh, showSuccess, showError, translations.wallets.notifications]);
 
   const handleCloseForm = useCallback(() => {
     setShowForm(false);
@@ -123,8 +159,17 @@ const WalletsPage: React.FC = () => {
   }, []);
 
   const handleRefresh = useCallback(async () => {
-    await refresh();
-  }, [refresh]);
+    setRefreshing(true);
+    try {
+      // Force revalidation with refresh option
+      await refresh();
+    } catch (error) {
+      console.error('Refresh error:', error);
+      showError(translations.wallets.notifications.loadError);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refresh, showError, translations.wallets.notifications]);
 
   // Loading state
   if (isLoading && (!wallets || wallets.length === 0)) {
@@ -132,7 +177,7 @@ const WalletsPage: React.FC = () => {
       <div className="wallets-page">
         <div className="wallets-page-loading">
           <Loading />
-          <p>Loading wallets...</p>
+          <p>{translations.common.loading}</p>
         </div>
       </div>
     );
@@ -146,11 +191,11 @@ const WalletsPage: React.FC = () => {
           <div className="wallets-page-error-icon">
             <AlertTriangle size={48} />
           </div>
-          <h2>Failed to Load Wallets</h2>
+          <h2>{translations.wallets.notifications.loadError}</h2>
           <p>{error}</p>
           <Button onClick={handleRefresh} variant="primary">
             <RefreshCw size={16} />
-            Try Again
+            {translations.wallets.tryAgain}
           </Button>
         </div>
       </div>
@@ -163,10 +208,10 @@ const WalletsPage: React.FC = () => {
       <div className="wallets-page-header">
         <div className="wallets-page-title-section">
           <h1 className="wallets-page-title">
-            Wallets
+            {translations.wallets.title}
           </h1>
           <p className="wallets-page-subtitle">
-            Manage your accounts and track balances across all your wallets
+            {translations.wallets.subtitle}
           </p>
         </div>
         
@@ -175,14 +220,14 @@ const WalletsPage: React.FC = () => {
             onClick={handleRefresh}
             variant="secondary"
             size="sm"
-            disabled={isLoading}
+            disabled={isLoading || refreshing}
           >
-            <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-            Refresh
+            <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+            {translations.wallets.refresh}
           </Button>
           <Button onClick={handleCreateWallet} variant="primary">
             <Plus size={18} />
-            {translations.common.add} Wallet
+            {translations.wallets.addNew}
           </Button>
         </div>
       </div>
@@ -194,12 +239,12 @@ const WalletsPage: React.FC = () => {
             <WalletIcon size={24} />
           </div>
           <div className="wallets-summary-content">
-            <h3>Total Balance</h3>
+            <h3>{translations.wallets.totalBalance}</h3>
             <p className="wallets-summary-amount">
               <CurrencyAmount amountInVnd={totalBalance} />
             </p>
             <span className="wallets-summary-meta">
-              {wallets?.length || 0} {wallets?.length === 1 ? 'wallet' : 'wallets'}
+              {wallets?.length || 0} {translations.wallets.walletsCount}
             </span>
           </div>
         </div>
@@ -209,20 +254,20 @@ const WalletsPage: React.FC = () => {
             <TrendingUp size={24} />
           </div>
           <div className="wallets-summary-content">
-            <h3>Positive Balances</h3>
+            <h3>{translations.wallets.positiveWallets}</h3>
             <p className="wallets-summary-count">{positiveWallets}</p>
-            <span className="wallets-summary-meta">wallets with positive balance</span>
+            <span className="wallets-summary-meta">{translations.wallets.walletsCount}</span>
           </div>
         </div>
 
-        <div className="wallets-summary-card wallets-summary-card--warning">
+        <div className="wallets-summary-card wallets-summary-card--danger">
           <div className="wallets-summary-icon">
             <TrendingDown size={24} />
           </div>
           <div className="wallets-summary-content">
-            <h3>Negative Balances</h3>
+            <h3>{translations.wallets.negativeWallets}</h3>
             <p className="wallets-summary-count">{negativeWallets}</p>
-            <span className="wallets-summary-meta">wallets with negative balance</span>
+            <span className="wallets-summary-meta">{translations.wallets.walletsCount}</span>
           </div>
         </div>
       </div>
@@ -245,11 +290,11 @@ const WalletsPage: React.FC = () => {
             <div className="wallets-page-empty-icon">
               <WalletIcon size={64} />
             </div>
-            <h3>No Wallets Yet</h3>
-            <p>Create your first wallet to start managing your finances</p>
+            <h3>{translations.wallets.noWallets}</h3>
+            <p>{translations.wallets.noWalletsDescription}</p>
             <Button onClick={handleCreateWallet} variant="primary">
               <Plus size={18} />
-              Create Wallet
+              {translations.wallets.create}
             </Button>
           </div>
         )}
@@ -267,8 +312,8 @@ const WalletsPage: React.FC = () => {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteConfirm.show}
-        title="Delete Wallet"
-        message={`Are you sure you want to delete "${deleteConfirm.walletName}"? This action cannot be undone.`}
+        title={translations.wallets.deleteConfirmTitle}
+        message={`${translations.wallets.deleteConfirmMessage} "${deleteConfirm.walletName}"`}
         confirmText={translations.common.delete}
         cancelText={translations.common.cancel}
         onConfirm={handleConfirmDelete}

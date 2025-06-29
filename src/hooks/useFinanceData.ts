@@ -42,7 +42,7 @@ export const useWalletMutations = () => {
   const createWallet = async (data: CreateWalletRequest) => {
     try {
       const newWallet = await walletApi.create(data);
-      mutate(SWR_KEYS.WALLETS.ALL);
+      // Note: SWR mutation now handled by page-level refresh
       return { success: true, data: newWallet };
     } catch (error: any) {
       return {
@@ -55,9 +55,11 @@ export const useWalletMutations = () => {
   const updateWallet = async (data: Wallet) => {
     try {
       const updatedWallet = await walletApi.update(data);
-      mutate(SWR_KEYS.WALLETS.ALL);
+      // Force revalidation by using mutate with revalidate: true
+      await mutate(SWR_KEYS.WALLETS.ALL, undefined, { revalidate: true });
       return { success: true, data: updatedWallet };
     } catch (error: any) {
+      console.error('Update wallet error:', error);
       return {
         success: false,
         error: error.response?.data?.message || translations.errors.unexpected,
@@ -68,7 +70,7 @@ export const useWalletMutations = () => {
   const deleteWallet = async (walletId: string) => {
     try {
       await walletApi.delete(walletId);
-      mutate(SWR_KEYS.WALLETS.ALL);
+      // Note: SWR mutation now handled by page-level refresh
       return { success: true };
     } catch (error: any) {
       return {
@@ -103,19 +105,25 @@ export const useWallet = (walletId: string | null) => {
  * Hook to fetch all wallets using SWR
  */
 export const useWallets = () => {
-  const { data, error, isLoading } = useSWR<Wallet[]>(
+  const { data, error, isLoading, mutate: mutateFn } = useSWR<Wallet[]>(
     SWR_KEYS.WALLETS.ALL,
     async () => {
       const result = await walletApi.getAll();
       return result;
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 5000,
+      errorRetryCount: 3,
     }
   );
 
   return {
-    wallets: data,
+    wallets: data || [],
     isLoading,
-    error,
-    refresh: () => mutate(SWR_KEYS.WALLETS.ALL),
+    error: error?.message || null,
+    refresh: () => mutateFn(undefined, { revalidate: true }), // Force revalidation
   };
 };
 
