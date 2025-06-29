@@ -24,12 +24,14 @@ import './AnalyticsPage.css';
 
 type ChartView = 'daily' | 'weekly' | 'monthly' | 'yearly';
 type PieChartType = 'income' | 'expense';
+type PieChartSource = 'category' | 'wallet';
 type DateRangeMode = 'preset' | 'custom';
 
 export const AnalyticsPage: React.FC = () => {
   // State
   const [selectedChart, setSelectedChart] = useState<ChartView>('monthly');
   const [pieChartType, setPieChartType] = useState<PieChartType>('expense');
+  const [pieChartSource, setPieChartSource] = useState<PieChartSource>('category');
   const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');
   const [customDateRange, setCustomDateRange] = useState({
     startDate: '',
@@ -42,6 +44,7 @@ export const AnalyticsPage: React.FC = () => {
   const {
     // Data
     cashFlow,
+    walletBreakdown,
     
     // Loading
     loading,
@@ -52,6 +55,7 @@ export const AnalyticsPage: React.FC = () => {
     
     // Actions
     fetchCategoryBreakdown,
+    fetchWalletBreakdown,
     fetchCashFlow,
     fetchDailySummary,
     fetchWeeklySummary,
@@ -60,6 +64,7 @@ export const AnalyticsPage: React.FC = () => {
     
     // Chart helpers
     getCategoryPieChartData,
+    getWalletPieChartData,
     getDailyBarChartData,
     getWeeklyBarChartData,
     getMonthlyBarChartData,
@@ -73,6 +78,10 @@ export const AnalyticsPage: React.FC = () => {
         // Custom date range
         await Promise.all([
           fetchCategoryBreakdown({
+            startDate: customDateRange.startDate,
+            endDate: customDateRange.endDate
+          }),
+          fetchWalletBreakdown({
             startDate: customDateRange.startDate,
             endDate: customDateRange.endDate
           }),
@@ -108,10 +117,11 @@ export const AnalyticsPage: React.FC = () => {
             break;
         }
         
-        // Always fetch category breakdown and cash flow for current period
+        // Always fetch category breakdown, wallet breakdown and cash flow for current period
         const dateRange = getDateRangeForPeriod(selectedChart);
         await Promise.all([
           fetchCategoryBreakdown(dateRange),
+          fetchWalletBreakdown(dateRange),
           fetchCashFlow(dateRange)
         ]);
       }
@@ -120,7 +130,7 @@ export const AnalyticsPage: React.FC = () => {
       // The error is already handled by individual fetch functions
       // This is just an additional safety net
     }
-  }, [selectedChart, dateRangeMode, customDateRange, fetchCategoryBreakdown, fetchCashFlow, fetchDailySummary, fetchWeeklySummary, fetchMonthlySummary, fetchYearlySummary]);
+  }, [selectedChart, dateRangeMode, customDateRange, fetchCategoryBreakdown, fetchWalletBreakdown, fetchCashFlow, fetchDailySummary, fetchWeeklySummary, fetchMonthlySummary, fetchYearlySummary]);
 
   // Helper to get date range for periods
   const getDateRangeForPeriod = (period: ChartView) => {
@@ -184,6 +194,12 @@ export const AnalyticsPage: React.FC = () => {
     { value: 'income' as PieChartType, label: translations.analytics?.income || 'Income', icon: DollarSign }
   ];
 
+  // Pie chart source options
+  const pieChartSourceOptions = [
+    { value: 'category' as PieChartSource, label: translations.analytics?.byCategory || 'By Category', icon: BarChart3 },
+    { value: 'wallet' as PieChartSource, label: 'By Wallet', icon: CreditCard }
+  ];
+
   // Get chart data based on selected view
   const getChartData = React.useCallback(() => {
     try {
@@ -215,8 +231,10 @@ export const AnalyticsPage: React.FC = () => {
         }
       }
 
-      // Get pie chart data based on type
-      const pieData = getCategoryPieChartData(pieChartType);
+      // Get pie chart data based on type and source
+      const pieData = pieChartSource === 'wallet' 
+        ? getWalletPieChartData(pieChartType)
+        : getCategoryPieChartData(pieChartType);
 
       const chartLabel = dateRangeMode === 'custom' && customDateRange.startDate && customDateRange.endDate
         ? `Custom Range: ${customDateRange.startDate} - ${customDateRange.endDate}`
@@ -241,11 +259,13 @@ export const AnalyticsPage: React.FC = () => {
     cashFlow, 
     selectedChart, 
     pieChartType, 
+    pieChartSource,
     getDailyBarChartData, 
     getWeeklyBarChartData, 
     getMonthlyBarChartData, 
     getYearlyBarChartData, 
-    getCategoryPieChartData, 
+    getCategoryPieChartData,
+    getWalletPieChartData, 
     translations.analytics?.title, 
     chartOptions
   ]);
@@ -364,6 +384,31 @@ export const AnalyticsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Pie Chart Source Selection */}
+        <div className="analytics-page__control-group">
+          <label className="analytics-page__control-label">
+            Breakdown Source
+          </label>
+          <div className="analytics-page__button-group">
+            {pieChartSourceOptions.map(option => {
+              const IconComponent = option.icon;
+              return (
+                <button
+                  key={option.value}
+                  className={`analytics-page__control-btn ${
+                    pieChartSource === option.value ? 'active' : ''
+                  }`}
+                  onClick={() => setPieChartSource(option.value)}
+                  disabled={isLoading}
+                >
+                  <IconComponent className="analytics-page__control-icon" size={16} />
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Date Range Mode */}
         <div className="analytics-page__control-group">
           <label className="analytics-page__control-label">
@@ -418,12 +463,12 @@ export const AnalyticsPage: React.FC = () => {
 
       {/* Charts */}
       <div className="analytics-page__charts">
-        {/* Category Breakdown - Pie Chart */}
+        {/* Breakdown - Pie Chart */}
         <div className="analytics-page__chart-container analytics-page__chart-container--pie">
           <AnalyticsPieChart
             data={pieData}
-            title={`${pieChartType === 'income' ? translations.analytics?.income || 'Income' : translations.analytics?.expenses || 'Expenses'} ${translations.analytics?.byCategory || 'by Category'}`}
-            loading={loading.categoryBreakdown}
+            title={`${pieChartType === 'income' ? translations.analytics?.income || 'Income' : translations.analytics?.expenses || 'Expenses'} ${pieChartSource === 'category' ? translations.analytics?.byCategory || 'by Category' : 'by Wallet'}`}
+            loading={pieChartSource === 'category' ? loading.categoryBreakdown : loading.walletBreakdown}
             height={500}
             translations={chartTranslations}
           />
