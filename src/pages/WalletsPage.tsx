@@ -1,149 +1,279 @@
-import React from 'react';
+/**
+ * Wallets Page - Modern wallet management with CRUD operations
+ */
+
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   Plus,
-  CreditCard,
-  PiggyBank,
-  Banknote,
+  Wallet as WalletIcon,
   TrendingUp,
-  MoreHorizontal,
+  TrendingDown,
+  RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
-import { useLanguageContext } from '../contexts';
-import '../styles/pages.css';
+import { useWallets, useWalletMutations } from '../hooks/useFinanceData';
+import { useLanguageContext } from '../contexts/LanguageContext';
+import { WalletCard } from '../components/ui/WalletCard';
+import { WalletForm } from '../components/forms/WalletForm';
+import { ConfirmDialog, Loading } from '../components/ui';
+import Button from '../components/ui/Button';
+import { CurrencyAmount } from '../components/ui/CurrencyAmount';
+import type { Wallet, CreateWalletRequest, UpdateWalletRequest } from '../types/finance';
+import './WalletsPage.css';
 
 const WalletsPage: React.FC = () => {
   const { translations } = useLanguageContext();
 
-  const wallets = [
-    {
-      id: 1,
-      name: 'Main Checking',
-      type: 'checking',
-      balance: 15420.5,
-      bank: 'Chase Bank',
-      lastActivity: '2 hours ago',
-      icon: Banknote,
-      color: 'var(--primary-500)',
+  // Data fetching
+  const { wallets, isLoading, error, refresh } = useWallets();
+  const { createWallet, updateWallet, deleteWallet } = useWalletMutations();
+
+  // Local state
+  const [showForm, setShowForm] = useState(false);
+  const [editingWallet, setEditingWallet] = useState<Wallet | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    show: boolean;
+    walletId?: string;
+    walletName?: string;
+  }>({ show: false });
+  const [formLoading, setFormLoading] = useState(false);
+
+  // Calculate totals
+  const { totalBalance, positiveWallets, negativeWallets } = useMemo(() => {
+    if (!wallets || wallets.length === 0) {
+      return { totalBalance: 0, positiveWallets: 0, negativeWallets: 0 };
+    }
+
+    let total = 0;
+    let positive = 0;
+    let negative = 0;
+
+    wallets.forEach(wallet => {
+      total += wallet.balance;
+      if (wallet.balance >= 0) {
+        positive++;
+      } else {
+        negative++;
+      }
+    });
+
+    return {
+      totalBalance: total,
+      positiveWallets: positive,
+      negativeWallets: negative,
+    };
+  }, [wallets]);
+
+  // Handlers
+  const handleCreateWallet = useCallback(() => {
+    setEditingWallet(null);
+    setShowForm(true);
+  }, []);
+
+  const handleEditWallet = useCallback((wallet: Wallet) => {
+    setEditingWallet(wallet);
+    setShowForm(true);
+  }, []);
+
+  const handleDeleteWallet = useCallback((wallet: Wallet) => {
+    setDeleteConfirm({
+      show: true,
+      walletId: wallet.walletId,
+      walletName: wallet.walletName,
+    });
+  }, []);
+
+  const handleFormSubmit = useCallback(
+    async (data: CreateWalletRequest | UpdateWalletRequest) => {
+      setFormLoading(true);
+      
+      try {
+        const result = editingWallet
+          ? await updateWallet(data as UpdateWalletRequest)
+          : await createWallet(data as CreateWalletRequest);
+
+        if (result.success) {
+          setShowForm(false);
+          setEditingWallet(null);
+          await refresh(); // Refresh the wallet list
+        }
+      } catch (error) {
+        console.error('Form submission error:', error);
+      } finally {
+        setFormLoading(false);
+      }
     },
-    {
-      id: 2,
-      name: 'Savings Account',
-      type: 'savings',
-      balance: 8750.25,
-      bank: 'Chase Bank',
-      lastActivity: '1 day ago',
-      icon: PiggyBank,
-      color: 'var(--success-500)',
-    },
-    {
-      id: 3,
-      name: 'Credit Card',
-      type: 'credit',
-      balance: -1250.75,
-      bank: 'American Express',
-      lastActivity: '3 hours ago',
-      icon: CreditCard,
-      color: 'var(--warning-500)',
-    },
-  ];
+    [editingWallet, createWallet, updateWallet, refresh]
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deleteConfirm.walletId) return;
+
+    const result = await deleteWallet(deleteConfirm.walletId);
+    
+    if (result.success) {
+      setDeleteConfirm({ show: false });
+      await refresh(); // Refresh the wallet list
+    }
+  }, [deleteConfirm.walletId, deleteWallet, refresh]);
+
+  const handleCloseForm = useCallback(() => {
+    setShowForm(false);
+    setEditingWallet(null);
+  }, []);
+
+  const handleRefresh = useCallback(async () => {
+    await refresh();
+  }, [refresh]);
+
+  // Loading state
+  if (isLoading && (!wallets || wallets.length === 0)) {
+    return (
+      <div className="wallets-page">
+        <div className="wallets-page-loading">
+          <Loading />
+          <p>Loading wallets...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && (!wallets || wallets.length === 0)) {
+    return (
+      <div className="wallets-page">
+        <div className="wallets-page-error">
+          <div className="wallets-page-error-icon">
+            <AlertTriangle size={48} />
+          </div>
+          <h2>Failed to Load Wallets</h2>
+          <p>{error}</p>
+          <Button onClick={handleRefresh} variant="primary">
+            <RefreshCw size={16} />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-container">
-      {' '}
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Wallets & Accounts</h1>
-          <p className="page-subtitle">
-            Manage your financial accounts and track balances
+    <div className="wallets-page">
+      {/* Header */}
+      <div className="wallets-page-header">
+        <div className="wallets-page-title-section">
+          <h1 className="wallets-page-title">
+            Wallets
+          </h1>
+          <p className="wallets-page-subtitle">
+            Manage your accounts and track balances across all your wallets
           </p>
         </div>
-        <div className="page-actions">
-          <button className="btn btn--primary">
+        
+        <div className="wallets-page-actions">
+          <Button 
+            onClick={handleRefresh}
+            variant="secondary"
+            size="sm"
+            disabled={isLoading}
+          >
+            <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+            Refresh
+          </Button>
+          <Button onClick={handleCreateWallet} variant="primary">
             <Plus size={18} />
-            {translations.common.add}
-          </button>
+            {translations.common.add} Wallet
+          </Button>
         </div>
       </div>
-      <div className="page-content">
-        <div className="wallets-grid">
-          {wallets.map(wallet => {
-            const Icon = wallet.icon;
-            return (
-              <div key={wallet.id} className="wallet-card">
-                <div className="wallet-header">
-                  <div
-                    className="wallet-icon"
-                    style={{ backgroundColor: wallet.color }}
-                  >
-                    <Icon size={24} color="white" />
-                  </div>
-                  <button className="wallet-menu">
-                    <MoreHorizontal size={16} />
-                  </button>
-                </div>
 
-                <div className="wallet-content">
-                  <h3 className="wallet-name">{wallet.name}</h3>
-                  <p className="wallet-bank">{wallet.bank}</p>
-
-                  <div
-                    className={`wallet-balance ${wallet.balance < 0 ? 'wallet-balance--negative' : ''}`}
-                  >
-                    {wallet.balance < 0 ? '-' : ''}$
-                    {Math.abs(wallet.balance).toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                  </div>
-
-                  <div className="wallet-meta">
-                    <span className="wallet-type">{wallet.type}</span>
-                    <span className="wallet-activity">
-                      Last activity: {wallet.lastActivity}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="wallet-actions">
-                  {' '}
-                  <button className="wallet-action-btn">
-                    <TrendingUp size={16} />
-                    {translations.common.view} Details
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+      {/* Summary Cards */}
+      <div className="wallets-page-summary">
+        <div className="wallets-summary-card wallets-summary-card--primary">
+          <div className="wallets-summary-icon">
+            <WalletIcon size={24} />
+          </div>
+          <div className="wallets-summary-content">
+            <h3>Total Balance</h3>
+            <p className="wallets-summary-amount">
+              <CurrencyAmount amountInVnd={totalBalance} />
+            </p>
+            <span className="wallets-summary-meta">
+              {wallets?.length || 0} {wallets?.length === 1 ? 'wallet' : 'wallets'}
+            </span>
+          </div>
         </div>
 
-        <div className="summary-cards">
-          <div className="summary-card">
-            <h3>Total Assets</h3>
-            <div className="summary-value positive">$24,170.75</div>
-            <div className="summary-change">
-              <TrendingUp size={16} />
-              +2.5% from last month
-            </div>
+        <div className="wallets-summary-card wallets-summary-card--success">
+          <div className="wallets-summary-icon">
+            <TrendingUp size={24} />
           </div>
-
-          <div className="summary-card">
-            <h3>Total Liabilities</h3>
-            <div className="summary-value negative">$1,250.75</div>
-            <div className="summary-change">
-              <TrendingUp size={16} />
-              -8.3% from last month
-            </div>
+          <div className="wallets-summary-content">
+            <h3>Positive Balances</h3>
+            <p className="wallets-summary-count">{positiveWallets}</p>
+            <span className="wallets-summary-meta">wallets with positive balance</span>
           </div>
+        </div>
 
-          <div className="summary-card">
-            <h3>Net Worth</h3>
-            <div className="summary-value positive">$22,920.00</div>
-            <div className="summary-change">
-              <TrendingUp size={16} />
-              +4.1% from last month
-            </div>
+        <div className="wallets-summary-card wallets-summary-card--warning">
+          <div className="wallets-summary-icon">
+            <TrendingDown size={24} />
+          </div>
+          <div className="wallets-summary-content">
+            <h3>Negative Balances</h3>
+            <p className="wallets-summary-count">{negativeWallets}</p>
+            <span className="wallets-summary-meta">wallets with negative balance</span>
           </div>
         </div>
       </div>
+
+      {/* Wallets Grid */}
+      <div className="wallets-page-content">
+        {wallets && wallets.length > 0 ? (
+          <div className="wallets-grid">
+            {wallets.map(wallet => (
+              <WalletCard
+                key={wallet.walletId}
+                wallet={wallet}
+                onEdit={handleEditWallet}
+                onDelete={handleDeleteWallet}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="wallets-page-empty">
+            <div className="wallets-page-empty-icon">
+              <WalletIcon size={64} />
+            </div>
+            <h3>No Wallets Yet</h3>
+            <p>Create your first wallet to start managing your finances</p>
+            <Button onClick={handleCreateWallet} variant="primary">
+              <Plus size={18} />
+              Create Wallet
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Wallet Form Modal */}
+      <WalletForm
+        wallet={editingWallet}
+        isOpen={showForm}
+        onClose={handleCloseForm}
+        onSubmit={handleFormSubmit}
+        isLoading={formLoading}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.show}
+        title="Delete Wallet"
+        message={`Are you sure you want to delete "${deleteConfirm.walletName}"? This action cannot be undone.`}
+        confirmText={translations.common.delete}
+        cancelText={translations.common.cancel}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteConfirm({ show: false })}
+      />
     </div>
   );
 };

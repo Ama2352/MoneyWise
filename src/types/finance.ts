@@ -43,6 +43,7 @@ export interface Wallet {
 }
 
 export type CreateWalletRequest = Omit<Wallet, 'walletId'>;
+export type UpdateWalletRequest = Wallet;
 
 export interface CashFlow {
   totalIncome: number;
