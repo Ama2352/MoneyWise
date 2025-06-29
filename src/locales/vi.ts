@@ -490,5 +490,6 @@ export const vi: TranslationKeys = {
     deleteTitle: 'Xóa ví',
     deleteMessage: 'Bạn có chắc chắn muốn xóa ví này? Hành động này không thể hoàn tác.',
     deleteConfirm: 'Xóa',
+    walletLabel: "Ví",
   },
 };

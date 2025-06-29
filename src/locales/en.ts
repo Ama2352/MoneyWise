@@ -429,7 +429,7 @@ export const en: TranslationKeys = {
   
   wallets: {
     title: 'Wallets',
-    subtitle: 'Manage your wallets and accounts',
+    subtitle: 'Manage your financial accounts',
     addWallet: 'Add Wallet',
     editWallet: 'Edit Wallet',
     deleteWallet: 'Delete Wallet',
@@ -442,15 +442,11 @@ export const en: TranslationKeys = {
     selectCurrency: 'Select currency',
     description: 'Description',
     descriptionPlaceholder: 'Enter wallet description (optional)',
-    
-    // Wallet types
     checking: 'Checking',
     savings: 'Savings',
     credit: 'Credit Card',
     cash: 'Cash',
     investment: 'Investment',
-    
-    // Actions
     creating: 'Creating...',
     updating: 'Updating...',
     create: 'Create Wallet',
@@ -459,30 +455,33 @@ export const en: TranslationKeys = {
     cancel: 'Cancel',
     edit: 'Edit',
     delete: 'Delete',
-    
-    // Wallet list
     balance: 'Balance',
     totalBalance: 'Total Balance',
+    totalAssets: 'Total Assets',
+    totalLiabilities: 'Total Liabilities',
     noWallets: 'No wallets found',
     noWalletsDescription: 'Create your first wallet to start tracking your finances',
     createFirstWallet: 'Create First Wallet',
-    
-    // Notifications
     createSuccess: 'Wallet created successfully!',
     updateSuccess: 'Wallet updated successfully!',
     deleteSuccess: 'Wallet deleted successfully!',
     createError: 'Failed to create wallet',
     updateError: 'Failed to update wallet',
     deleteError: 'Failed to delete wallet',
-    
-    // Validation
     nameRequired: 'Wallet name is required',
     balanceRequired: 'Initial balance is required',
     currencyRequired: 'Currency is required',
-    
-    // Delete confirmation
     deleteTitle: 'Delete Wallet',
     deleteMessage: 'Are you sure you want to delete this wallet? This action cannot be undone.',
     deleteConfirm: 'Delete',
+    default: 'Default',
+    viewTransactions: 'View Transactions',
+    lastActivity: 'Last activity',
+    currentBalance: 'Current Balance',
+    deleteConfirmMessage: 'Are you sure you want to delete this wallet?',
+    deleteWarning: 'This action cannot be undone.',
+    deleting: 'Deleting...',
+    deleteWalletBtn: 'Delete Wallet',
+    walletLabel: "Wallet",
   },
 };

@@ -19,5 +19,7 @@ export const WalletBalance: React.FC<WalletBalanceProps> = ({ balance }) => {
     });
   }, [balance, convertAndFormat]);
 
-  return <>{formattedBalance}</>;
+  // Helper to check dark mode
+  const isDarkMode = typeof window !== 'undefined' && document.body.classList.contains('dark');
+  return <span className={isDarkMode ? 'wallet-balance-dark' : ''}>{formattedBalance}</span>;
 };

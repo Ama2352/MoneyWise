@@ -438,9 +438,9 @@ const SettingsPage: React.FC = () => {
                 </div>
                 {/* Info bên phải avatar */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                  <div style={{ fontWeight: 700, fontSize: 20, color: 'var(--gray-900)' }}>{formData.displayName || userProfile?.displayName || ''}</div>
-                  <div style={{ color: 'var(--gray-500)', fontSize: 15, marginBottom: 2 }}>{formData.email || userProfile?.email || ''}</div>
-                  <div style={{ color: 'var(--gray-400)', fontSize: 13, marginTop: 4 }}>
+                  <div style={{ fontWeight: 700, fontSize: 20, color: 'var(--gray-900)' }} className="display-name">{formData.displayName || userProfile?.displayName || ''}</div>
+                  <div className="user-email" style={{ fontSize: 15, marginBottom: 2 }}>{formData.email || userProfile?.email || ''}</div>
+                  <div className="avatar-hint-text" style={{ fontSize: 13, marginTop: 4 }}>
                     {t.settings.avatarHint}
                   </div>
                 </div>
@@ -575,76 +575,77 @@ const SettingsPage: React.FC = () => {
               <form onSubmit={handleChangePassword} className="profile-form" autoComplete="off">
                 
                 {/* Option to update profile with password */}
-                <div className="form-group">
-                  <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <div className="security-checkbox-container">
+                  <label className="security-checkbox-label">
                     <input
                       type="checkbox"
                       checked={updateProfileWithPassword}
                       onChange={(e) => setUpdateProfileWithPassword(e.target.checked)}
-                      style={{ margin: 0 }}
                     />
                     {t.settings.alsoUpdateProfile}
                   </label>
-                  <span style={{ fontSize: '14px', color: 'var(--gray-600)' }}>
+                  <div className="security-checkbox-hint">
                     {t.settings.alsoUpdateProfileHint}
-                  </span>
+                  </div>
                 </div>
 
                 {/* Profile fields (shown when checkbox is checked) */}
                 {updateProfileWithPassword && (
-                  <div className="form-grid" style={{ marginBottom: '24px', padding: '16px', border: '1px solid var(--gray-200)', borderRadius: '8px', backgroundColor: 'var(--gray-50)' }}>
-                    <h4 style={{ gridColumn: '1 / -1', margin: '0 0 16px 0', color: 'var(--gray-700)' }}>{t.settings.profileInformation}</h4>
+                  <div className="profile-update-container">
+                    <h4 className="profile-update-title">{t.settings.profileInformation}</h4>
                     
-                    <div className="form-group">
-                      <label className="form-label">
-                        <User size={16} />
-                        {t.settings.firstName}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.firstName}
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
-                        className={`form-input ${formErrors.firstName ? 'error' : ''}`}
-                        placeholder={t.settings.firstNamePlaceholder}
-                      />
-                      {formErrors.firstName && (
-                        <div className="form-error">
-                          {formErrors.firstName}
-                        </div>
-                      )}
-                    </div>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label className="form-label">
+                          <User size={16} />
+                          {t.settings.firstName}
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.firstName}
+                          onChange={(e) => handleInputChange('firstName', e.target.value)}
+                          className={`form-input ${formErrors.firstName ? 'error' : ''}`}
+                          placeholder={t.settings.firstNamePlaceholder}
+                        />
+                        {formErrors.firstName && (
+                          <div className="form-error">
+                            {formErrors.firstName}
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="form-group">
-                      <label className="form-label">
-                        <User size={16} />
-                        {t.settings.lastName}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.lastName}
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
-                        className={`form-input ${formErrors.lastName ? 'error' : ''}`}
-                        placeholder={t.settings.lastNamePlaceholder}
-                      />
-                      {formErrors.lastName && (
-                        <div className="form-error">
-                          {formErrors.lastName}
-                        </div>
-                      )}
-                    </div>
+                      <div className="form-group">
+                        <label className="form-label">
+                          <User size={16} />
+                          {t.settings.lastName}
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.lastName}
+                          onChange={(e) => handleInputChange('lastName', e.target.value)}
+                          className={`form-input ${formErrors.lastName ? 'error' : ''}`}
+                          placeholder={t.settings.lastNamePlaceholder}
+                        />
+                        {formErrors.lastName && (
+                          <div className="form-error">
+                            {formErrors.lastName}
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-                      <label className="form-label">
-                        <Mail size={16} />
-                        {t.settings.emailAddress}
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        disabled={true}
-                        className="form-input"
-                        placeholder={t.settings.emailPlaceholder}
-                      />
+                      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                        <label className="form-label">
+                          <Mail size={16} />
+                          {t.settings.emailAddress}
+                        </label>
+                        <input
+                          type="email"
+                          value={formData.email}
+                          disabled={true}
+                          className="form-input"
+                          placeholder={t.settings.emailPlaceholder}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -654,31 +655,19 @@ const SettingsPage: React.FC = () => {
                     <label className="form-label">
                       <Key size={16} /> {t.settings.currentPassword}
                     </label>
-                    <div style={{ position: 'relative' }}>
+                    <div className="password-input-container">
                       <input
                         type={pwShow.current ? 'text' : 'password'}
                         value={pwForm.currentPassword}
                         onChange={e => setPwForm(f => ({ ...f, currentPassword: e.target.value }))}
-                        className={`form-input ${pwErrors.currentPassword ? 'error' : ''}`}
+                        className={`form-input password-input ${pwErrors.currentPassword ? 'error' : ''}`}
                         placeholder={t.settings.currentPasswordPlaceholder}
                         autoComplete="current-password"
                         id="pw-currentPassword"
-                        style={{ paddingRight: '40px' }}
                       />
                       <button 
                         type="button" 
-                        style={{ 
-                          position: 'absolute', 
-                          right: '12px', 
-                          top: '50%', 
-                          transform: 'translateY(-50%)',
-                          background: 'none', 
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
+                        className="password-toggle-btn"
                         tabIndex={-1} 
                         onClick={() => setPwShow(s => ({ ...s, current: !s.current }))}
                       >
@@ -691,31 +680,19 @@ const SettingsPage: React.FC = () => {
                     <label className="form-label">
                       <Key size={16} /> {t.settings.newPassword}
                     </label>
-                    <div style={{ position: 'relative' }}>
+                    <div className="password-input-container">
                       <input
                         type={pwShow.new ? 'text' : 'password'}
                         value={pwForm.newPassword}
                         onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))}
-                        className={`form-input ${pwErrors.newPassword ? 'error' : ''}`}
+                        className={`form-input password-input ${pwErrors.newPassword ? 'error' : ''}`}
                         placeholder={t.settings.newPasswordPlaceholder}
                         autoComplete="new-password"
                         id="pw-newPassword"
-                        style={{ paddingRight: '40px' }}
                       />
                       <button 
                         type="button" 
-                        style={{ 
-                          position: 'absolute', 
-                          right: '12px', 
-                          top: '50%', 
-                          transform: 'translateY(-50%)',
-                          background: 'none', 
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
+                        className="password-toggle-btn"
                         tabIndex={-1} 
                         onClick={() => setPwShow(s => ({ ...s, new: !s.new }))}
                       >
@@ -728,31 +705,19 @@ const SettingsPage: React.FC = () => {
                     <label className="form-label">
                       <Key size={16} /> {t.settings.confirmNewPassword}
                     </label>
-                    <div style={{ position: 'relative' }}>
+                    <div className="password-input-container">
                       <input
                         type={pwShow.confirm ? 'text' : 'password'}
                         value={pwForm.confirmNewPassword}
                         onChange={e => setPwForm(f => ({ ...f, confirmNewPassword: e.target.value }))}
-                        className={`form-input ${pwErrors.confirmNewPassword ? 'error' : ''}`}
+                        className={`form-input password-input ${pwErrors.confirmNewPassword ? 'error' : ''}`}
                         placeholder={t.settings.confirmPasswordPlaceholder}
                         autoComplete="new-password"
                         id="pw-confirmNewPassword"
-                        style={{ paddingRight: '40px' }}
                       />
                       <button 
                         type="button" 
-                        style={{ 
-                          position: 'absolute', 
-                          right: '12px', 
-                          top: '50%', 
-                          transform: 'translateY(-50%)',
-                          background: 'none', 
-                          border: 'none',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
+                        className="password-toggle-btn"
                         tabIndex={-1} 
                         onClick={() => setPwShow(s => ({ ...s, confirm: !s.confirm }))}
                       >

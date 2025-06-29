@@ -14,7 +14,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { walletApi } from '../api/walletApi';
-import { useToastContext } from '../contexts';
+import { useToastContext, useCurrencyContext } from '../contexts';
 import { useTranslations } from '../hooks';
 import type { Wallet, CreateWalletRequest, UpdateWalletRequest, WalletWithMetadata } from '../types/wallet';
 import '../styles/pages.css';
@@ -22,6 +22,7 @@ import '../styles/wallets.css';
 import '../styles/animations.css';
 import '../styles/modals.css';
 import '../styles/effects.css';
+import CurrencySelector from '../components/ui/CurrencySelector';
 
 const WalletsPage: React.FC = () => {
   // State management
@@ -43,6 +44,7 @@ const WalletsPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { showSuccess, showError } = useToastContext();
+  const { currency, convertAndFormat } = useCurrencyContext();
 
   // Wallet type configurations for better UI
   const walletTypes = [
@@ -260,6 +262,18 @@ const WalletsPage: React.FC = () => {
     loadWallets();
   }, []);
 
+  useEffect(() => {
+    const updateFormattedBalances = async () => {
+      const updated = await Promise.all(wallets.map(async (w) => ({
+        ...w,
+        formattedBalance: await convertAndFormat(w.balance)
+      })));
+      setWallets(updated);
+    };
+    if (wallets.length > 0) updateFormattedBalances();
+    // eslint-disable-next-line
+  }, [currency, wallets.length]);
+
   if (isLoading) {
     return (
       <div className="page-container">
@@ -294,10 +308,11 @@ const WalletsPage: React.FC = () => {
             {t.wallets.subtitle}
           </p>
         </div>
-        <div className="page-actions">
+        <div className="page-actions" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <CurrencySelector />
           <button className="btn btn--primary hover-lift ripple" onClick={openCreateModal}>
             <Plus size={18} />
-{t.wallets.addWallet}
+            {t.wallets.addWallet}
           </button>
         </div>
       </div>
@@ -359,12 +374,12 @@ const WalletsPage: React.FC = () => {
                       </span>
                     )}
                   </h3>
-                  <p className="wallet-bank">{`Ví ${walletType.name.toLowerCase()}`}</p>
+                  <p className="wallet-bank">{`${t.wallets.walletLabel} ${walletType.name}`}</p>
 
                   <div
                     className={`wallet-balance ${wallet.balance < 0 ? 'wallet-balance--negative' : ''}`}
                   >
-                    {formatCurrency(wallet.balance)}
+                    {wallet.formattedBalance || ''}
                   </div>
 
                   <div className="wallet-meta">
@@ -402,7 +417,7 @@ const WalletsPage: React.FC = () => {
             </p>
             <button className="btn btn--primary hover-lift animate-pulse ripple" onClick={openCreateModal}>
               <Plus size={18} />
-{t.wallets.createFirstWallet}
+              {t.wallets.createFirstWallet}
             </button>
           </div>
         )}
@@ -417,7 +432,7 @@ const WalletsPage: React.FC = () => {
             {/* Modal Header */}
             <div className="modal-header">
               <h2 className="modal-title">
-{editingWallet ? `✏️ ${t.wallets.editWallet}` : `➕ ${t.wallets.createWallet}`}
+                {editingWallet ? `✏️ ${t.wallets.editWallet}` : `➕ ${t.wallets.createWallet}`}
               </h2>
               <button className="modal-close hover-scale" onClick={closeModals}>
                 <X size={20} />
@@ -471,7 +486,7 @@ const WalletsPage: React.FC = () => {
                   className="btn-secondary hover-lift ripple"
                   disabled={isSubmitting}
                 >
-{t.common.cancel}
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
@@ -481,12 +496,12 @@ const WalletsPage: React.FC = () => {
                   {isSubmitting ? (
                     <>
                       <Loader size={16} className="animate-spin" />
-{editingWallet ? t.wallets.updating : t.wallets.creating}
+                      {editingWallet ? t.wallets.updating : t.wallets.creating}
                     </>
                   ) : (
                     <>
                       <Save size={16} />
-{editingWallet ? t.wallets.update : t.wallets.create}
+                      {editingWallet ? t.wallets.update : t.wallets.create}
                     </>
                   )}
                 </button>
@@ -502,8 +517,9 @@ const WalletsPage: React.FC = () => {
           <div className="modal-container animate-scaleIn" onClick={e => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="modal-header">
-              <h2 className="modal-title" style={{ color: 'var(--error-600)' }}>
-                ⚠️ {t.wallets.deleteWallet}
+              <h2 className="modal-title modal-title--danger" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Trash2 size={26} style={{ color: '#fff' }} />
+                {t.wallets.deleteWallet}
               </h2>
               <button className="modal-close hover-scale" onClick={cancelDelete}>
                 <X size={20} />
@@ -521,8 +537,8 @@ const WalletsPage: React.FC = () => {
                   border: '1px solid rgba(239, 68, 68, 0.2)'
                 }}
               >
-                <AlertCircle size={48} style={{ color: 'var(--error-500)', marginBottom: 'var(--space-3)' }} />
-                <h3 style={{ color: 'var(--gray-900)', marginBottom: 'var(--space-2)' }}>
+                <Trash2 size={48} style={{ color: 'var(--error-400)', marginBottom: 'var(--space-3)' }} />
+                <h3 className="alert-warning" style={{ marginBottom: 'var(--space-2)' }}>
                   {t.wallets.deleteConfirmMessage}
                 </h3>
                 <p style={{ color: 'var(--gray-600)', marginBottom: 'var(--space-4)' }}>
@@ -547,12 +563,9 @@ const WalletsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleDeleteWallet}
-                className="btn-primary hover-lift ripple"
+                className="btn-danger hover-lift ripple"
                 disabled={!!deletingWalletId}
-                style={{
-                  background: 'linear-gradient(135deg, var(--error-500), var(--error-600))',
-                  borderColor: 'var(--error-500)'
-                }}
+                style={{ minWidth: 140 }}
               >
                 {deletingWalletId === walletToDelete.walletId ? (
                   <>
@@ -561,7 +574,6 @@ const WalletsPage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <Trash2 size={16} />
                     {t.wallets.deleteWalletBtn}
                   </>
                 )}

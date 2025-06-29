@@ -496,5 +496,8 @@ export interface TranslationKeys {
     deleteWarning: string;
     deleting: string;
     deleteWalletBtn: string;
+    totalAssets: string;
+    totalLiabilities: string;
+    walletLabel: string;
   };
 }

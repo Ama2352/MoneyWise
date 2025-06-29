@@ -26,4 +26,5 @@ export interface WalletWithMetadata extends Wallet {
   type?: 'personal' | 'business' | 'savings';
   color?: string;
   isDefault?: boolean;
+  formattedBalance?: string;
 } 
