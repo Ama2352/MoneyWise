@@ -1,17 +1,12 @@
 ﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Search,
-  Bell,
   User,
   Menu,
-  Sun,
-  Moon,
   Globe,
   ChevronDown,
   Settings,
   LogOut,
-  HelpCircle,
 } from 'lucide-react';
 import { useLanguageContext } from '../../contexts';
 import { CurrencySelector } from '../ui';
@@ -27,7 +22,6 @@ interface AppHeaderProps {
 const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = React.useState(false);
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
   const { language, setLanguage, translations } = useLanguageContext();
   const { logout, userProfile } = useAuthContext();
   const navigate = useNavigate();
@@ -57,11 +51,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    // Here you would implement your theme switching logic
-  };
-
   // Navigation handlers
   const handleProfileClick = () => {
     setIsProfileMenuOpen(false);
@@ -71,12 +60,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
   const handleSettingsClick = () => {
     setIsProfileMenuOpen(false);
     navigate('/settings');
-  };
-
-  const handleHelpClick = () => {
-    setIsProfileMenuOpen(false);
-    // Navigate to help page or open help modal
-    console.log('Help & Support clicked');
   };
 
   const handleLogout = () => {
@@ -95,28 +78,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
         >
           <Menu size={20} />
         </button>
-
-        {/* Search */}
-        <div className="app-header__search">
-          <Search size={18} className="app-header__search-icon" />{' '}
-          <input
-            type="text"
-            placeholder={translations.common.searchPlaceholder}
-            className="app-header__search-input"
-          />
-          <kbd className="app-header__search-kbd">âŒ˜K</kbd>
-        </div>
       </div>
 
       <div className="app-header__right">
-        {/* Theme toggle */}
-        <button
-          className="app-header__action"
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-        >
-          {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}{' '}
-        </button>{' '}
         {/* Language selector */}
         <div className="app-header__language">
           {' '}
@@ -186,11 +150,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
         </div>
         {/* Currency selector */}
         <CurrencySelector />
-        {/* Notifications */}
-        <button className="app-header__action app-header__notifications">
-          <Bell size={18} />
-          <span className="app-header__notification-badge">3</span>
-        </button>
         {/* Profile dropdown */}
         <div className="app-header__profile">
           <button
@@ -247,13 +206,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onMobileMenuToggle }) => {
                 >
                   <Settings size={16} />
                   <span>{translations.common.settings}</span>
-                </button>
-                <button 
-                  className="app-header__dropdown-item"
-                  onClick={handleHelpClick}
-                >
-                  <HelpCircle size={16} />
-                  <span>{translations.common.helpSupport}</span>
                 </button>
               </div>
               <div className="app-header__dropdown-section">
