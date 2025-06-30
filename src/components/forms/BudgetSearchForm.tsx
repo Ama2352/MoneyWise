@@ -34,7 +34,7 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
   isSearching = false,
 }) => {
   const { translations, language } = useLanguageContext();
-  const { convertFromDisplay } = useCurrencyContext();
+  const { convertFromDisplay, currency } = useCurrencyContext();
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { wallets, isLoading: walletsLoading } = useWallets();
 
@@ -42,18 +42,24 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Use amount input hook for limit amount search
-  const minAmountInput = useAmountInput({
-    initialValue: 0,
-    onAmountChange: (_rawValue: number) => {},
-    onError: (_error: string | null) => {},
-  });
+  const minAmountInput = useAmountInput(
+    currency.toUpperCase() as 'VND' | 'USD',
+    {
+      initialValue: 0,
+      onAmountChange: (_rawValue: number) => {},
+      onError: (_error: string | null) => {},
+    }
+  );
 
   // Use amount input hook for limit amount search
-  const maxAmountInput = useAmountInput({
-    initialValue: 0,
-    onAmountChange: (_rawValue: number) => {},
-    onError: (_error: string | null) => {},
-  });
+  const maxAmountInput = useAmountInput(
+    currency.toUpperCase() as 'VND' | 'USD',
+    {
+      initialValue: 0,
+      onAmountChange: (_rawValue: number) => {},
+      onError: (_error: string | null) => {},
+    }
+  );
 
   const handleInputChange = (
     field: keyof SearchBudgetRequest,
@@ -76,21 +82,17 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
     }
 
     // Convert amount to VND if specified
-    if (minAmountInput.rawAmount > 0)
-      params.minLimitAmount = await convertFromDisplay(
-        minAmountInput.rawAmount
-      );
-    if (maxAmountInput.rawAmount > 0)
-      params.maxLimitAmount = await convertFromDisplay(
-        maxAmountInput.rawAmount
-      );
+    if (minAmountInput.rawValue > 0)
+      params.minLimitAmount = await convertFromDisplay(minAmountInput.rawValue);
+    if (maxAmountInput.rawValue > 0)
+      params.maxLimitAmount = await convertFromDisplay(maxAmountInput.rawValue);
     onSearch(params);
   };
 
   const handleReset = () => {
     setSearchParams({});
-    minAmountInput.setAmount(0);
-    maxAmountInput.setAmount(0);
+    minAmountInput.setValue(0);
+    maxAmountInput.setValue(0);
     onReset();
   };
 
@@ -132,9 +134,7 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
                 value={searchParams.keywords || ''}
                 onChange={e => handleInputChange('keywords', e.target.value)}
                 className="form-input"
-                placeholder={
-                  translations.budgets.search.keywordsPlaceholder
-                }
+                placeholder={translations.budgets.search.keywordsPlaceholder}
                 disabled={isSearching}
               />
             </div>
@@ -148,7 +148,7 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
                 </label>
                 <DateInput
                   value={searchParams.startDate || ''}
-                  onChange={(value) => handleInputChange('startDate', value)}
+                  onChange={value => handleInputChange('startDate', value)}
                   language={language}
                   className="form-input"
                   disabled={isSearching}
@@ -162,7 +162,7 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
                 </label>
                 <DateInput
                   value={searchParams.endDate || ''}
-                  onChange={(value) => handleInputChange('endDate', value)}
+                  onChange={value => handleInputChange('endDate', value)}
                   language={language}
                   className="form-input"
                   disabled={isSearching}
@@ -230,12 +230,9 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={minAmountInput.displayAmount}
-                  onChange={e =>
-                    minAmountInput.handleInputChange(e.target.value)
-                  }
-                  onFocus={minAmountInput.handleFocus}
-                  onBlur={minAmountInput.handleBlur}
+                  value={minAmountInput.value}
+                  onChange={minAmountInput.onChange}
+                  onBlur={minAmountInput.onBlur}
                   className="form-input"
                   placeholder={minAmountInput.placeholder}
                   disabled={isSearching}
@@ -249,12 +246,9 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={maxAmountInput.displayAmount}
-                  onChange={e =>
-                    maxAmountInput.handleInputChange(e.target.value)
-                  }
-                  onFocus={maxAmountInput.handleFocus}
-                  onBlur={maxAmountInput.handleBlur}
+                  value={maxAmountInput.value}
+                  onChange={maxAmountInput.onChange}
+                  onBlur={maxAmountInput.onBlur}
                   className="form-input"
                   placeholder={maxAmountInput.placeholder}
                   disabled={isSearching}
@@ -285,4 +279,4 @@ export const BudgetSearchForm: React.FC<BudgetSearchFormProps> = ({
       )}
     </div>
   );
-}; 
+};

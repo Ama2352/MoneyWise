@@ -73,7 +73,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Use the amount input hook for currency handling
-    const amountInput = useAmountInput({
+    const amountInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
       initialValue: 0,
       onAmountChange: (_rawValue: number) => {
         // Clear amount error when user starts typing
@@ -103,14 +103,11 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
 
         // Convert VND amount to display currency as a number
         if (currency === 'vnd') {
-          // No conversion needed, amount is already in VND
-          amountInput.setAmount(initialData.amount);
+          amountInput.setValue(initialData.amount);
         } else {
-          // Convert VND to USD, extract the numeric value from formatted result
           convertAndFormat(initialData.amount).then(formatted => {
-            // Extract the numeric value from the formatted string (e.g., "$123.45" -> 123.45)
             const numericValue = parseAmountFromDisplay(formatted);
-            amountInput.setAmount(numericValue);
+            amountInput.setValue(numericValue);
           });
         }
       }
@@ -119,7 +116,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
       currency,
       convertAndFormat,
       parseAmountFromDisplay,
-      amountInput.setAmount,
+      amountInput.setValue,
     ]);
 
     const validateForm = (): boolean => {
@@ -128,7 +125,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
         newErrors.description =
           translations.transactions.form.descriptionRequired;
       }
-      if (!amountInput.rawAmount || amountInput.rawAmount <= 0) {
+      if (!amountInput.rawValue || amountInput.rawValue <= 0) {
         newErrors.amount = translations.transactions.form.amountRequired;
       }
       if (!formData.categoryId) {
@@ -153,7 +150,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
       setIsSubmitting(true);
       try {
         // Convert display amount back to VND for storage
-        const amountInVnd = await convertFromDisplay(amountInput.rawAmount);
+        const amountInVnd = await convertFromDisplay(amountInput.rawValue);
 
         // Convert dayjs to backend format
         const submissionData: CreateTransactionRequest = {
@@ -284,10 +281,9 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                 <TextField
                   label={`${translations.transactions.form.amount} (${currency.toUpperCase()})`}
                   type="text"
-                  value={amountInput.displayAmount}
-                  onChange={e => amountInput.handleInputChange(e.target.value)}
-                  onFocus={amountInput.handleFocus}
-                  onBlur={amountInput.handleBlur}
+                  value={amountInput.value}
+                  onChange={amountInput.onChange}
+                  onBlur={amountInput.onBlur}
                   error={!!errors.amount}
                   helperText={errors.amount}
                   disabled={isLoading || isSubmitting}

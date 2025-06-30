@@ -60,13 +60,13 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [startTime, setStartTime] = useState<Dayjs | null>(null);
   const [endTime, setEndTime] = useState<Dayjs | null>(null); // Use amount input hooks for currency-aware min/max amount handling
-  const minAmountInput = useAmountInput({
+  const minAmountInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
     initialValue: 0,
     onAmountChange: () => {}, // No specific action needed for search filters
     onError: () => {}, // No error handling needed for search filters
   });
 
-  const maxAmountInput = useAmountInput({
+  const maxAmountInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
     initialValue: 0,
     onAmountChange: () => {}, // No specific action needed for search filters
     onError: () => {}, // No error handling needed for search filters
@@ -95,11 +95,11 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
     let minAmountInVnd: number | undefined;
     let maxAmountInVnd: number | undefined;
 
-    if (minAmountInput.rawAmount > 0) {
-      minAmountInVnd = await convertFromDisplay(minAmountInput.rawAmount);
+    if (minAmountInput.rawValue > 0) {
+      minAmountInVnd = await convertFromDisplay(minAmountInput.rawValue);
     }
-    if (maxAmountInput.rawAmount > 0) {
-      maxAmountInVnd = await convertFromDisplay(maxAmountInput.rawAmount);
+    if (maxAmountInput.rawValue > 0) {
+      maxAmountInVnd = await convertFromDisplay(maxAmountInput.rawValue);
     }
 
     const searchFilters: SearchTransactionRequest = {
@@ -129,8 +129,8 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
     setFilters({});
     setStartDate(null);
     setEndDate(null);
-    minAmountInput.setAmount(0);
-    maxAmountInput.setAmount(0);
+    minAmountInput.setValue(0);
+    maxAmountInput.setValue(0);
     setStartTime(null);
     setEndTime(null);
     onClear();
@@ -140,8 +140,8 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
       Object.keys(filters).length > 0 ||
       startDate ||
       endDate ||
-      minAmountInput.rawAmount > 0 ||
-      maxAmountInput.rawAmount > 0 ||
+      minAmountInput.rawValue > 0 ||
+      maxAmountInput.rawValue > 0 ||
       startTime ||
       endTime
     );
@@ -154,7 +154,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
     if (filters.walletName) count++;
     if (filters.dayOfWeek) count++;
     if (startDate || endDate) count++;
-    if (minAmountInput.rawAmount > 0 || maxAmountInput.rawAmount > 0) count++;
+    if (minAmountInput.rawValue > 0 || maxAmountInput.rawValue > 0) count++;
     if (startTime || endTime) count++;
     return count;
   };
@@ -421,12 +421,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   size="small"
                   label={`${translations.transactions.minAmount} (${currency.toUpperCase()})`}
                   type="text"
-                  value={minAmountInput.displayAmount}
-                  onChange={e =>
-                    minAmountInput.handleInputChange(e.target.value)
-                  }
-                  onFocus={minAmountInput.handleFocus}
-                  onBlur={minAmountInput.handleBlur}
+                  value={minAmountInput.value}
+                  onChange={minAmountInput.onChange}
+                  onBlur={minAmountInput.onBlur}
                   placeholder={minAmountInput.placeholder}
                   InputProps={{
                     startAdornment: (
@@ -441,12 +438,9 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
                   size="small"
                   label={`${translations.transactions.maxAmount} (${currency.toUpperCase()})`}
                   type="text"
-                  value={maxAmountInput.displayAmount}
-                  onChange={e =>
-                    maxAmountInput.handleInputChange(e.target.value)
-                  }
-                  onFocus={maxAmountInput.handleFocus}
-                  onBlur={maxAmountInput.handleBlur}
+                  value={maxAmountInput.value}
+                  onChange={maxAmountInput.onChange}
+                  onBlur={maxAmountInput.onBlur}
                   placeholder={maxAmountInput.placeholder}
                   InputProps={{
                     startAdornment: (

@@ -51,7 +51,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Use amount input hook for proper currency handling
-  const amountInput = useAmountInput({
+  const amountInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
     initialValue: 0,
     onAmountChange: (_rawValue: number) => {
       // Clear amount error when user starts typing
@@ -86,7 +86,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
   useEffect(() => {
     if (budget && initializationRef.current === null) {
       initializationRef.current = budget.limitAmount;
-      amountInput.setAmount(budget.limitAmount);
+      amountInput.setValue(budget.limitAmount);
     }
   }, [budget, amountInput]);
 
@@ -113,7 +113,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
         walletId: '',
       });
       // Reset amount using the hook
-      amountInput.setAmount(0);
+      amountInput.setValue(0);
     }
   }, [budget, parseDateForDisplay]); // Remove amountInput.setAmount
 
@@ -141,7 +141,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
         translations.budgets.validation.descriptionRequired;
     }
 
-    if (!amountInput.rawAmount || amountInput.rawAmount <= 0) {
+    if (!amountInput.rawValue || amountInput.rawValue <= 0) {
       newErrors.limitAmount =
         translations.budgets.validation.limitAmountRequired;
     }
@@ -195,9 +195,9 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
 
     try {
       // Convert display amount back to VND for storage using amount input hook
-      const vndAmount = await convertFromDisplay(amountInput.rawAmount);
+      const vndAmount = await convertFromDisplay(amountInput.rawValue);
       console.log(
-        `Converted ${amountInput.rawAmount} ${currency.toUpperCase()} to ${vndAmount} VND`
+        `Converted ${amountInput.rawValue} ${currency.toUpperCase()} to ${vndAmount} VND`
       );
 
       // Parse dates from input format to ISO format for backend
@@ -274,10 +274,9 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
         </label>
         <input
           type="text"
-          value={amountInput.displayAmount}
-          onChange={e => amountInput.handleInputChange(e.target.value)}
-          onFocus={amountInput.handleFocus}
-          onBlur={amountInput.handleBlur}
+          value={amountInput.value}
+          onChange={amountInput.onChange}
+          onBlur={amountInput.onBlur}
           className={`form-input ${errors.limitAmount ? 'form-input--error' : ''}`}
           placeholder={amountInput.placeholder}
           disabled={isSubmitting}

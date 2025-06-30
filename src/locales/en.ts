@@ -60,6 +60,10 @@ export const en: TranslationKeys = {
     },
     remaining: 'remaining',
     daysOverdue: '{n} days overdue',
+    amountRequired: 'Amount is required',
+    invalidUSDFormat: 'Invalid USD format',
+    invalidVNDFormat: 'Invalid VND format (no decimals allowed)',
+    negativeNotAllowed: 'Negative values are not allowed',
   },
   validation: {
     required: 'This field is required',

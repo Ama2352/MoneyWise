@@ -40,7 +40,7 @@ export const WalletForm: React.FC<WalletFormProps> = ({
   });
 
   // Use amount input hook for balance (allow negative)
-  const balanceInput = useAmountInput({
+  const balanceInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
     initialValue: 0,
     onAmountChange: () => {}, // We'll handle validation separately
     onError: () => {}, // We'll handle validation separately
@@ -61,27 +61,24 @@ export const WalletForm: React.FC<WalletFormProps> = ({
 
       // For edit mode, convert VND balance to display currency using same logic as WalletCard
       if (currency === 'vnd') {
-        // Direct VND amount
-        balanceInput.setAmount(wallet.balance || 0);
+        balanceInput.setValue(wallet.balance || 0);
       } else {
         // For USD, use the same conversion logic as CurrencyAmount component
         // Convert from VND to display currency asynchronously
         (async () => {
           try {
-            // Inline conversion logic to avoid dependency issues
             const conversion = await convertCurrency({
               amount: wallet.balance || 0,
               from: 'vnd',
               to: 'usd',
             });
-            balanceInput.setAmount(conversion.convertedAmount);
+            balanceInput.setValue(conversion.convertedAmount);
           } catch (error) {
             console.error(
               'Error converting balance to display currency:',
               error
             );
-            // Fallback to direct amount if conversion fails
-            balanceInput.setAmount(wallet.balance || 0);
+            balanceInput.setValue(wallet.balance || 0);
           }
         })();
       }
@@ -90,7 +87,7 @@ export const WalletForm: React.FC<WalletFormProps> = ({
       setFormData({
         walletName: '',
       });
-      balanceInput.setAmount(0);
+      balanceInput.setValue(0);
     }
     setErrors({});
   }, [wallet?.walletId, wallet?.balance, wallet?.walletName, isOpen, currency]); // Remove function dependencies
@@ -106,8 +103,8 @@ export const WalletForm: React.FC<WalletFormProps> = ({
     }
 
     if (
-      typeof balanceInput.rawAmount !== 'number' ||
-      isNaN(balanceInput.rawAmount)
+      typeof balanceInput.rawValue !== 'number' ||
+      isNaN(balanceInput.rawValue)
     ) {
       newErrors.balance = translations.wallets.validation.balanceNumber;
     }
@@ -116,7 +113,7 @@ export const WalletForm: React.FC<WalletFormProps> = ({
     return Object.keys(newErrors).length === 0;
   }, [
     formData.walletName,
-    balanceInput.rawAmount,
+    balanceInput.rawValue,
     translations.wallets.validation,
   ]);
 
@@ -131,7 +128,7 @@ export const WalletForm: React.FC<WalletFormProps> = ({
 
       try {
         // Convert balance from display to VND
-        const balanceInVnd = await convertFromDisplay(balanceInput.rawAmount);
+        const balanceInVnd = await convertFromDisplay(balanceInput.rawValue);
 
         const submitData = wallet
           ? ({
@@ -152,7 +149,7 @@ export const WalletForm: React.FC<WalletFormProps> = ({
     },
     [
       formData.walletName,
-      balanceInput.rawAmount,
+      balanceInput.rawValue,
       wallet?.walletId,
       validateForm,
       onSubmit,
@@ -227,10 +224,9 @@ export const WalletForm: React.FC<WalletFormProps> = ({
               id="balance"
               type="text"
               className={`wallet-form-input ${errors.balance ? 'error' : ''}`}
-              value={balanceInput.displayAmount}
-              onChange={e => balanceInput.handleInputChange(e.target.value)}
-              onFocus={balanceInput.handleFocus}
-              onBlur={balanceInput.handleBlur}
+              value={balanceInput.value}
+              onChange={balanceInput.onChange}
+              onBlur={balanceInput.onBlur}
               placeholder={balanceInput.placeholder}
               disabled={isLoading}
             />

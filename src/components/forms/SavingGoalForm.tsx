@@ -51,7 +51,7 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Use amount input hook for proper currency handling
-  const amountInput = useAmountInput({
+  const amountInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
     initialValue: 0,
     onAmountChange: (_rawValue: number) => {
       // Clear amount error when user starts typing
@@ -90,11 +90,8 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
   useEffect(() => {
     if (goal?.targetAmount && initializationRef.current !== goal.targetAmount) {
       initializationRef.current = goal.targetAmount;
-
-      // Convert VND amount to display currency as a number
       if (currency === 'vnd') {
-        // No conversion needed, amount is already in VND
-        amountInput.setAmount(goal.targetAmount);
+        amountInput.setValue(goal.targetAmount);
       } else {
         currencyService
           .convertCurrency({
@@ -103,14 +100,14 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
             to: currency, // e.g., 'usd'
           })
           .then(result => {
-            amountInput.setAmount(result.convertedAmount);
+            amountInput.setValue(result.convertedAmount);
             console.log(
               `Converted ${goal.targetAmount} VND to ${result.convertedAmount} ${currency.toUpperCase()}`
             );
           });
       }
     }
-  }, [goal?.targetAmount, currency]); // Remove amountInput.setAmount and other unstable dependencies
+  }, [goal?.targetAmount, currency]);
 
   // Update form data when goal changes
   useEffect(() => {
@@ -135,9 +132,9 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
         walletId: '',
       });
       // Reset amount using the hook
-      amountInput.setAmount(0);
+      amountInput.setValue(0);
     }
-  }, [goal, parseDateForDisplay]); // Remove amountInput.setAmount
+  }, [goal, parseDateForDisplay]);
 
   // Handle language change - convert date formats
   useEffect(() => {
@@ -152,7 +149,7 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
         endDate: prev.endDate ? convertDateBetweenLanguages(prev.endDate, prevLanguage, language) : prev.endDate,
       }));
     }
-  }, [language]); // Remove formData dependencies to avoid infinite loop
+  }, [language]);
 
   // Validation
   const validateForm = (): boolean => {
@@ -163,7 +160,7 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
         translations.savingGoals.validation.descriptionRequired;
     }
 
-    if (!amountInput.rawAmount || amountInput.rawAmount <= 0) {
+    if (!amountInput.rawValue || amountInput.rawValue <= 0) {
       newErrors.targetAmount =
         translations.savingGoals.validation.targetAmountRequired;
     }
@@ -217,9 +214,9 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
 
     try {
       // Convert display amount back to VND for storage using amount input hook
-      const vndAmount = await convertFromDisplay(amountInput.rawAmount);
+      const vndAmount = await convertFromDisplay(amountInput.rawValue);
       console.log(
-        `Converted ${amountInput.rawAmount} ${currency.toUpperCase()} to ${vndAmount} VND`
+        `Converted ${amountInput.rawValue} ${currency.toUpperCase()} to ${vndAmount} VND`
       );
 
       // Parse dates from input format to ISO format for backend
@@ -296,10 +293,9 @@ export const SavingGoalForm: React.FC<SavingGoalFormProps> = ({
         </label>
         <input
           type="text"
-          value={amountInput.displayAmount}
-          onChange={e => amountInput.handleInputChange(e.target.value)}
-          onFocus={amountInput.handleFocus}
-          onBlur={amountInput.handleBlur}
+          value={amountInput.value}
+          onChange={amountInput.onChange}
+          onBlur={amountInput.onBlur}
           className={`form-input ${errors.targetAmount ? 'form-input--error' : ''}`}
           placeholder={amountInput.placeholder}
           disabled={isSubmitting}

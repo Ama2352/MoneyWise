@@ -34,7 +34,7 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
   isSearching = false,
 }) => {
   const { translations, language } = useLanguageContext();
-  const { convertFromDisplay } = useCurrencyContext();
+  const { convertFromDisplay, currency } = useCurrencyContext();
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { wallets, isLoading: walletsLoading } = useWallets();
 
@@ -42,18 +42,24 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Use amount input hook for target amount search
-  const minAmountInput = useAmountInput({
-    initialValue: 0,
-    onAmountChange: (_rawValue: number) => {},
-    onError: (_error: string | null) => {},
-  });
+  const minAmountInput = useAmountInput(
+    currency.toUpperCase() as 'VND' | 'USD',
+    {
+      initialValue: 0,
+      onAmountChange: (_rawValue: number) => {},
+      onError: (_error: string | null) => {},
+    }
+  );
 
   // Use amount input hook for target amount search
-  const maxAmountInput = useAmountInput({
-    initialValue: 0,
-    onAmountChange: (_rawValue: number) => {},
-    onError: (_error: string | null) => {},
-  });
+  const maxAmountInput = useAmountInput(
+    currency.toUpperCase() as 'VND' | 'USD',
+    {
+      initialValue: 0,
+      onAmountChange: (_rawValue: number) => {},
+      onError: (_error: string | null) => {},
+    }
+  );
 
   const handleInputChange = (
     field: keyof SearchSavingGoalRequest,
@@ -76,21 +82,21 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
     }
 
     // Convert amount to VND if specified
-    if (minAmountInput.rawAmount > 0)
+    if (minAmountInput.rawValue > 0)
       params.minTargetAmount = await convertFromDisplay(
-        minAmountInput.rawAmount
+        minAmountInput.rawValue
       );
-    if (maxAmountInput.rawAmount > 0)
+    if (maxAmountInput.rawValue > 0)
       params.maxTargetAmount = await convertFromDisplay(
-        maxAmountInput.rawAmount
+        maxAmountInput.rawValue
       );
     onSearch(params);
   };
 
   const handleReset = () => {
     setSearchParams({});
-    minAmountInput.setAmount(0);
-    maxAmountInput.setAmount(0);
+    minAmountInput.setValue(0);
+    maxAmountInput.setValue(0);
     onReset();
   };
 
@@ -148,7 +154,7 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
                 </label>
                 <DateInput
                   value={searchParams.startDate || ''}
-                  onChange={(value) => handleInputChange('startDate', value)}
+                  onChange={value => handleInputChange('startDate', value)}
                   language={language}
                   className="form-input"
                   disabled={isSearching}
@@ -162,7 +168,7 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
                 </label>
                 <DateInput
                   value={searchParams.endDate || ''}
-                  onChange={(value) => handleInputChange('endDate', value)}
+                  onChange={value => handleInputChange('endDate', value)}
                   language={language}
                   className="form-input"
                   disabled={isSearching}
@@ -230,12 +236,9 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={minAmountInput.displayAmount}
-                  onChange={e =>
-                    minAmountInput.handleInputChange(e.target.value)
-                  }
-                  onFocus={minAmountInput.handleFocus}
-                  onBlur={minAmountInput.handleBlur}
+                  value={minAmountInput.value}
+                  onChange={minAmountInput.onChange}
+                  onBlur={minAmountInput.onBlur}
                   className="form-input"
                   placeholder={minAmountInput.placeholder}
                   disabled={isSearching}
@@ -249,12 +252,9 @@ export const SavingGoalSearchForm: React.FC<SavingGoalSearchFormProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={maxAmountInput.displayAmount}
-                  onChange={e =>
-                    maxAmountInput.handleInputChange(e.target.value)
-                  }
-                  onFocus={maxAmountInput.handleFocus}
-                  onBlur={maxAmountInput.handleBlur}
+                  value={maxAmountInput.value}
+                  onChange={maxAmountInput.onChange}
+                  onBlur={maxAmountInput.onBlur}
                   className="form-input"
                   placeholder={maxAmountInput.placeholder}
                   disabled={isSearching}

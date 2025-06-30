@@ -1,118 +1,246 @@
-/**
- * Custom hook for handling amount input with currency-aware formatting
- * Manages display state, raw value, and input event handlers
- */
-
-import { useState, useCallback } from 'react';
-import { useCurrencyFormatter } from './useCurrencyFormatter';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useLanguageContext } from '../contexts/LanguageContext';
 
 interface UseAmountInputOptions {
   initialValue?: number;
   onAmountChange?: (rawValue: number) => void;
   onError?: (error: string | null) => void;
-  allowNegative?: boolean; // New option to allow negative values
+  allowNegative?: boolean;
 }
 
-export const useAmountInput = (options: UseAmountInputOptions = {}) => {
-  const { initialValue = 0, onAmountChange, onError, allowNegative = false } = options;
+interface UseAmountInputReturn {
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
+  setValue: (input: string | number) => void;
+  rawValue: number;
+  placeholder: string;
+}
+
+const formatNumber = (
+  value: number,
+  currency: 'VND' | 'USD',
+  allowNegative: boolean,
+  inputValue: string
+): string => {
+  if (isNaN(value)) return inputValue || '';
+  const absValue = Math.abs(value);
+  if (currency === 'VND') {
+    const formatted = Math.round(absValue)
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return value < 0 && allowNegative ? `-${formatted}` : formatted;
+  }
+  // For USD, preserve raw input during typing (e.g., "123." stays "123.")
+  const hasDecimal = inputValue.includes('.');
+  if (hasDecimal) {
+    // Return input as-is if it contains a decimal point
+    const cleanInput = inputValue.replace(/,/g, '');
+    const parts = cleanInput.split('.');
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts[1] !== undefined ? `${integerPart}.${parts[1]}` : integerPart;
+  }
+  // Format whole numbers or final value
+  const formatted = absValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return value < 0 && allowNegative ? `-${formatted}` : formatted;
+};
+
+const parseNumber = (
+  value: string,
+  currency: 'VND' | 'USD',
+  allowNegative: boolean
+): { num: number; inputValue: string } => {
+  // If the input is just "-", preserve it without parsing
+  if (value === '-' && allowNegative) {
+    return { num: 0, inputValue: '-' };
+  }
+
+  const cleanValue = value.replace(/[,.]/g, match =>
+    match === '.' && currency === 'USD' ? '.' : ''
+  );
+  let num: number;
+  let inputValue = value;
+
+  if (currency === 'VND') {
+    num = parseInt(cleanValue || '0', 10);
+    inputValue = value.replace(/[^\d-]/g, '');
+  } else {
+    // Handle USD inputs like ".12" or "123.4567"
+    const match = cleanValue.match(/^-?\d*\.?\d*/)?.[0];
+    num = parseFloat(match || '0');
+  }
+
+  if (isNaN(num)) num = 0;
+  if (!allowNegative && num < 0) {
+    num = 0;
+    inputValue = inputValue.replace('-', '');
+  }
+  return { num, inputValue };
+};
+
+const roundUSD = (value: number): number => {
+  return Math.round(value * 100) / 100; // Round to 2 decimal places
+};
+
+export const useAmountInput = (
+  currency: 'VND' | 'USD',
+  options: UseAmountInputOptions = {}
+): UseAmountInputReturn => {
   const {
-    formatAmountForDisplay,
-    parseAmountFromDisplay,
-    getAmountPlaceholder,
-  } = useCurrencyFormatter();
+    initialValue,
+    onAmountChange,
+    onError,
+    allowNegative = false,
+  } = options;
+  const { translations } = useLanguageContext();
+  const [value, setValue] = useState<string>(
+    initialValue === undefined
+      ? ''
+      : formatNumber(
+          initialValue,
+          currency,
+          allowNegative,
+          Math.abs(initialValue % 1) > 0 ? initialValue.toString() : ''
+        )
+  );
+  const [rawValue, setRawValue] = useState<number>(
+    initialValue === undefined ? 0 : initialValue
+  );
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const [displayAmount, setDisplayAmount] = useState<string>('');
-  const [rawAmount, setRawAmount] = useState<number>(initialValue);
+  const placeholder = currency === 'VND' ? 'e.g. 1.234.567' : 'e.g. 1,234.56';
 
-  // Initialize or update the display amount
-  const setAmount = useCallback(
-    (value: number) => {
-      setRawAmount(value);
-      // Only format for display if value is not zero
-      // For zero, keep empty to allow user to start typing
-      if (value !== 0) {
-        setDisplayAmount(formatAmountForDisplay(value));
-      } else {
-        setDisplayAmount('');
+  const validateInput = useCallback(
+    (input: string): string | null => {
+      if (!input) return translations.common.amountRequired;
+      if (input === '-' && allowNegative) return null; // Allow "-" when negative is allowed
+      const cleanInput = input.replace(currency === 'VND' ? /\./g : /,/g, '');
+      if (currency === 'USD' && !/^-?\d*\.?\d*$/.test(cleanInput)) {
+        return translations.common.invalidUSDFormat;
       }
+      if (currency === 'VND' && !/^-?\d*$/.test(cleanInput)) {
+        return translations.common.invalidVNDFormat;
+      }
+      if (!allowNegative && input.startsWith('-')) {
+        return translations.common.negativeNotAllowed;
+      }
+      return null;
     },
-    [formatAmountForDisplay]
+    [currency, allowNegative, translations]
   );
 
-  // Handle input change - no auto-formatting while typing, just track the input
-  const handleInputChange = useCallback(
-    (value: string) => {
-      // Always allow the user to type freely - don't restrict input
-      setDisplayAmount(value);
-      console.log(`Input changed: ${value}`);
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = event.target.value;
+      const cursorPosition = event.target.selectionStart;
+      const error = validateInput(inputValue);
+      onError?.(error);
 
-      // Handle empty input
-      if (!value.trim()) {
-        setRawAmount(0);
+      if (!error) {
+        const { num, inputValue: rawInput } = parseNumber(
+          inputValue,
+          currency,
+          allowNegative
+        );
+        const formatted =
+          inputValue === '-' && allowNegative
+            ? '-'
+            : formatNumber(num, currency, allowNegative, rawInput);
+        setRawValue(num);
+        setValue(formatted);
+        onAmountChange?.(num);
+
+        // Adjust cursor position
+        if (inputRef.current && cursorPosition !== null) {
+          let newCursor = cursorPosition;
+          if (currency === 'USD' && inputValue.includes('.')) {
+            // Ensure cursor stays after decimal point
+            const formattedParts = formatted.split('.');
+            const inputParts = inputValue.split('.');
+            if (inputParts[1] !== undefined) {
+              newCursor =
+                formattedParts[0].length + 1 + (inputParts[1]?.length || 0);
+            }
+          } else if (formatted !== '-') {
+            // Adjust for thousand separators
+            const diff = formatted.length - inputValue.length;
+            newCursor = cursorPosition + diff;
+          }
+          setTimeout(
+            () => inputRef.current?.setSelectionRange(newCursor, newCursor),
+            0
+          );
+        }
+      } else {
+        setValue(inputValue);
+      }
+    },
+    [currency, allowNegative, onAmountChange, onError, validateInput]
+  );
+
+  const onBlur = useCallback(
+    (event: React.FocusEvent<HTMLInputElement>) => {
+      if (value === '-') {
+        // Reset to empty or 0 if only "-" remains on blur
+        setValue('');
+        setRawValue(0);
         onAmountChange?.(0);
-        onError?.(null);
+      } else if (currency === 'USD' && value.includes('.')) {
+        const { num } = parseNumber(value, currency, allowNegative);
+        const roundedNum = roundUSD(num);
+        const formatted = formatNumber(
+          roundedNum,
+          currency,
+          allowNegative,
+          roundedNum % 1 !== 0 ? roundedNum.toString() : ''
+        );
+        setRawValue(roundedNum);
+        setValue(formatted);
+        onAmountChange?.(roundedNum);
+      }
+    },
+    [currency, allowNegative, onAmountChange, value]
+  );
+
+  useEffect(() => {
+    if (initialValue === undefined) {
+      setValue('');
+      setRawValue(0);
+    } else {
+      const formatted = formatNumber(
+        initialValue,
+        currency,
+        allowNegative,
+        Math.abs(initialValue % 1) > 0 ? initialValue.toString() : ''
+      );
+      setValue(formatted);
+      setRawValue(initialValue);
+    }
+  }, [initialValue, currency, allowNegative]);
+
+  return {
+    value,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      inputRef.current = e.target;
+      onChange(e);
+    },
+    onBlur,
+    setValue: (input: string | number) => {
+      // Accepts string or number, always formats for display
+      let str = typeof input === 'number' ? input.toString() : input;
+      if (str === '-' && allowNegative) {
+        setValue('-');
+        setRawValue(0);
+        onAmountChange?.(0);
         return;
       }
-
-      // Try to parse the value, but don't fail on partial input
-      try {
-        const rawValue = parseAmountFromDisplay(value);
-        console.log(`Parsed raw value: ${rawValue}`);
-        
-        // Only update if we got a valid number
-        if (!isNaN(rawValue) && isFinite(rawValue)) {
-          setRawAmount(rawValue);
-          
-          // Basic validation
-          let errorMessage: string | null = null;
-          if (!allowNegative && rawValue < 0) {
-            errorMessage = 'Amount cannot be negative';
-          }
-          
-          // Notify parent
-          onAmountChange?.(rawValue);
-          onError?.(errorMessage);
-        }
-      } catch (error) {
-        // Don't block input on parsing errors - let user continue typing
-        console.log('Parse error (user still typing):', error);
-      }
+      const { num, inputValue } = parseNumber(str, currency, allowNegative);
+      const formatted = formatNumber(num, currency, allowNegative, inputValue);
+      setRawValue(num);
+      setValue(formatted);
+      onAmountChange?.(num);
     },
-    [parseAmountFromDisplay, onAmountChange, onError, allowNegative]
-  );
-
-  // Handle when user focuses on amount field
-  const handleFocus = useCallback(() => {
-    // On focus, convert formatted display to raw number for easier editing
-    if (rawAmount !== 0) {
-      setDisplayAmount(rawAmount.toString());
-    }
-    // For zero amount, keep whatever user has typed so far
-  }, [rawAmount]);
-
-  // Handle when user leaves amount field
-  const handleBlur = useCallback(() => {
-    // Handle empty input on blur
-    if (rawAmount === 0) {
-      setDisplayAmount('');
-      onError?.(null); // No error for empty in search contexts
-      return;
-    }
-
-    // Format the value when user finishes editing
-    if (rawAmount !== 0) {
-      const formatted = formatAmountForDisplay(rawAmount);
-      console.log(`Formatted amount on blur: ${formatted}`);
-      setDisplayAmount(formatted);
-    }
-  }, [rawAmount, formatAmountForDisplay, onError]);
-  return {
-    displayAmount,
-    rawAmount,
-    placeholder: getAmountPlaceholder(),
-    setAmount,
-    handleInputChange,
-    handleFocus,
-    handleBlur,
+    rawValue,
+    placeholder,
   };
 };

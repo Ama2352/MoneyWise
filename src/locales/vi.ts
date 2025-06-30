@@ -60,6 +60,10 @@ export const vi: TranslationKeys = {
     },
     remaining: 'còn lại',
     daysOverdue: '{n} ngày quá hạn',
+    amountRequired: 'Vui lòng nhập số tiền',
+    invalidUSDFormat: 'Định dạng USD không hợp lệ',
+    invalidVNDFormat: 'Định dạng VND không hợp lệ (không cho phép số thập phân)',
+    negativeNotAllowed: 'Không cho phép giá trị âm',
   },
   validation: {
     required: 'Trường này là bắt buộc',

@@ -107,6 +107,10 @@ export interface TranslationKeys {
     };
     remaining: string;
     daysOverdue: string;
+    amountRequired: string;
+    invalidUSDFormat: string;
+    invalidVNDFormat: string;
+    negativeNotAllowed: string;
   };
 
   // Navigation
