@@ -17,14 +17,14 @@ import {
 import { useLanguageContext, useToastContext } from '../contexts';
 import { useProfile } from '../hooks';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { 
-  useWallets, 
-  useTransactions, 
+import {
+  useWallets,
+  useTransactions,
   useCashFlow,
   useBudgetProgress,
   useSavingGoalProgress,
   useCategories,
-  useTransactionMutations
+  useTransactionMutations,
 } from '../hooks/useFinanceData';
 import { CurrencyAmount } from '../components/ui/CurrencyAmount';
 import { TransactionItem } from '../components/TransactionItem';
@@ -42,7 +42,8 @@ const ModernDashboard: React.FC = () => {
 
   // Modal states
   const [showTransactionForm, setShowTransactionForm] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{
     show: boolean;
     transactionId?: string;
@@ -50,24 +51,44 @@ const ModernDashboard: React.FC = () => {
   }>({ show: false });
 
   // Data hooks
-  const { wallets, isLoading: walletsLoading, refresh: refreshWallets } = useWallets();
-  const { transactions, isLoading: transactionsLoading, refresh: refreshTransactions } = useTransactions();
+  const {
+    wallets,
+    isLoading: walletsLoading,
+    refresh: refreshWallets,
+  } = useWallets();
+  const {
+    transactions,
+    isLoading: transactionsLoading,
+    refresh: refreshTransactions,
+  } = useTransactions();
   const { categories, isLoading: categoriesLoading } = useCategories();
-  const { 
-    cashFlow, 
-    isLoading: cashFlowLoading 
+  const {
+    cashFlow,
+    isLoading: cashFlowLoading,
+    refresh: refreshCashFlow,
   } = useCashFlow(
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      .toISOString()
+      .split('T')[0],
     new Date().toISOString().split('T')[0]
   );
-  const { budgetProgress } = useBudgetProgress();
-  const { savingGoalProgress } = useSavingGoalProgress();
-  const { createTransaction, updateTransaction, deleteTransaction } = useTransactionMutations();
-  const { 
-    categoryBreakdown, 
-    fetchCategoryBreakdown,
-    loading 
-  } = useAnalytics();
+  const { budgetProgress, refresh: refreshBudgetProgress } =
+    useBudgetProgress();
+  const { savingGoalProgress, refresh: refreshSavingGoalProgress } =
+    useSavingGoalProgress();
+  const { createTransaction, updateTransaction, deleteTransaction } =
+    useTransactionMutations();
+  const { categoryBreakdown, fetchCategoryBreakdown, loading } = useAnalytics();
+
+  // DRY helper to refresh all analytics data
+  const refreshAnalytics = useCallback(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    fetchCategoryBreakdown({
+      startDate: startOfMonth.toISOString().split('T')[0],
+      endDate: now.toISOString().split('T')[0],
+    });
+  }, [fetchCategoryBreakdown]);
 
   // Check for login success message on component mount
   useEffect(() => {
@@ -80,21 +101,17 @@ const ModernDashboard: React.FC = () => {
 
   // Load analytics data for charts
   useEffect(() => {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    fetchCategoryBreakdown({
-      startDate: startOfMonth.toISOString().split('T')[0],
-      endDate: now.toISOString().split('T')[0]
-    });
-  }, [fetchCategoryBreakdown]);
+    refreshAnalytics();
+  }, [refreshAnalytics]);
 
   // Calculate statistics from real data
   const stats = useMemo(() => {
-    const totalBalance = wallets?.reduce((sum, wallet) => sum + wallet.balance, 0) || 0;
+    const totalBalance =
+      wallets?.reduce((sum, wallet) => sum + wallet.balance, 0) || 0;
     const totalWallets = wallets?.length || 0;
     const positiveWallets = wallets?.filter(w => w.balance > 0).length || 0;
     const negativeWallets = wallets?.filter(w => w.balance < 0).length || 0;
-    
+
     const monthlyIncome = cashFlow?.totalIncome || 0;
     const monthlyExpenses = cashFlow?.totalExpenses || 0;
     const netIncome = monthlyIncome - monthlyExpenses;
@@ -137,16 +154,33 @@ const ModernDashboard: React.FC = () => {
           setShowTransactionForm(false);
           refreshTransactions();
           refreshWallets();
+          refreshCashFlow();
+          refreshBudgetProgress();
+          refreshSavingGoalProgress();
+          refreshAnalytics();
           showSuccess(translations.transactions.notifications.createSuccess);
         } else {
-          showError(result.error || translations.transactions.notifications.createError);
+          showError(
+            result.error || translations.transactions.notifications.createError
+          );
         }
       } catch (error) {
         console.error('Error creating transaction:', error);
         showError(translations.transactions.notifications.createError);
       }
     },
-    [createTransaction, refreshTransactions, refreshWallets, showSuccess, showError, translations]
+    [
+      createTransaction,
+      refreshTransactions,
+      refreshWallets,
+      refreshCashFlow,
+      refreshBudgetProgress,
+      refreshSavingGoalProgress,
+      refreshAnalytics,
+      showSuccess,
+      showError,
+      translations,
+    ]
   );
 
   const handleUpdateTransaction = useCallback(
@@ -165,16 +199,34 @@ const ModernDashboard: React.FC = () => {
           setShowTransactionForm(false);
           refreshTransactions();
           refreshWallets();
+          refreshCashFlow();
+          refreshBudgetProgress();
+          refreshSavingGoalProgress();
+          refreshAnalytics();
           showSuccess(translations.transactions.notifications.updateSuccess);
         } else {
-          showError(result.error || translations.transactions.notifications.updateError);
+          showError(
+            result.error || translations.transactions.notifications.updateError
+          );
         }
       } catch (error) {
         console.error('Error updating transaction:', error);
         showError(translations.transactions.notifications.updateError);
       }
     },
-    [editingTransaction, updateTransaction, refreshTransactions, refreshWallets, showSuccess, showError, translations]
+    [
+      editingTransaction,
+      updateTransaction,
+      refreshTransactions,
+      refreshWallets,
+      refreshCashFlow,
+      refreshBudgetProgress,
+      refreshSavingGoalProgress,
+      refreshAnalytics,
+      showSuccess,
+      showError,
+      translations,
+    ]
   );
 
   const handleDeleteConfirm = useCallback(async () => {
@@ -185,9 +237,15 @@ const ModernDashboard: React.FC = () => {
       if (result.success) {
         refreshTransactions();
         refreshWallets();
+        refreshCashFlow();
+        refreshBudgetProgress();
+        refreshSavingGoalProgress();
+        refreshAnalytics();
         showSuccess(translations.transactions.notifications.deleteSuccess);
       } else {
-        showError(result.error || translations.transactions.notifications.deleteError);
+        showError(
+          result.error || translations.transactions.notifications.deleteError
+        );
       }
     } catch (error) {
       console.error('Error deleting transaction:', error);
@@ -195,7 +253,19 @@ const ModernDashboard: React.FC = () => {
     } finally {
       setDeleteConfirm({ show: false });
     }
-  }, [deleteConfirm.transactionId, deleteTransaction, refreshTransactions, refreshWallets, showSuccess, showError, translations]);
+  }, [
+    deleteConfirm.transactionId,
+    deleteTransaction,
+    refreshTransactions,
+    refreshWallets,
+    refreshCashFlow,
+    refreshBudgetProgress,
+    refreshSavingGoalProgress,
+    refreshAnalytics,
+    showSuccess,
+    showError,
+    translations,
+  ]);
 
   const closeTransactionForm = useCallback(() => {
     setShowTransactionForm(false);
@@ -205,12 +275,16 @@ const ModernDashboard: React.FC = () => {
   // Prepare data for charts
   const chartData = useMemo(() => {
     // Cash flow data for bar chart
-    const cashFlowData = cashFlow ? [{
-      name: translations.dashboard.stats.thisMonth,
-      income: cashFlow.totalIncome || 0,
-      expense: cashFlow.totalExpenses || 0,
-      net: (cashFlow.totalIncome || 0) - (cashFlow.totalExpenses || 0)
-    }] : [];
+    const cashFlowData = cashFlow
+      ? [
+          {
+            name: translations.dashboard.stats.thisMonth,
+            income: cashFlow.totalIncome || 0,
+            expense: cashFlow.totalExpenses || 0,
+            net: (cashFlow.totalIncome || 0) - (cashFlow.totalExpenses || 0),
+          },
+        ]
+      : [];
 
     // Category breakdown for pie charts
     const incomeCategories = categoryBreakdown
@@ -218,8 +292,8 @@ const ModernDashboard: React.FC = () => {
       .map((cat, index) => ({
         name: cat.category,
         value: cat.totalIncome,
-        color: `hsl(${120 + (index * 30) % 360}, 70%, 50%)`, // Green variations for income
-        percentage: 0 // Will be calculated by the pie chart component
+        color: `hsl(${120 + ((index * 30) % 360)}, 70%, 50%)`, // Green variations for income
+        percentage: 0, // Will be calculated by the pie chart component
       }));
 
     const expenseCategories = categoryBreakdown
@@ -227,13 +301,19 @@ const ModernDashboard: React.FC = () => {
       .map((cat, index) => ({
         name: cat.category,
         value: cat.totalExpense,
-        color: `hsl(${0 + (index * 30) % 360}, 70%, 50%)`, // Red variations for expense
-        percentage: 0 // Will be calculated by the pie chart component
+        color: `hsl(${0 + ((index * 30) % 360)}, 70%, 50%)`, // Red variations for expense
+        percentage: 0, // Will be calculated by the pie chart component
       }));
 
     // Calculate percentages
-    const totalIncome = incomeCategories.reduce((sum, cat) => sum + cat.value, 0);
-    const totalExpense = expenseCategories.reduce((sum, cat) => sum + cat.value, 0);
+    const totalIncome = incomeCategories.reduce(
+      (sum, cat) => sum + cat.value,
+      0
+    );
+    const totalExpense = expenseCategories.reduce(
+      (sum, cat) => sum + cat.value,
+      0
+    );
 
     incomeCategories.forEach(cat => {
       cat.percentage = totalIncome > 0 ? (cat.value / totalIncome) * 100 : 0;
@@ -246,23 +326,33 @@ const ModernDashboard: React.FC = () => {
     return {
       cashFlowData,
       incomeCategories,
-      expenseCategories
+      expenseCategories,
     };
   }, [cashFlow, categoryBreakdown, translations]);
 
-  const isLoading = walletsLoading || transactionsLoading || cashFlowLoading || categoriesLoading;
+  const isLoading =
+    walletsLoading ||
+    transactionsLoading ||
+    cashFlowLoading ||
+    categoriesLoading;
   return (
     <div className="modern-dashboard">
       {/* Page Header */}
       <div className="modern-dashboard__header">
         <div className="modern-dashboard__header-content">
           <div>
-            <h1 className="modern-dashboard__title">{translations.dashboard.title}</h1>
+            <h1 className="modern-dashboard__title">
+              {translations.dashboard.title}
+            </h1>
             <p className="modern-dashboard__subtitle">
-              {translations.dashboard.welcome}, {userProfile?.firstName || userProfile?.username || 'User'}! {translations.dashboard.subtitle}
+              {translations.dashboard.welcome},{' '}
+              {userProfile?.firstName || userProfile?.username || 'User'}!{' '}
+              {translations.dashboard.subtitle}
             </p>
           </div>
-          <div className="modern-dashboard__header-actions">            <button
+          <div className="modern-dashboard__header-actions">
+            {' '}
+            <button
               className="modern-dashboard__action-btn modern-dashboard__action-btn--primary"
               onClick={() => setShowTransactionForm(true)}
             >
@@ -291,7 +381,9 @@ const ModernDashboard: React.FC = () => {
                 </div>
               </div>
               <div className="modern-dashboard__stat-content">
-                <h3 className="modern-dashboard__stat-title">{translations.dashboard.totalBalance}</h3>
+                <h3 className="modern-dashboard__stat-title">
+                  {translations.dashboard.totalBalance}
+                </h3>
                 <div className="modern-dashboard__stat-value">
                   <CurrencyAmount amountInVnd={stats.totalBalance} />
                 </div>
@@ -309,7 +401,9 @@ const ModernDashboard: React.FC = () => {
                 </div>
               </div>
               <div className="modern-dashboard__stat-content">
-                <h3 className="modern-dashboard__stat-title">{translations.dashboard.monthlyIncome}</h3>
+                <h3 className="modern-dashboard__stat-title">
+                  {translations.dashboard.monthlyIncome}
+                </h3>
                 <div className="modern-dashboard__stat-value">
                   <CurrencyAmount amountInVnd={stats.monthlyIncome} />
                 </div>
@@ -327,9 +421,13 @@ const ModernDashboard: React.FC = () => {
                 </div>
               </div>
               <div className="modern-dashboard__stat-content">
-                <h3 className="modern-dashboard__stat-title">{translations.dashboard.monthlyExpenses}</h3>
+                <h3 className="modern-dashboard__stat-title">
+                  {translations.dashboard.monthlyExpenses}
+                </h3>
                 <div className="modern-dashboard__stat-value">
-                  <CurrencyAmount amountInVnd={Math.abs(stats.monthlyExpenses)} />
+                  <CurrencyAmount
+                    amountInVnd={Math.abs(stats.monthlyExpenses)}
+                  />
                 </div>
                 <div className="modern-dashboard__stat-meta">
                   {translations.dashboard.stats.thisMonth}
@@ -338,19 +436,29 @@ const ModernDashboard: React.FC = () => {
             </div>
 
             {/* Net Income */}
-            <div className={`modern-dashboard__stat-card ${stats.netIncome >= 0 ? 'modern-dashboard__stat-card--success' : 'modern-dashboard__stat-card--error'}`}>
+            <div
+              className={`modern-dashboard__stat-card ${stats.netIncome >= 0 ? 'modern-dashboard__stat-card--success' : 'modern-dashboard__stat-card--error'}`}
+            >
               <div className="modern-dashboard__stat-header">
                 <div className="modern-dashboard__stat-icon">
-                  {stats.netIncome >= 0 ? <ArrowUpRight size={24} /> : <ArrowDownRight size={24} />}
+                  {stats.netIncome >= 0 ? (
+                    <ArrowUpRight size={24} />
+                  ) : (
+                    <ArrowDownRight size={24} />
+                  )}
                 </div>
               </div>
               <div className="modern-dashboard__stat-content">
-                <h3 className="modern-dashboard__stat-title">{translations.dashboard.netIncome}</h3>
+                <h3 className="modern-dashboard__stat-title">
+                  {translations.dashboard.netIncome}
+                </h3>
                 <div className="modern-dashboard__stat-value">
                   <CurrencyAmount amountInVnd={Math.abs(stats.netIncome)} />
                 </div>
                 <div className="modern-dashboard__stat-meta">
-                  {stats.netIncome >= 0 ? translations.dashboard.stats.income : translations.dashboard.stats.expenses}
+                  {stats.netIncome >= 0
+                    ? translations.dashboard.stats.income
+                    : translations.dashboard.stats.expenses}
                 </div>
               </div>
             </div>
@@ -373,7 +481,7 @@ const ModernDashboard: React.FC = () => {
                     expense: translations.dashboard.stats.expenses,
                     net: translations.dashboard.netIncome,
                     loading: translations.common.loading,
-                    noData: translations.dashboard.noData
+                    noData: translations.dashboard.noData,
                   }}
                 />
               </div>
@@ -389,7 +497,7 @@ const ModernDashboard: React.FC = () => {
                     translations={{
                       loading: translations.common.loading,
                       noData: translations.dashboard.noData,
-                      categoriesCount: translations.categories.categoriesCount
+                      categoriesCount: translations.categories.categoriesCount,
                     }}
                   />
                 </div>
@@ -403,7 +511,7 @@ const ModernDashboard: React.FC = () => {
                     translations={{
                       loading: translations.common.loading,
                       noData: translations.dashboard.noData,
-                      categoriesCount: translations.categories.categoriesCount
+                      categoriesCount: translations.categories.categoriesCount,
                     }}
                   />
                 </div>
@@ -419,7 +527,7 @@ const ModernDashboard: React.FC = () => {
                     <CreditCard size={20} />
                     {translations.dashboard.recentTransactions}
                   </h2>
-                  <button 
+                  <button
                     className="modern-dashboard__card-link"
                     onClick={() => navigate('/transactions')}
                   >
@@ -429,8 +537,12 @@ const ModernDashboard: React.FC = () => {
                 <div className="modern-dashboard__transactions">
                   {recentTransactions.length > 0 ? (
                     recentTransactions.map(transaction => {
-                      const wallet = wallets?.find(w => w.walletId === transaction.walletId);
-                      const category = categories?.find(c => c.categoryId === transaction.categoryId);
+                      const wallet = wallets?.find(
+                        w => w.walletId === transaction.walletId
+                      );
+                      const category = categories?.find(
+                        c => c.categoryId === transaction.categoryId
+                      );
                       return (
                         <TransactionItem
                           key={transaction.transactionId}
@@ -458,7 +570,7 @@ const ModernDashboard: React.FC = () => {
                     <Wallet size={20} />
                     {translations.dashboard.walletOverview}
                   </h2>
-                  <button 
+                  <button
                     className="modern-dashboard__card-link"
                     onClick={() => navigate('/wallets')}
                   >
@@ -486,16 +598,22 @@ const ModernDashboard: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  {wallets && wallets.slice(0, 3).map(wallet => (
-                    <div key={wallet.walletId} className="modern-dashboard__wallet-item">
-                      <div className="modern-dashboard__wallet-info">
-                        <span className="modern-dashboard__wallet-name">{wallet.walletName}</span>
-                        <div className="modern-dashboard__wallet-balance">
-                          <CurrencyAmount amountInVnd={wallet.balance} />
+                  {wallets &&
+                    wallets.slice(0, 3).map(wallet => (
+                      <div
+                        key={wallet.walletId}
+                        className="modern-dashboard__wallet-item"
+                      >
+                        <div className="modern-dashboard__wallet-info">
+                          <span className="modern-dashboard__wallet-name">
+                            {wallet.walletName}
+                          </span>
+                          <div className="modern-dashboard__wallet-balance">
+                            <CurrencyAmount amountInVnd={wallet.balance} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
 
@@ -506,7 +624,7 @@ const ModernDashboard: React.FC = () => {
                     <Target size={20} />
                     {translations.dashboard.budgetProgress}
                   </h2>
-                  <button 
+                  <button
                     className="modern-dashboard__card-link"
                     onClick={() => navigate('/budget')}
                   >
@@ -516,15 +634,25 @@ const ModernDashboard: React.FC = () => {
                 <div className="modern-dashboard__budgets">
                   {budgetProgress && budgetProgress.length > 0 ? (
                     budgetProgress.slice(0, 3).map(budget => {
-                      const percentage = (budget.currentSpending / budget.limitAmount) * 100;
+                      const percentage =
+                        (budget.currentSpending / budget.limitAmount) * 100;
                       return (
-                        <div key={budget.budgetId} className="modern-dashboard__budget">
+                        <div
+                          key={budget.budgetId}
+                          className="modern-dashboard__budget"
+                        >
                           <div className="modern-dashboard__budget-header">
                             <span className="modern-dashboard__budget-category">
                               {budget.description}
                             </span>
                             <span className="modern-dashboard__budget-amount">
-                              <CurrencyAmount amountInVnd={budget.currentSpending} /> / <CurrencyAmount amountInVnd={budget.limitAmount} />
+                              <CurrencyAmount
+                                amountInVnd={budget.currentSpending}
+                              />{' '}
+                              /{' '}
+                              <CurrencyAmount
+                                amountInVnd={budget.limitAmount}
+                              />
                             </span>
                           </div>
                           <div className="modern-dashboard__budget-progress">
@@ -532,7 +660,10 @@ const ModernDashboard: React.FC = () => {
                               className="modern-dashboard__budget-bar"
                               style={{
                                 width: `${Math.min(percentage, 100)}%`,
-                                backgroundColor: percentage > 90 ? 'var(--error-500)' : 'var(--primary-500)',
+                                backgroundColor:
+                                  percentage > 90
+                                    ? 'var(--error-500)'
+                                    : 'var(--primary-500)',
                               }}
                             />
                           </div>
@@ -558,7 +689,7 @@ const ModernDashboard: React.FC = () => {
                     <PieChart size={20} />
                     {translations.dashboard.savingsGoals}
                   </h2>
-                  <button 
+                  <button
                     className="modern-dashboard__card-link"
                     onClick={() => navigate('/saving-goals')}
                   >
@@ -568,15 +699,21 @@ const ModernDashboard: React.FC = () => {
                 <div className="modern-dashboard__savings">
                   {savingGoalProgress && savingGoalProgress.length > 0 ? (
                     savingGoalProgress.slice(0, 3).map(goal => {
-                      const percentage = (goal.savedAmount / goal.targetAmount) * 100;
+                      const percentage =
+                        (goal.savedAmount / goal.targetAmount) * 100;
                       return (
-                        <div key={goal.savingGoalId} className="modern-dashboard__saving-goal">
+                        <div
+                          key={goal.savingGoalId}
+                          className="modern-dashboard__saving-goal"
+                        >
                           <div className="modern-dashboard__saving-goal-header">
                             <span className="modern-dashboard__saving-goal-name">
                               {goal.description}
                             </span>
                             <span className="modern-dashboard__saving-goal-amount">
-                              <CurrencyAmount amountInVnd={goal.savedAmount} /> / <CurrencyAmount amountInVnd={goal.targetAmount} />
+                              <CurrencyAmount amountInVnd={goal.savedAmount} />{' '}
+                              /{' '}
+                              <CurrencyAmount amountInVnd={goal.targetAmount} />
                             </span>
                           </div>
                           <div className="modern-dashboard__saving-goal-progress">
@@ -584,7 +721,10 @@ const ModernDashboard: React.FC = () => {
                               className="modern-dashboard__saving-goal-bar"
                               style={{
                                 width: `${Math.min(percentage, 100)}%`,
-                                backgroundColor: percentage >= 100 ? 'var(--success-500)' : 'var(--primary-500)',
+                                backgroundColor:
+                                  percentage >= 100
+                                    ? 'var(--success-500)'
+                                    : 'var(--primary-500)',
                               }}
                             />
                           </div>
@@ -615,28 +755,28 @@ const ModernDashboard: React.FC = () => {
                 </h2>
               </div>
               <div className="modern-dashboard__actions-grid">
-                <button 
+                <button
                   className="modern-dashboard__quick-action"
                   onClick={() => setShowTransactionForm(true)}
                 >
                   <Plus size={20} />
                   <span>{translations.dashboard.actions.addTransaction}</span>
                 </button>
-                <button 
+                <button
                   className="modern-dashboard__quick-action"
                   onClick={() => navigate('/wallets')}
                 >
                   <Wallet size={20} />
                   <span>{translations.dashboard.actions.addWallet}</span>
                 </button>
-                <button 
+                <button
                   className="modern-dashboard__quick-action"
                   onClick={() => navigate('/budget')}
                 >
                   <Target size={20} />
                   <span>{translations.dashboard.actions.setBudget}</span>
                 </button>
-                <button 
+                <button
                   className="modern-dashboard__quick-action"
                   onClick={() => navigate('/saving-goals')}
                 >
