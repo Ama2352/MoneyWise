@@ -396,7 +396,10 @@ export const useSavingGoalProgress = (language?: string, currency?: string) => {
     mutate: mutateSavingGoals,
   } = useSWR<SavingGoalProgress[]>(swrKey, async () => {
     const result = await savingGoalApi.getAllSavingGoalProgress(currency);
-    return result;
+    return result.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   });
 
   return {
@@ -426,7 +429,10 @@ export const useBudgetProgress = (language?: string, currency?: string) => {
     mutate: mutateBudgets,
   } = useSWR<BudgetProgress[]>(swrKey, async () => {
     const result = await budgetApi.getAllBudgetProgress(currency);
-    return result;
+    return result.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   });
 
   return {
@@ -460,7 +466,10 @@ export const useSearchBudgets = (
   } = useSWR<BudgetProgress[]>(searchKey, async () => {
     if (!params) return [];
     const result = await budgetApi.searchBudgets(params);
-    return result;
+    return result.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   });
 
   return {
@@ -495,7 +504,10 @@ export const useSearchSavingGoals = (
   } = useSWR<SavingGoalProgress[]>(searchKey, async () => {
     if (!params) return [];
     const result = await savingGoalApi.searchSavingGoals(params);
-    return result;
+    return result.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   });
 
   return {

@@ -17,17 +17,11 @@ class ExchangeRateApi {
     baseCurrency: CurrencyCode
   ): Promise<CurrencyApiResponse> {
     const endpoint = `/currencies/${baseCurrency}.min.json`;
-
     try {
       // Try primary URL first
       const response = await this.fetchFromUrl(this.primaryBaseUrl + endpoint);
       return this.extractRatesFromResponse(response, baseCurrency);
     } catch (primaryError) {
-      console.warn(
-        'Primary exchange API failed, trying fallback:',
-        primaryError
-      );
-
       try {
         // Try fallback URL
         const response = await this.fetchFromUrl(
@@ -35,7 +29,10 @@ class ExchangeRateApi {
         );
         return this.extractRatesFromResponse(response, baseCurrency);
       } catch (fallbackError) {
-        console.error('Both exchange APIs failed:', fallbackError);
+        console.error(
+          '[ExchangeRateApi] Both exchange APIs failed:',
+          fallbackError
+        );
         throw new Error('Exchange rate service unavailable');
       }
     }
@@ -70,6 +67,7 @@ class ExchangeRateApi {
       headers: {
         Accept: 'application/json',
       },
+      cache: 'reload', // or 'no-store'
       // Add timeout
       signal: AbortSignal.timeout(10000), // 10 second timeout
     });

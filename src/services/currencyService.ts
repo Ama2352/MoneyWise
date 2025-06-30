@@ -93,6 +93,7 @@ class CurrencyService {
 
     return rate;
   }
+
   /**
    * Format currency amount with proper locale and symbol
    */
