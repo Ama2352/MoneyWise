@@ -7,6 +7,7 @@ import { analyticsApi } from '../api/analyticsApi';
 import { useToast } from './useToast';
 import type {
   CategoryBreakdownDTO,
+  WalletBreakdownDTO,
   CashFlowSummaryDTO,
   DailySummaryDTO,
   WeeklySummaryDTO,
@@ -22,6 +23,7 @@ import type {
 interface UseAnalyticsReturn {
   // Data
   categoryBreakdown: CategoryBreakdownDTO[];
+  walletBreakdown: WalletBreakdownDTO[];
   cashFlow: CashFlowSummaryDTO | null;
   dailySummary: DailySummaryDTO | null;
   weeklySummary: WeeklySummaryDTO | null;
@@ -31,6 +33,7 @@ interface UseAnalyticsReturn {
   // Loading states
   loading: {
     categoryBreakdown: boolean;
+    walletBreakdown: boolean;
     cashFlow: boolean;
     dailySummary: boolean;
     weeklySummary: boolean;
@@ -43,6 +46,7 @@ interface UseAnalyticsReturn {
 
   // Actions
   fetchCategoryBreakdown: (params: DateRangeParams) => Promise<void>;
+  fetchWalletBreakdown: (params: DateRangeParams) => Promise<void>;
   fetchCashFlow: (params?: Partial<DateRangeParams>) => Promise<void>;
   fetchDailySummary: (date: string) => Promise<void>;
   fetchWeeklySummary: (startDate: string) => Promise<void>;
@@ -52,6 +56,7 @@ interface UseAnalyticsReturn {
 
   // Chart data helpers
   getCategoryPieChartData: (type?: 'income' | 'expense') => PieChartData[];
+  getWalletPieChartData: (type?: 'income' | 'expense') => PieChartData[];
   getCashFlowBarChartData: () => BarChartData[];
   getDailyBarChartData: () => BarChartData[];
   getWeeklyBarChartData: () => BarChartData[];
@@ -65,6 +70,7 @@ interface UseAnalyticsReturn {
 export const useAnalytics = (): UseAnalyticsReturn => {
   // State
   const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryBreakdownDTO[]>([]);
+  const [walletBreakdown, setWalletBreakdown] = useState<WalletBreakdownDTO[]>([]);
   const [cashFlow, setCashFlow] = useState<CashFlowSummaryDTO | null>(null);
   const [dailySummary, setDailySummary] = useState<DailySummaryDTO | null>(null);
   const [weeklySummary, setWeeklySummary] = useState<WeeklySummaryDTO | null>(null);
@@ -73,6 +79,7 @@ export const useAnalytics = (): UseAnalyticsReturn => {
 
   const [loading, setLoading] = useState({
     categoryBreakdown: false,
+    walletBreakdown: false,
     cashFlow: false,
     dailySummary: false,
     weeklySummary: false,
@@ -179,6 +186,21 @@ export const useAnalytics = (): UseAnalyticsReturn => {
       showToast(message, 'error');
     } finally {
       setLoading(prev => ({ ...prev, yearlySummary: false }));
+    }
+  }, [showToast]);
+
+  const fetchWalletBreakdown = useCallback(async (params: DateRangeParams) => {
+    setLoading(prev => ({ ...prev, walletBreakdown: true }));
+    setError(null);
+    try {
+      const data = await analyticsApi.getWalletBreakdown(params);
+      setWalletBreakdown(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to fetch wallet breakdown';
+      setError(message);
+      showToast(message, 'error');
+    } finally {
+      setLoading(prev => ({ ...prev, walletBreakdown: false }));
     }
   }, [showToast]);
 
@@ -331,6 +353,59 @@ export const useAnalytics = (): UseAnalyticsReturn => {
     }
   }, [yearlySummary]);
 
+  const getWalletPieChartData = useCallback((type: 'income' | 'expense' = 'expense'): PieChartData[] => {
+    try {
+      if (!walletBreakdown || !Array.isArray(walletBreakdown) || walletBreakdown.length === 0) {
+        return [];
+      }
+
+      console.log('🔍 Wallet breakdown data for pie chart:', walletBreakdown);
+
+      return walletBreakdown
+        .map((item, index) => {
+          try {
+            const value = type === 'income' ? item.totalIncome : item.totalExpense;
+            const percentage = type === 'income' ? item.incomePercentage : item.expensePercentage;
+            
+            console.log('🔍 Processing wallet item:', {
+              walletName: item.walletName,
+              value: value,
+              type: type,
+              rawItem: item
+            });
+            
+            // Handle various wallet name cases
+            let walletName = 'Unknown Wallet';
+            if (item.walletName && typeof item.walletName === 'string' && item.walletName.trim() !== '') {
+              walletName = item.walletName.trim();
+            } else if ((item as any).name && typeof (item as any).name === 'string' && (item as any).name.trim() !== '') {
+              // Fallback to 'name' field if 'walletName' doesn't exist
+              walletName = (item as any).name.trim();
+            }
+            
+            return {
+              name: walletName,
+              value: typeof value === 'number' ? value : 0,
+              color: categoryColors[index % categoryColors.length],
+              percentage: typeof percentage === 'number' ? percentage : 0
+            };
+          } catch (error) {
+            console.error('Error processing wallet breakdown item:', error);
+            return {
+              name: 'Unknown Wallet',
+              value: 0,
+              color: categoryColors[index % categoryColors.length],
+              percentage: 0
+            };
+          }
+        })
+        .filter(item => item.value > 0); // Only show wallets with values
+    } catch (error) {
+      console.error('Error in getWalletPieChartData:', error);
+      return [];
+    }
+  }, [walletBreakdown]);
+
   const clearError = useCallback(() => {
     setError(null);
   }, []);
@@ -338,6 +413,7 @@ export const useAnalytics = (): UseAnalyticsReturn => {
   return {
     // Data
     categoryBreakdown,
+    walletBreakdown,
     cashFlow,
     dailySummary,
     weeklySummary,
@@ -352,6 +428,7 @@ export const useAnalytics = (): UseAnalyticsReturn => {
 
     // Actions
     fetchCategoryBreakdown,
+    fetchWalletBreakdown,
     fetchCashFlow,
     fetchDailySummary,
     fetchWeeklySummary,
@@ -361,6 +438,7 @@ export const useAnalytics = (): UseAnalyticsReturn => {
 
     // Chart data helpers
     getCategoryPieChartData,
+    getWalletPieChartData,
     getCashFlowBarChartData,
     getDailyBarChartData,
     getWeeklyBarChartData,

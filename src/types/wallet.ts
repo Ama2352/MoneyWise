@@ -1,30 +1,31 @@
 /**
- * Wallet Management Type Definitions
- * Matching backend WalletController DTOs
+ * Wallet Types - Based on Backend DTOs
  */
 
-export interface Wallet {
-  walletId: string; // UUID from backend
+// Wallet DTO from backend
+export interface WalletDTO {
+  walletId: string;
   walletName: string;
-  balance: number; // BigDecimal from backend as number
+  balance: number;
 }
 
+// Create wallet request
 export interface CreateWalletRequest {
   walletName: string;
   balance: number;
 }
 
+// Update wallet request
 export interface UpdateWalletRequest {
   walletId: string;
   walletName: string;
   balance: number;
 }
 
-// UI-specific types for enhanced experience
-export interface WalletWithMetadata extends Wallet {
+// Wallet with computed fields for UI
+export interface WalletWithMeta extends WalletDTO {
+  isActive?: boolean;
   lastActivity?: string;
-  type?: 'personal' | 'business' | 'savings';
-  color?: string;
+  transactionCount?: number;
   isDefault?: boolean;
-  formattedBalance?: string;
-} 
+}

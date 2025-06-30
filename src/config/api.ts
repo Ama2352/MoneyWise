@@ -53,6 +53,7 @@ export const API_ENDPOINTS = {
 
   STATISTICS: {
     CASH_FLOW: '/Statistics/cash-flow',
+    WALLET_BREAKDOWN: '/Statistics/wallet-breakdown',
   },
 
   BUDGETS: {

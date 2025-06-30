@@ -15,6 +15,18 @@ export interface CategoryBreakdownDTO {
   goalSaved: number;
 }
 
+export interface WalletBreakdownDTO {
+  walletName: string;
+  totalIncome: number;
+  totalExpense: number;
+  incomePercentage: number;
+  expensePercentage: number;
+  budgetLimit: number;
+  budgetCurrentSpending: number;
+  goalTarget: number;
+  goalSaved: number;
+}
+
 export interface CashFlowSummaryDTO {
   totalIncome: number;
   totalExpenses: number;

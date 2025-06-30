@@ -452,6 +452,73 @@ export interface TranslationKeys {
     };
   };
 
+  // Wallets
+  wallets: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    create: string;
+    edit: string;
+    delete: string;
+    
+    // Summary stats
+    totalBalance: string;
+    positiveWallets: string;
+    negativeWallets: string;
+    walletsCount: string;
+    
+    // Empty state
+    noWallets: string;
+    noWalletsDescription: string;
+    
+    // Form fields
+    name: string;
+    namePlaceholder: string;
+    balance: string;
+    balancePlaceholder: string;
+    currency: string;
+    type: string;
+    description: string;
+    descriptionPlaceholder: string;
+    
+    // Wallet types
+    types: {
+      cash: string;
+      bank: string;
+      card: string;
+      savings: string;
+      investment: string;
+      other: string;
+    };
+    
+    // Actions
+    refresh: string;
+    tryAgain: string;
+    
+    // Confirmations
+    deleteConfirmTitle: string;
+    deleteConfirmMessage: string;
+    
+    // Notifications
+    notifications: {
+      createSuccess: string;
+      updateSuccess: string;
+      deleteSuccess: string;
+      createError: string;
+      updateError: string;
+      deleteError: string;
+      loadError: string;
+    };
+    
+    // Validation
+    validation: {
+      nameRequired: string;
+      nameMinLength: string;
+      balanceRequired: string;
+      balanceNumber: string;
+      typeRequired: string;
+    };
+  };
   // Saving Goals
   savingGoals: {
     title: string;
