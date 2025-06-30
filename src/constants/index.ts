@@ -88,7 +88,7 @@ export const CURRENCY_INFO: Record<CurrencyCode, CurrencyInfo> = {
   },
   vnd: {
     code: 'vnd',
-    name: 'Vietnamese Dong',
+    name: 'Việt Nam Đồng',
     symbol: 'đ',
     locale: 'vi-VN',
   },

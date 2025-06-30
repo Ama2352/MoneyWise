@@ -131,6 +131,10 @@ export const vi: TranslationKeys = {
     profile: 'Hồ sơ',
     settings: 'Cài đặt',
     logout: 'Đăng xuất',
+    wallets: 'Ví',
+    analytics: 'Phân tích',
+    reports: 'Báo cáo',
+    savingGoals: 'Mục tiêu tiết kiệm',
   },
 
   header: {
@@ -329,7 +333,7 @@ export const vi: TranslationKeys = {
   },
   currency: {
     usd: 'Đô la Mỹ',
-    vnd: 'Đồng Việt Nam',
+    vnd: 'Việt Nam Đồng',
     selectCurrency: 'Chọn Tiền Tệ',
     switchTo: 'Chuyển sang',
   },
@@ -752,5 +756,17 @@ export const vi: TranslationKeys = {
     updateError: 'Cập nhật thất bại. Vui lòng thử lại.',
     passwordComplexity:
       'Mật khẩu phải có ít nhất 6 ký tự, bao gồm 1 chữ hoa và 1 ký tự đặc biệt.',
+  },
+
+  // Sidebar
+  sidebar: {
+    mainMenu: 'Menu Chính',
+    expandSidebar: 'Mở rộng thanh bên',
+    collapseSidebar: 'Thu gọn thanh bên',
+    thisMonth: 'Tháng Này',
+    totalIncome: 'Tổng Thu Nhập',
+    totalExpenses: 'Tổng Chi Phí',
+    savings: 'Tiết Kiệm',
+    new: 'Mới',
   },
 };

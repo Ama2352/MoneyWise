@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { ROUTES } from '../../constants';
 import {
@@ -10,7 +10,6 @@ import {
   FileText,
   PiggyBank,
   Target,
-  Settings,
   Menu,
   X,
   TrendingUp,
@@ -18,69 +17,16 @@ import {
   Sparkles,
 } from 'lucide-react';
 import './Sidebar.css';
+import { useAnalytics, useTranslations } from '../../hooks';
+import { useCurrencyContext, useLanguageContext } from '../../contexts';
 
 interface NavigationItem {
   id: string;
-  label: string;
   icon: React.ComponentType<any>;
   path: string;
   badge?: string;
   isNew?: boolean;
 }
-
-const navigationItems: NavigationItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    path: ROUTES.DASHBOARD,
-  },
-  {
-    id: 'transactions',
-    label: 'Transactions',
-    icon: ArrowUpDown,
-    path: ROUTES.TRANSACTIONS,
-    badge: '',
-  },
-  {
-    id: 'wallets',
-    label: 'Wallets',
-    icon: Wallet,
-    path: ROUTES.WALLETS,
-  },
-  {
-    id: 'categories',
-    label: 'Categories',
-    icon: FolderOpen,
-    path: ROUTES.CATEGORIES,
-  },
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: BarChart3,
-    path: ROUTES.ANALYTICS,
-    isNew: true,
-  },
-  {
-    id: 'reports',
-    label: 'Reports',
-    icon: FileText,
-    path: ROUTES.REPORTS,
-  },
-  {
-    id: 'budget',
-    label: 'Budget',
-    icon: PiggyBank,
-    path: ROUTES.BUDGET,
-    badge: '3',
-  },
-  {
-    id: 'savings',
-    label: 'Saving Goals',
-    icon: Target,
-    path: ROUTES.SAVING_GOALS,
-  },
-];
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -90,44 +36,162 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const { translations } = useLanguageContext();
+  const { convertAndFormat } = useCurrencyContext();
+  const { monthlySummary, fetchMonthlySummary } = useAnalytics();
+
   const isActiveRoute = (path: string) => {
-    // For absolute paths, check if current path matches exactly or starts with the path
     return (
       location.pathname === path ||
       (path !== '/' && location.pathname.startsWith(path + '/'))
     );
   };
 
+  useEffect(() => {
+    const now = new Date();
+    fetchMonthlySummary({
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+    });
+  }, [fetchMonthlySummary]);
+
+  // Safely extract values
+  const totalIncome =
+    typeof monthlySummary?.totalIncome === 'number'
+      ? monthlySummary.totalIncome
+      : 0;
+  console.log('Total Income:', totalIncome);
+  const totalExpenses =
+    typeof monthlySummary?.totalExpenses === 'number'
+      ? monthlySummary.totalExpenses
+      : 0;
+  console.log('Total Expenses:', totalExpenses);
+
+  // State for formatted values
+  const [formattedAmounts, setFormattedAmounts] = useState({
+    totalIncome: '',
+    totalExpenses: '',
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    const formatAmounts = async () => {
+      try {
+        const [formattedIncome, formattedExpenses] = await Promise.all([
+          convertAndFormat(totalIncome),
+          convertAndFormat(totalExpenses),
+        ]);
+        if (isMounted) {
+          setFormattedAmounts({
+            totalIncome: formattedIncome,
+            totalExpenses: formattedExpenses,
+          });
+        }
+      } catch (error) {
+        if (isMounted) {
+          setFormattedAmounts({
+            totalIncome: totalIncome.toString(),
+            totalExpenses: totalExpenses.toString(),
+          });
+        }
+      }
+    };
+    formatAmounts();
+    return () => {
+      isMounted = false;
+    };
+  }, [totalIncome, totalExpenses, convertAndFormat]);
+
+  // Navigation items with translations
+  const navigationItems: NavigationItem[] = [
+    {
+      id: 'dashboard',
+      icon: LayoutDashboard,
+      path: ROUTES.DASHBOARD,
+    },
+    {
+      id: 'transactions',
+      icon: ArrowUpDown,
+      path: ROUTES.TRANSACTIONS,
+    },
+    {
+      id: 'wallets',
+      icon: Wallet,
+      path: ROUTES.WALLETS,
+    },
+    {
+      id: 'categories',
+      icon: FolderOpen,
+      path: ROUTES.CATEGORIES,
+    },
+    {
+      id: 'analytics',
+      icon: BarChart3,
+      path: ROUTES.ANALYTICS,
+    },
+    {
+      id: 'reports',
+      icon: FileText,
+      path: ROUTES.REPORTS,
+    },
+    {
+      id: 'budget',
+      icon: PiggyBank,
+      path: ROUTES.BUDGET,
+    },
+    {
+      id: 'savings',
+      icon: Target,
+      path: ROUTES.SAVING_GOALS,
+    },
+  ];
+
+  // Get navigation label by ID
+  const getNavigationLabel = (id: string): string => {
+    const navMap: Record<string, keyof typeof translations.nav> = {
+      dashboard: 'dashboard',
+      transactions: 'transactions',
+      wallets: 'wallets',
+      categories: 'categories',
+      analytics: 'analytics',
+      reports: 'reports',
+      budget: 'budgets',
+      savings: 'savingGoals',
+    };
+    return translations.nav[navMap[id]] || id;
+  };
+
   return (
     <div className={`sidebar ${isCollapsed ? 'sidebar--collapsed' : ''}`}>
       {/* Header */}
       <div className="sidebar__header">
-        <div
-          className="sidebar__brand"
-          style={{ gap: isCollapsed ? '0' : 'var(--space-3)' }}
-        >
+        <div className="sidebar__brand">
           {!isCollapsed && (
             <>
               <TrendingUp className="sidebar__logo-icon" />
               <span className="sidebar__brand-text">MoneyWise</span>
             </>
           )}
-          <div className="sidebar__logo"></div>
           <button
             className="sidebar__toggle"
             onClick={onToggle}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={
+              isCollapsed
+                ? translations.sidebar.expandSidebar
+                : translations.sidebar.collapseSidebar
+            }
           >
             {isCollapsed ? <Menu size={20} /> : <X size={20} />}
           </button>
         </div>
       </div>
+
       {/* Navigation */}
       <nav className="sidebar__nav">
         <div className="sidebar__nav-section">
           {!isCollapsed && (
             <div className="sidebar__section-title">
-              <span>Main Menu</span>
+              <span>{translations.sidebar.mainMenu}</span>
             </div>
           )}
 
@@ -155,14 +219,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
                       {!isCollapsed && (
                         <>
                           <span className="sidebar__nav-label">
-                            {item.label}
+                            {getNavigationLabel(item.id)}
                           </span>
 
                           <div className="sidebar__nav-meta">
                             {item.isNew && (
                               <span className="sidebar__badge sidebar__badge--new">
                                 <Sparkles size={12} />
-                                New
+                                {translations.sidebar.new}
                               </span>
                             )}
                             {item.badge && (
@@ -184,7 +248,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
                     {/* Collapsed state tooltip */}
                     {isCollapsed && (
                       <div className="sidebar__tooltip">
-                        <span>{item.label}</span>
+                        <span>{getNavigationLabel(item.id)}</span>
                         {item.badge && (
                           <span className="sidebar__tooltip-badge">
                             {item.badge}
@@ -201,7 +265,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
             })}
           </ul>
         </div>
-      </nav>{' '}
+      </nav>
+
       {/* Footer */}
       {!isCollapsed && (
         <div className="sidebar__footer">
@@ -210,18 +275,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
               <TrendingUp size={24} />
             </div>
             <div className="sidebar__summary-content">
-              <h3>This Month</h3>
+              <h3>{translations.sidebar.thisMonth}</h3>
               <div className="sidebar__summary-stats">
                 <div className="sidebar__summary-item">
-                  <span className="sidebar__summary-label">Balance</span>
+                  <span className="sidebar__summary-label">
+                    {translations.sidebar.totalIncome}
+                  </span>
                   <span className="sidebar__summary-value positive">
-                    $24,680
+                    {formattedAmounts.totalIncome}
                   </span>
                 </div>
                 <div className="sidebar__summary-item">
-                  <span className="sidebar__summary-label">Savings</span>
-                  <span className="sidebar__summary-value positive">
-                    +$1,240
+                  <span className="sidebar__summary-label">
+                    {translations.sidebar.totalExpenses}
+                  </span>
+                  <span className="sidebar__summary-value negative">
+                    {formattedAmounts.totalExpenses}
                   </span>
                 </div>
               </div>

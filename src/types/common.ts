@@ -117,6 +117,10 @@ export interface TranslationKeys {
     profile: string;
     settings: string;
     logout: string;
+    wallets: string;
+    analytics: string;
+    reports: string;
+    savingGoals: string;
   };
 
   // Authentication
@@ -781,5 +785,17 @@ export interface TranslationKeys {
     confirmPasswordRequired: string;
     updateError: string;
     passwordComplexity: string;
+  };
+
+  // Sidebar
+  sidebar: {
+    mainMenu: string;
+    expandSidebar: string;
+    collapseSidebar: string;
+    thisMonth: string;
+    totalIncome: string;
+    totalExpenses: string;
+    savings: string;
+    new: string;
   };
 }

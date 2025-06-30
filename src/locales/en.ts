@@ -134,6 +134,10 @@ export const en: TranslationKeys = {
     profile: 'Profile',
     settings: 'Settings',
     logout: 'Logout',
+    wallets: 'Wallets',
+    analytics: 'Analytics',
+    reports: 'Reports',
+    savingGoals: 'Saving Goals',
   },
 
   header: {
@@ -754,5 +758,17 @@ export const en: TranslationKeys = {
     updateError: 'Failed to update. Please try again.',
     passwordComplexity:
       'Password must be at least 6 characters, include 1 uppercase and 1 special character.',
+  },
+
+  // Sidebar
+  sidebar: {
+    mainMenu: 'Main Menu',
+    expandSidebar: 'Expand sidebar',
+    collapseSidebar: 'Collapse sidebar',
+    thisMonth: 'This Month',
+    totalIncome: 'Total Income',
+    totalExpenses: 'Total Expenses',
+    savings: 'Savings',
+    new: 'New',
   },
 };
