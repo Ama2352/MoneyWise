@@ -179,14 +179,44 @@ export interface TranslationKeys {
   // Dashboard
   dashboard: {
     title: string;
+    subtitle: string;
     welcome: string;
+    financialOverview: string;
     totalBalance: string;
+    totalWallets: string;
     monthlyIncome: string;
     monthlyExpenses: string;
-    savingsRate: string;
+    netIncome: string;
     recentTransactions: string;
+    walletOverview: string;
     quickActions: string;
-    financialOverview: string;
+    spendingTrends: string;
+    budgetProgress: string;
+    savingsGoals: string;
+    viewAll: string;
+    noData: string;
+    loading: string;
+    actions: {
+      addTransaction: string;
+      addWallet: string;
+      setBudget: string;
+      setGoal: string;
+      viewTransactions: string;
+      manageWallets: string;
+      viewReports: string;
+      exportData: string;
+    };
+    stats: {
+      thisMonth: string;
+      lastMonth: string;
+      change: string;
+      income: string;
+      expenses: string;
+      balance: string;
+      positiveWallets: string;
+      negativeWallets: string;
+    };
+    savingsRate: string;
     fromLastMonth: string;
     sameAsLastMonth: string;
     today: string;

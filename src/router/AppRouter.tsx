@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { PiggyBank } from 'lucide-react';
 import { AppLayout } from '../components/layout';
 import {
   ModernDashboard,
@@ -11,8 +10,9 @@ import {
   ReportsPage,
   SavingGoalsPage,
   BudgetsPage,
+  WalletsPage,
 } from '../pages';
-import { PlaceholderPage, ErrorBoundary } from '../components/ui';
+import { ErrorBoundary } from '../components/ui';
 import { ROUTES } from '../constants';
 import '../styles/pages.css';
 
@@ -27,7 +27,7 @@ const AppRouter: React.FC = () => {
         <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
         <Route path={ROUTES.DASHBOARD} element={<ModernDashboard />} />
         <Route path={ROUTES.TRANSACTIONS} element={<TransactionsPage />} />
-        <Route path={ROUTES.WALLETS} element={<ModernDashboard />} />{' '}
+        <Route path={ROUTES.WALLETS} element={<WalletsPage />} />{' '}
         <Route path={ROUTES.CATEGORIES} element={<CategoriesPage />} />{' '}
         <Route
           path={ROUTES.ANALYTICS}
