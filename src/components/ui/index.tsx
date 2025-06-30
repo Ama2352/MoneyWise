@@ -22,6 +22,7 @@ export { Modal } from './Modal';
 export { default as LanguageSelector } from './LanguageSelector';
 export { SavingGoalCard } from './SavingGoalCard';
 export { BudgetCard } from './BudgetCard';
+export { WalletCard } from './WalletCard';
 export { DateInput } from './DateInput';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { WalletBalance } from './WalletBalance';

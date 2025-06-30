@@ -20,6 +20,7 @@ import type {
   UpdateSavingGoalRequest,
   SearchSavingGoalRequest,
   SearchBudgetRequest,
+  WalletBreakdownDTO,
 } from '../types';
 
 /**
@@ -162,6 +163,16 @@ export const statisticsApi = {
       ...data,
       balance: data.totalIncome - data.totalExpenses,
     };
+  },
+
+  getWalletBreakdown: async (
+    startDate: string,
+    endDate: string
+  ): Promise<WalletBreakdownDTO[]> => {
+    const response = await httpClient.get<WalletBreakdownDTO[]>(
+      `${API_ENDPOINTS.STATISTICS.WALLET_BREAKDOWN}?startDate=${startDate}&endDate=${endDate}`
+    );
+    return response.data;
   },
 };
 

@@ -10,10 +10,11 @@ interface UseAmountInputOptions {
   initialValue?: number;
   onAmountChange?: (rawValue: number) => void;
   onError?: (error: string | null) => void;
+  allowNegative?: boolean; // New option to allow negative values
 }
 
 export const useAmountInput = (options: UseAmountInputOptions = {}) => {
-  const { initialValue = 0, onAmountChange, onError } = options;
+  const { initialValue = 0, onAmountChange, onError, allowNegative = false } = options;
   const {
     formatAmountForDisplay,
     parseAmountFromDisplay,
@@ -27,7 +28,9 @@ export const useAmountInput = (options: UseAmountInputOptions = {}) => {
   const setAmount = useCallback(
     (value: number) => {
       setRawAmount(value);
-      if (value > 0) {
+      // Only format for display if value is not zero
+      // For zero, keep empty to allow user to start typing
+      if (value !== 0) {
         setDisplayAmount(formatAmountForDisplay(value));
       } else {
         setDisplayAmount('');
@@ -39,7 +42,7 @@ export const useAmountInput = (options: UseAmountInputOptions = {}) => {
   // Handle input change - no auto-formatting while typing, just track the input
   const handleInputChange = useCallback(
     (value: string) => {
-      // Always allow the user to type freely
+      // Always allow the user to type freely - don't restrict input
       setDisplayAmount(value);
       console.log(`Input changed: ${value}`);
 
@@ -51,49 +54,53 @@ export const useAmountInput = (options: UseAmountInputOptions = {}) => {
         return;
       }
 
-      // Parse the value to get numeric amount
-      const rawValue = parseAmountFromDisplay(value);
-      console.log(`Parsed raw value: ${rawValue}`);
-      setRawAmount(rawValue);
-
-      // Basic validation
-      let errorMessage: string | null = null;
-
-      if (isNaN(rawValue) || !isFinite(rawValue)) {
-        errorMessage = 'Please enter a valid amount';
-      } else if (rawValue < 0) {
-        errorMessage = 'Amount cannot be negative';
+      // Try to parse the value, but don't fail on partial input
+      try {
+        const rawValue = parseAmountFromDisplay(value);
+        console.log(`Parsed raw value: ${rawValue}`);
+        
+        // Only update if we got a valid number
+        if (!isNaN(rawValue) && isFinite(rawValue)) {
+          setRawAmount(rawValue);
+          
+          // Basic validation
+          let errorMessage: string | null = null;
+          if (!allowNegative && rawValue < 0) {
+            errorMessage = 'Amount cannot be negative';
+          }
+          
+          // Notify parent
+          onAmountChange?.(rawValue);
+          onError?.(errorMessage);
+        }
+      } catch (error) {
+        // Don't block input on parsing errors - let user continue typing
+        console.log('Parse error (user still typing):', error);
       }
-
-      // Notify parent
-      onAmountChange?.(rawValue);
-      onError?.(errorMessage);
     },
-    [parseAmountFromDisplay, onAmountChange, onError]
+    [parseAmountFromDisplay, onAmountChange, onError, allowNegative]
   );
 
   // Handle when user focuses on amount field
   const handleFocus = useCallback(() => {
-    if (rawAmount > 0) {
-      // Show raw number for easier editing
+    // On focus, convert formatted display to raw number for easier editing
+    if (rawAmount !== 0) {
       setDisplayAmount(rawAmount.toString());
-    } else {
-      // Allow empty field for easier editing
-      setDisplayAmount('');
     }
+    // For zero amount, keep whatever user has typed so far
   }, [rawAmount]);
 
   // Handle when user leaves amount field
   const handleBlur = useCallback(() => {
     // Handle empty input on blur
-    if (rawAmount <= 0) {
+    if (rawAmount === 0) {
       setDisplayAmount('');
       onError?.(null); // No error for empty in search contexts
       return;
     }
 
     // Format the value when user finishes editing
-    if (rawAmount > 0) {
+    if (rawAmount !== 0) {
       const formatted = formatAmountForDisplay(rawAmount);
       console.log(`Formatted amount on blur: ${formatted}`);
       setDisplayAmount(formatted);

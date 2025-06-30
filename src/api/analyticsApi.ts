@@ -5,6 +5,7 @@
 import httpClient from './httpClient';
 import type {
   CategoryBreakdownDTO,
+  WalletBreakdownDTO,
   CashFlowSummaryDTO,
   DailySummaryDTO,
   WeeklySummaryDTO,
@@ -47,6 +48,22 @@ class AnalyticsApi {
     } catch (error) {
       console.error('❌ Cash Flow Error:', error);
       throw new Error('Failed to fetch cash flow summary');
+    }
+  }
+
+  async getWalletBreakdown(params: DateRangeParams): Promise<WalletBreakdownDTO[]> {
+    try {
+      const response = await httpClient.get<WalletBreakdownDTO[]>('/Statistics/wallet-breakdown', {
+        params: {
+          startDate: params.startDate,
+          endDate: params.endDate
+        }
+      });
+      console.log('🏦 Wallet Breakdown Response:', response.data);
+      return response.data || [];
+    } catch (error) {
+      console.error('❌ Wallet Breakdown Error:', error);
+      throw new Error('Failed to fetch wallet breakdown');
     }
   }
 

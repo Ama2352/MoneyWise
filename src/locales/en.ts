@@ -148,23 +148,43 @@ export const en: TranslationKeys = {
   },
 
   dashboard: {
-    title: 'MoneyWise Dashboard',
+    title: 'Dashboard',
+    subtitle: 'Your financial overview at a glance',
     welcome: 'Welcome back',
     financialOverview: 'Financial Overview',
     totalBalance: 'Total Balance',
+    totalWallets: 'Total Wallets',
     monthlyIncome: 'Monthly Income',
     monthlyExpenses: 'Monthly Expenses',
-    savingsRate: 'Savings Rate',
+    netIncome: 'Net Income',
     recentTransactions: 'Recent Transactions',
+    walletOverview: 'Wallet Overview',
     quickActions: 'Quick Actions',
-    fromLastMonth: 'from last month',
-    sameAsLastMonth: 'Same as last month',
-    today: 'Today',
-    yesterday: 'Yesterday',
-    transactions: {
-      groceryStore: 'Grocery Store',
-      salaryDeposit: 'Salary Deposit',
-      coffeeShop: 'Coffee Shop',
+    spendingTrends: 'Spending Trends',
+    budgetProgress: 'Budget Progress',
+    savingsGoals: 'Savings Goals',
+    viewAll: 'View All',
+    noData: 'No data available',
+    loading: 'Loading...',
+    actions: {
+      addTransaction: 'Add Transaction',
+      addWallet: 'Add Wallet',
+      setBudget: 'Set Budget',
+      setGoal: 'Set Goal',
+      viewTransactions: 'View Transactions',
+      manageWallets: 'Manage Wallets',
+      viewReports: 'View Reports',
+      exportData: 'Export Data',
+    },
+    stats: {
+      thisMonth: 'This Month',
+      lastMonth: 'Last Month',
+      change: 'change',
+      income: 'Income',
+      expenses: 'Expenses',
+      balance: 'Balance',
+      positiveWallets: 'Positive Wallets',
+      negativeWallets: 'Negative Wallets',
     },
   },
   transactions: {
@@ -770,5 +790,72 @@ export const en: TranslationKeys = {
     totalExpenses: 'Total Expenses',
     savings: 'Savings',
     new: 'New',
+  },
+  
+  wallets: {
+    title: 'Wallets',
+    subtitle: 'Manage your accounts and track balances across all your wallets',
+    addNew: 'Add Wallet',
+    create: 'Create Wallet',
+    edit: 'Edit Wallet',
+    delete: 'Delete Wallet',
+    
+    // Summary stats
+    totalBalance: 'Total Balance',
+    positiveWallets: 'Positive Wallets',
+    negativeWallets: 'Negative Wallets',
+    walletsCount: 'wallets',
+    
+    // Empty state
+    noWallets: 'No wallets found',
+    noWalletsDescription: 'Create your first wallet to start tracking your finances',
+    
+    // Form fields
+    name: 'Wallet Name',
+    namePlaceholder: 'Enter wallet name',
+    balance: 'Initial Balance',
+    balancePlaceholder: 'Enter initial balance',
+    currency: 'Currency',
+    type: 'Wallet Type',
+    description: 'Description',
+    descriptionPlaceholder: 'Enter wallet description (optional)',
+    
+    // Wallet types
+    types: {
+      cash: 'Cash',
+      bank: 'Bank Account',
+      card: 'Credit/Debit Card',
+      savings: 'Savings Account',
+      investment: 'Investment Account',
+      other: 'Other',
+    },
+    
+    // Actions
+    refresh: 'Refresh',
+    tryAgain: 'Try Again',
+    
+    // Confirmations
+    deleteConfirmTitle: 'Delete Wallet',
+    deleteConfirmMessage: 'Are you sure you want to delete this wallet? This action cannot be undone.',
+    
+    // Notifications
+    notifications: {
+      createSuccess: 'Wallet created successfully',
+      updateSuccess: 'Wallet updated successfully',
+      deleteSuccess: 'Wallet deleted successfully',
+      createError: 'Failed to create wallet',
+      updateError: 'Failed to update wallet',
+      deleteError: 'Failed to delete wallet',
+      loadError: 'Failed to load wallets',
+    },
+    
+    // Validation
+    validation: {
+      nameRequired: 'Wallet name is required',
+      nameMinLength: 'Wallet name must be at least 2 characters',
+      balanceRequired: 'Initial balance is required',
+      balanceNumber: 'Balance must be a valid number',
+      typeRequired: 'Wallet type is required',
+    },
   },
 };

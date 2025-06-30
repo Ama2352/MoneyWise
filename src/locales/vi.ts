@@ -145,23 +145,43 @@ export const vi: TranslationKeys = {
   },
 
   dashboard: {
-    title: 'Bảng điều khiển MoneyWise',
+    title: 'Bảng điều khiển',
+    subtitle: 'Tổng quan tài chính của bạn trong nháy mắt',
     welcome: 'Chào mừng trở lại',
     financialOverview: 'Tổng quan tài chính',
     totalBalance: 'Tổng số dư',
+    totalWallets: 'Tổng số ví',
     monthlyIncome: 'Thu nhập tháng',
     monthlyExpenses: 'Chi tiêu tháng',
-    savingsRate: 'Tỷ lệ tiết kiệm',
+    netIncome: 'Thu nhập ròng',
     recentTransactions: 'Giao dịch gần đây',
+    walletOverview: 'Tổng quan ví',
     quickActions: 'Thao tác nhanh',
-    fromLastMonth: 'so với tháng trước',
-    sameAsLastMonth: 'Giống như tháng trước',
-    today: 'Hôm nay',
-    yesterday: 'Hôm qua',
-    transactions: {
-      groceryStore: 'Cửa hàng tạp hóa',
-      salaryDeposit: 'Tiền lương',
-      coffeeShop: 'Quán cà phê',
+    spendingTrends: 'Xu hướng chi tiêu',
+    budgetProgress: 'Tiến độ ngân sách',
+    savingsGoals: 'Mục tiêu tiết kiệm',
+    viewAll: 'Xem tất cả',
+    noData: 'Không có dữ liệu',
+    loading: 'Đang tải...',
+    actions: {
+      addTransaction: 'Thêm giao dịch',
+      addWallet: 'Thêm ví',
+      setBudget: 'Đặt ngân sách',
+      setGoal: 'Đặt mục tiêu',
+      viewTransactions: 'Xem giao dịch',
+      manageWallets: 'Quản lý ví',
+      viewReports: 'Xem báo cáo',
+      exportData: 'Xuất dữ liệu',
+    },
+    stats: {
+      thisMonth: 'Tháng này',
+      lastMonth: 'Tháng trước',
+      change: 'thay đổi',
+      income: 'Thu nhập',
+      expenses: 'Chi tiêu',
+      balance: 'Số dư',
+      positiveWallets: 'Ví dương',
+      negativeWallets: 'Ví âm',
     },
   },
   transactions: {
@@ -768,5 +788,72 @@ export const vi: TranslationKeys = {
     totalExpenses: 'Tổng Chi Phí',
     savings: 'Tiết Kiệm',
     new: 'Mới',
+  },
+
+  wallets: {
+    title: 'Ví',
+    subtitle: 'Quản lý các tài khoản và theo dõi số dư trong tất cả ví của bạn',
+    addNew: 'Thêm Ví',
+    create: 'Tạo Ví',
+    edit: 'Chỉnh Sửa Ví',
+    delete: 'Xóa Ví',
+    
+    // Summary stats
+    totalBalance: 'Tổng Số Dư',
+    positiveWallets: 'Ví Dương',
+    negativeWallets: 'Ví Âm',
+    walletsCount: 'ví',
+    
+    // Empty state
+    noWallets: 'Không tìm thấy ví nào',
+    noWalletsDescription: 'Tạo ví đầu tiên để bắt đầu theo dõi tài chính của bạn',
+    
+    // Form fields
+    name: 'Tên Ví',
+    namePlaceholder: 'Nhập tên ví',
+    balance: 'Số Dư Ban Đầu',
+    balancePlaceholder: 'Nhập số dư ban đầu',
+    currency: 'Loại Tiền',
+    type: 'Loại Ví',
+    description: 'Mô Tả',
+    descriptionPlaceholder: 'Nhập mô tả ví (tùy chọn)',
+    
+    // Wallet types
+    types: {
+      cash: 'Tiền Mặt',
+      bank: 'Tài Khoản Ngân Hàng',
+      card: 'Thẻ Tín Dụng/Ghi Nợ',
+      savings: 'Tài Khoản Tiết Kiệm',
+      investment: 'Tài Khoản Đầu Tư',
+      other: 'Khác',
+    },
+    
+    // Actions
+    refresh: 'Làm Mới',
+    tryAgain: 'Thử Lại',
+    
+    // Confirmations
+    deleteConfirmTitle: 'Xóa Ví',
+    deleteConfirmMessage: 'Bạn có chắc chắn muốn xóa ví này? Hành động này không thể hoàn tác.',
+    
+    // Notifications
+    notifications: {
+      createSuccess: 'Tạo ví thành công',
+      updateSuccess: 'Cập nhật ví thành công',
+      deleteSuccess: 'Xóa ví thành công',
+      createError: 'Không thể tạo ví',
+      updateError: 'Không thể cập nhật ví',
+      deleteError: 'Không thể xóa ví',
+      loadError: 'Không thể tải danh sách ví',
+    },
+    
+    // Validation
+    validation: {
+      nameRequired: 'Tên ví là bắt buộc',
+      nameMinLength: 'Tên ví phải có ít nhất 2 ký tự',
+      balanceRequired: 'Số dư ban đầu là bắt buộc',
+      balanceNumber: 'Số dư phải là một số hợp lệ',
+      typeRequired: 'Loại ví là bắt buộc',
+    },
   },
 };

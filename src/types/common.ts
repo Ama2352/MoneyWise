@@ -179,14 +179,44 @@ export interface TranslationKeys {
   // Dashboard
   dashboard: {
     title: string;
+    subtitle: string;
     welcome: string;
+    financialOverview: string;
     totalBalance: string;
+    totalWallets: string;
     monthlyIncome: string;
     monthlyExpenses: string;
-    savingsRate: string;
+    netIncome: string;
     recentTransactions: string;
+    walletOverview: string;
     quickActions: string;
-    financialOverview: string;
+    spendingTrends: string;
+    budgetProgress: string;
+    savingsGoals: string;
+    viewAll: string;
+    noData: string;
+    loading: string;
+    actions: {
+      addTransaction: string;
+      addWallet: string;
+      setBudget: string;
+      setGoal: string;
+      viewTransactions: string;
+      manageWallets: string;
+      viewReports: string;
+      exportData: string;
+    };
+    stats: {
+      thisMonth: string;
+      lastMonth: string;
+      change: string;
+      income: string;
+      expenses: string;
+      balance: string;
+      positiveWallets: string;
+      negativeWallets: string;
+    };
+    savingsRate: string;
     fromLastMonth: string;
     sameAsLastMonth: string;
     today: string;
@@ -452,6 +482,73 @@ export interface TranslationKeys {
     };
   };
 
+  // Wallets
+  wallets: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    create: string;
+    edit: string;
+    delete: string;
+    
+    // Summary stats
+    totalBalance: string;
+    positiveWallets: string;
+    negativeWallets: string;
+    walletsCount: string;
+    
+    // Empty state
+    noWallets: string;
+    noWalletsDescription: string;
+    
+    // Form fields
+    name: string;
+    namePlaceholder: string;
+    balance: string;
+    balancePlaceholder: string;
+    currency: string;
+    type: string;
+    description: string;
+    descriptionPlaceholder: string;
+    
+    // Wallet types
+    types: {
+      cash: string;
+      bank: string;
+      card: string;
+      savings: string;
+      investment: string;
+      other: string;
+    };
+    
+    // Actions
+    refresh: string;
+    tryAgain: string;
+    
+    // Confirmations
+    deleteConfirmTitle: string;
+    deleteConfirmMessage: string;
+    
+    // Notifications
+    notifications: {
+      createSuccess: string;
+      updateSuccess: string;
+      deleteSuccess: string;
+      createError: string;
+      updateError: string;
+      deleteError: string;
+      loadError: string;
+    };
+    
+    // Validation
+    validation: {
+      nameRequired: string;
+      nameMinLength: string;
+      balanceRequired: string;
+      balanceNumber: string;
+      typeRequired: string;
+    };
+  };
   // Saving Goals
   savingGoals: {
     title: string;
