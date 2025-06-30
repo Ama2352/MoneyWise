@@ -28,15 +28,17 @@ export const NetAmount: React.FC<NetAmountProps> = ({
 
   useEffect(() => {
     let isMounted = true;
-    
+
     // For VND, show immediately
     if (currency === 'vnd') {
-      const vndFormatted = new Intl.NumberFormat('vi-VN', {
+      let vndFormatted = new Intl.NumberFormat('vi-VN', {
         style: 'currency',
         currency: 'VND',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }).format(amountInVnd);
+      // Remove space and replace currency symbol with 'đ'
+      vndFormatted = vndFormatted.replace(/\s?₫/, 'đ');
       setDisplayAmount(vndFormatted);
       setIsLoading(false);
       return;
@@ -55,12 +57,14 @@ export const NetAmount: React.FC<NetAmountProps> = ({
         console.warn('Currency conversion failed for net amount:', error);
         if (isMounted) {
           // Fallback to VND if conversion fails
-          const vndFallback = new Intl.NumberFormat('vi-VN', {
+          let vndFallback = new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
           }).format(amountInVnd);
+          // Remove space and replace currency symbol with 'đ'
+          vndFallback = vndFallback.replace(/\s?₫/, 'đ');
           setDisplayAmount(vndFallback);
           setIsLoading(false);
         }

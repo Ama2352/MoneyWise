@@ -10,6 +10,7 @@ import {
   AnalyticsPage,
   ReportsPage,
   SavingGoalsPage,
+  BudgetsPage,
 } from '../pages';
 import { PlaceholderPage, ErrorBoundary } from '../components/ui';
 import { ROUTES } from '../constants';
@@ -40,12 +41,9 @@ const AppRouter: React.FC = () => {
         <Route
           path={ROUTES.BUDGET}
           element={
-            <PlaceholderPage
-              title="Budget"
-              description="Set spending limits and track your budget progress"
-              icon={PiggyBank}
-              comingSoon={true}
-            />
+            <ErrorBoundary>
+              <BudgetsPage />
+            </ErrorBoundary>
           }
         />{' '}
         <Route

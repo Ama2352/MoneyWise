@@ -95,6 +95,7 @@ export interface TranslationKeys {
     allCategories: string;
     allWallets: string;
     anyDay: string;
+    advancedSearch: string;
     days: {
       monday: string;
       tuesday: string;
@@ -352,12 +353,101 @@ export interface TranslationKeys {
 
   // Budgets
   budgets: {
+    title: string;
+    subtitle: string;
+    addNew: string;
+    editBudget: string;
+    deleteBudget: string;
+    budgetDetails: string;
+    progress: string;
+    noBudgets: string;
+    noBudgetsDescription: string;
+
+    // Form fields
+    description: string;
+    limitAmount: string;
+    startDate: string;
+    endDate: string;
+    category: string;
+    wallet: string;
+    currentSpending: string;
+
+    // Status
+    status: {
+      notStarted: string;
+      overBudget: string;
+      nearlyMaxed: string;
+      underBudget: string;
+      critical: string;
+      warning: string;
+      onTrack: string;
+      minimalSpending: string;
+    };
+
+    // Stats
+    totalBudgets: string;
+    activeBudgets: string;
+    completedBudgets: string;
+    totalLimitAmount: string;
+    totalCurrentSpending: string;
+
+    // Actions
+    create: string;
+    update: string;
+    delete: string;
+    edit: string;
+    view: string;
+
+    // Progress
+    progressPercentage: string;
+    daysRemaining: string;
+    completed: string;
+
+    // Confirmations
+    deleteConfirmTitle: string;
+    deleteConfirmMessage: string;
+
+    // Search
+    search: {
+      title: string;
+      keywords: string;
+      keywordsPlaceholder: string;
+      startDate: string;
+      endDate: string;
+      category: string;
+      wallet: string;
+      minLimitAmount: string;
+      maxLimitAmount: string;
+      allCategories: string;
+      allWallets: string;
+      resultsFound: string;
+      noResults: string;
+      clearSearch: string;
+    };
+
     notifications: {
+      createSuccess: string;
+      updateSuccess: string;
+      deleteSuccess: string;
       createError: string;
       updateError: string;
       deleteError: string;
+      loadError: string;
+    };
+
+    // Validation
+    validation: {
+      descriptionRequired: string;
+      limitAmountRequired: string;
+      limitAmountPositive: string;
+      startDateRequired: string;
+      endDateRequired: string;
+      endDateAfterStart: string;
+      categoryRequired: string;
+      walletRequired: string;
     };
   };
+
   // Saving Goals
   savingGoals: {
     title: string;

@@ -3,7 +3,7 @@ import type { TranslationKeys } from '../types';
 export const en: TranslationKeys = {
   common: {
     loading: 'Loading...',
-    error: 'Something went wrong',
+    error: 'Error',
     success: 'Success',
     cancel: 'Cancel',
     confirm: 'Confirm',
@@ -11,15 +11,15 @@ export const en: TranslationKeys = {
     no: 'No',
     ok: 'OK',
     save: 'Save',
-    delete: 'Delete',
     edit: 'Edit',
+    delete: 'Delete',
     add: 'Add',
     create: 'Create',
     update: 'Update',
     creating: 'Creating...',
     updating: 'Updating...',
-    retry: 'Try Again',
-    createdAt: 'Created:',
+    retry: 'Retry',
+    createdAt: 'Created at',
     search: 'Search',
     searching: 'Searching...',
     back: 'Back',
@@ -31,10 +31,10 @@ export const en: TranslationKeys = {
     email: 'Email',
     password: 'Password',
     name: 'Name',
-    firstName: 'First name',
-    lastName: 'Last name',
-    confirmPassword: 'Confirm password',
-    searchPlaceholder: 'Search transactions, categories...',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    confirmPassword: 'Confirm Password',
+    searchPlaceholder: 'Search...',
     profile: 'Profile',
     settings: 'Settings',
     helpSupport: 'Help & Support',
@@ -48,6 +48,7 @@ export const en: TranslationKeys = {
     allCategories: 'All Categories',
     allWallets: 'All Wallets',
     anyDay: 'Any Day',
+    advancedSearch: 'Advanced Search',
     days: {
       monday: 'Monday',
       tuesday: 'Tuesday',
@@ -573,10 +574,100 @@ export const en: TranslationKeys = {
     },
   },
   budgets: {
+    title: 'Budgets',
+    subtitle: 'Track your spending limits and manage your financial budgets',
+    addNew: 'Add New Budget',
+    editBudget: 'Edit Budget',
+    deleteBudget: 'Delete Budget',
+    budgetDetails: 'Budget Details',
+    progress: 'Progress',
+    noBudgets: 'No budgets found',
+    noBudgetsDescription:
+      'Create your first budget to start tracking your spending limits',
+
+    // Form fields
+    description: 'Description',
+    limitAmount: 'Limit Amount',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    category: 'Category',
+    wallet: 'Wallet',
+    currentSpending: 'Current Spending',
+
+    // Status
+    status: {
+      notStarted: 'Not Started',
+      overBudget: 'Over Budget',
+      nearlyMaxed: 'Nearly Maxed',
+      underBudget: 'Under Budget',
+      critical: 'Critical',
+      warning: 'Warning',
+      onTrack: 'On Track',
+      minimalSpending: 'Minimal Spending',
+    },
+
+    // Stats
+    totalBudgets: 'Total Budgets',
+    activeBudgets: 'Active Budgets',
+    completedBudgets: 'Completed Budgets',
+    totalLimitAmount: 'Total Limit',
+    totalCurrentSpending: 'Total Spent',
+
+    // Actions
+    create: 'Create Budget',
+    update: 'Update Budget',
+    delete: 'Delete',
+    edit: 'Edit',
+    view: 'View Details',
+
+    // Progress
+    progressPercentage: '% Used',
+    daysRemaining: 'days remaining',
+    completed: 'Completed',
+
+    // Confirmations
+    deleteConfirmTitle: 'Delete Budget',
+    deleteConfirmMessage:
+      'Are you sure you want to delete this budget? This action cannot be undone.',
+
+    // Search
+    search: {
+      title: 'Search Budgets',
+      keywords: 'Keywords',
+      keywordsPlaceholder: 'Search by description...',
+      startDate: 'Start Date',
+      endDate: 'End Date',
+      category: 'Category',
+      wallet: 'Wallet',
+      minLimitAmount: 'Min Limit Amount',
+      maxLimitAmount: 'Max Limit Amount',
+      allCategories: 'All Categories',
+      allWallets: 'All Wallets',
+      resultsFound: 'results found',
+      noResults: 'No budgets match your search criteria',
+      clearSearch: 'Clear Search',
+    },
+
     notifications: {
+      createSuccess: 'Budget created successfully',
+      updateSuccess: 'Budget updated successfully',
+      deleteSuccess: 'Budget deleted successfully',
       createError: 'Failed to create budget',
       updateError: 'Failed to update budget',
       deleteError: 'Failed to delete budget',
+      loadError: 'Failed to load budgets',
+    },
+
+    // Validation
+    validation: {
+      descriptionRequired: 'Description is required',
+      limitAmountRequired: 'Limit amount is required',
+      limitAmountPositive: 'Limit amount must be positive',
+      startDateRequired: 'Start date is required',
+      endDateRequired: 'End date is required',
+      endDateAfterStart: 'End date must be after start date',
+      categoryRequired: 'Category is required',
+      walletRequired: 'Wallet is required',
     },
   },
 
@@ -655,7 +746,8 @@ export const en: TranslationKeys = {
     passwordChanged: 'Password changed successfully!',
     uploadAvatar: 'Upload Avatar',
     deleteAvatar: 'Delete Avatar',
-    deleteAvatarConfirm: 'Are you sure you want to delete your avatar? This action cannot be undone.',
+    deleteAvatarConfirm:
+      'Are you sure you want to delete your avatar? This action cannot be undone.',
     delete: 'Delete',
     passwordsMustMatch: 'Passwords must match',
     confirmPasswordRequired: 'Please confirm your new password',

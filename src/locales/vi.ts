@@ -48,6 +48,7 @@ export const vi: TranslationKeys = {
     allCategories: 'Tất cả danh mục',
     allWallets: 'Tất cả ví',
     anyDay: 'Bất kỳ ngày nào',
+    advancedSearch: 'Tìm kiếm nâng cao',
     days: {
       monday: 'Thứ Hai',
       tuesday: 'Thứ Ba',
@@ -569,10 +570,101 @@ export const vi: TranslationKeys = {
     },
   },
   budgets: {
+    title: 'Ngân Sách',
+    subtitle:
+      'Theo dõi giới hạn chi tiêu và quản lý ngân sách tài chính của bạn',
+    addNew: 'Thêm Ngân Sách Mới',
+    editBudget: 'Chỉnh Sửa Ngân Sách',
+    deleteBudget: 'Xóa Ngân Sách',
+    budgetDetails: 'Chi Tiết Ngân Sách',
+    progress: 'Tiến Độ',
+    noBudgets: 'Không có ngân sách nào',
+    noBudgetsDescription:
+      'Tạo ngân sách đầu tiên để bắt đầu theo dõi giới hạn chi tiêu',
+
+    // Form fields
+    description: 'Mô Tả',
+    limitAmount: 'Số Tiền Giới Hạn',
+    startDate: 'Ngày Bắt Đầu',
+    endDate: 'Ngày Kết Thúc',
+    category: 'Danh Mục',
+    wallet: 'Ví',
+    currentSpending: 'Chi Tiêu Hiện Tại',
+
+    // Status
+    status: {
+      notStarted: 'Chưa Bắt Đầu',
+      overBudget: 'Vượt Ngân Sách',
+      nearlyMaxed: 'Gần Hết Hạn',
+      underBudget: 'Dưới Ngân Sách',
+      critical: 'Nguy Hiểm',
+      warning: 'Cảnh Báo',
+      onTrack: 'Đúng Tiến Độ',
+      minimalSpending: 'Chi Tiêu Tối Thiểu',
+    },
+
+    // Stats
+    totalBudgets: 'Tổng Ngân Sách',
+    activeBudgets: 'Ngân Sách Đang Hoạt Động',
+    completedBudgets: 'Ngân Sách Đã Hoàn Thành',
+    totalLimitAmount: 'Tổng Giới Hạn',
+    totalCurrentSpending: 'Tổng Đã Chi',
+
+    // Actions
+    create: 'Tạo Ngân Sách',
+    update: 'Cập Nhật Ngân Sách',
+    delete: 'Xóa',
+    edit: 'Chỉnh Sửa',
+    view: 'Xem Chi Tiết',
+
+    // Progress
+    progressPercentage: '% Đã Sử Dụng',
+    daysRemaining: 'ngày còn lại',
+    completed: 'Hoàn Thành',
+
+    // Confirmations
+    deleteConfirmTitle: 'Xóa Ngân Sách',
+    deleteConfirmMessage:
+      'Bạn có chắc chắn muốn xóa ngân sách này? Hành động này không thể hoàn tác.',
+
+    // Search
+    search: {
+      title: 'Tìm Kiếm Ngân Sách',
+      keywords: 'Từ Khóa',
+      keywordsPlaceholder: 'Tìm theo mô tả...',
+      startDate: 'Ngày Bắt Đầu',
+      endDate: 'Ngày Kết Thúc',
+      category: 'Danh Mục',
+      wallet: 'Ví',
+      minLimitAmount: 'Số Tiền Giới Hạn Tối Thiểu',
+      maxLimitAmount: 'Số Tiền Giới Hạn Tối Đa',
+      allCategories: 'Tất Cả Danh Mục',
+      allWallets: 'Tất Cả Ví',
+      resultsFound: 'kết quả được tìm thấy',
+      noResults: 'Không tìm thấy ngân sách nào phù hợp',
+      clearSearch: 'Xóa Tìm Kiếm',
+    },
+
     notifications: {
+      createSuccess: 'Tạo ngân sách thành công',
+      updateSuccess: 'Cập nhật ngân sách thành công',
+      deleteSuccess: 'Xóa ngân sách thành công',
       createError: 'Không thể tạo ngân sách',
       updateError: 'Không thể cập nhật ngân sách',
       deleteError: 'Không thể xóa ngân sách',
+      loadError: 'Không thể tải ngân sách',
+    },
+
+    // Validation
+    validation: {
+      descriptionRequired: 'Mô tả là bắt buộc',
+      limitAmountRequired: 'Số tiền giới hạn là bắt buộc',
+      limitAmountPositive: 'Số tiền giới hạn phải lớn hơn 0',
+      startDateRequired: 'Ngày bắt đầu là bắt buộc',
+      endDateRequired: 'Ngày kết thúc là bắt buộc',
+      endDateAfterStart: 'Ngày kết thúc phải sau ngày bắt đầu',
+      categoryRequired: 'Danh mục là bắt buộc',
+      walletRequired: 'Ví là bắt buộc',
     },
   },
 

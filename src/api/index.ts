@@ -3,8 +3,12 @@
  */
 
 export { authApi } from './authApi';
-export { transactionApi, categoryApi, budgetApi, walletApi as financeWalletApi } from './financeApi';
-export { walletApi } from './walletApi';
+export {
+  transactionApi,
+  categoryApi,
+  budgetApi,
+  walletApi as financeWalletApi,
+} from './financeApi';
 export { settingsApi } from './settingsApi';
 export { default as httpClient } from './httpClient';
 export { analyticsApi } from './analyticsApi';

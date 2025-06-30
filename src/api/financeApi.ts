@@ -19,6 +19,7 @@ import type {
   CreateSavingGoalRequest,
   UpdateSavingGoalRequest,
   SearchSavingGoalRequest,
+  SearchBudgetRequest,
 } from '../types';
 
 /**
@@ -165,9 +166,23 @@ export const statisticsApi = {
 };
 
 export const budgetApi = {
-  getAllBudgetProgress: async (): Promise<BudgetProgress[]> => {
+  getAllBudgetProgress: async (
+    currency?: string
+  ): Promise<BudgetProgress[]> => {
+    const params = currency ? { currency } : {};
     const response = await httpClient.get<BudgetProgress[]>(
-      API_ENDPOINTS.BUDGETS.BASE
+      API_ENDPOINTS.BUDGETS.PROGRESS,
+      { params } // ← Wrapped in object, becomes ?key=value&key2=value2
+    );
+    return response.data;
+  },
+
+  searchBudgets: async (
+    params: SearchBudgetRequest
+  ): Promise<BudgetProgress[]> => {
+    const response = await httpClient.get<BudgetProgress[]>(
+      API_ENDPOINTS.BUDGETS.SEARCH,
+      { params }
     );
     return response.data;
   },
@@ -180,6 +195,7 @@ export const budgetApi = {
   },
 
   createBudget: async (budget: CreateBudgetRequest): Promise<Budget> => {
+    console.log('Creating budget:', budget);
     const response = await httpClient.post<Budget>(
       API_ENDPOINTS.BUDGETS.BASE,
       budget
@@ -201,7 +217,9 @@ export const budgetApi = {
 };
 
 export const savingGoalApi = {
-  getAllSavingGoalProgress: async (currency?: string): Promise<SavingGoalProgress[]> => {
+  getAllSavingGoalProgress: async (
+    currency?: string
+  ): Promise<SavingGoalProgress[]> => {
     const params = currency ? { currency } : {};
     const response = await httpClient.get<SavingGoalProgress[]>(
       API_ENDPOINTS.SAVING_GOALS.PROGRESS,

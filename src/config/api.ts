@@ -58,6 +58,7 @@ export const API_ENDPOINTS = {
   BUDGETS: {
     BASE: '/Budgets',
     PROGRESS: '/Budgets/progress',
+    SEARCH: '/Budgets/search',
   },
 
   SAVING_GOALS: {

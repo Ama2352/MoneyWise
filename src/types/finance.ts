@@ -90,6 +90,16 @@ export interface SearchSavingGoalRequest {
   keywords?: string;
 }
 
+export interface SearchBudgetRequest {
+  startDate?: string;
+  endDate?: string;
+  categoryName?: string;
+  walletName?: string;
+  minLimitAmount?: number;
+  maxLimitAmount?: number;
+  keywords?: string;
+}
+
 export interface BudgetProgress {
   budgetId: string;
   categoryId: string;

@@ -34,6 +34,7 @@ import {
   type SavingGoal,
   type Budget,
   type SearchSavingGoalRequest,
+  type SearchBudgetRequest,
 } from '../types/finance';
 
 export const useWalletMutations = () => {
@@ -383,7 +384,7 @@ export const useSavingGoalProgress = (language?: string, currency?: string) => {
     if (language) params.append('lang', language);
     if (currency) params.append('currency', currency);
     const queryString = params.toString();
-    return queryString 
+    return queryString
       ? `${SWR_KEYS.SAVING_GOALS.PROGRESS}?${queryString}`
       : SWR_KEYS.SAVING_GOALS.PROGRESS;
   }, [language, currency]);
@@ -406,20 +407,67 @@ export const useSavingGoalProgress = (language?: string, currency?: string) => {
   };
 };
 
-export const useBudgetProgress = () => {
-  const { data, error, isLoading } = useSWR<BudgetProgress[]>(
-    SWR_KEYS.BUDGETS.PROGRESS,
-    async () => {
-      const result = await budgetApi.getAllBudgetProgress();
-      return result;
-    }
-  );
+export const useBudgetProgress = (language?: string, currency?: string) => {
+  // Include language and currency in SWR key to force refetch when they change
+  const swrKey = useMemo(() => {
+    const params = new URLSearchParams();
+    if (language) params.append('lang', language);
+    if (currency) params.append('currency', currency);
+    const queryString = params.toString();
+    return queryString
+      ? `${SWR_KEYS.BUDGETS.PROGRESS}?${queryString}`
+      : SWR_KEYS.BUDGETS.PROGRESS;
+  }, [language, currency]);
+
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateBudgets,
+  } = useSWR<BudgetProgress[]>(swrKey, async () => {
+    const result = await budgetApi.getAllBudgetProgress(currency);
+    return result;
+  });
 
   return {
     budgetProgress: data,
     isLoading,
     error,
-    refresh: () => mutate(SWR_KEYS.BUDGETS.PROGRESS),
+    refresh: () => mutateBudgets(undefined, { revalidate: true }),
+  };
+};
+
+export const useSearchBudgets = (
+  params?: SearchBudgetRequest,
+  language?: string
+) => {
+  const searchKey = useMemo(() => {
+    if (!params || Object.keys(params).length === 0) return null;
+
+    const keyObj = {
+      ...params,
+      lang: language || '',
+    };
+
+    return `${SWR_KEYS.BUDGETS.SEARCH}:${JSON.stringify(keyObj)}`;
+  }, [params, language]);
+
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateSearch,
+  } = useSWR<BudgetProgress[]>(searchKey, async () => {
+    if (!params) return [];
+    const result = await budgetApi.searchBudgets(params);
+    return result;
+  });
+
+  return {
+    searchResults: data,
+    isSearching: isLoading,
+    searchError: error,
+    refreshSearch: () => mutateSearch(undefined, { revalidate: true }),
   };
 };
 
@@ -500,9 +548,6 @@ export const useSavingGoalMutations = () => {
       mutate(SWR_KEYS.SAVING_GOALS.PROGRESS);
       return { success: true, data: updatedGoal };
     } catch (error: any) {
-      console.error('Update saving goal error:', error);
-      console.error('Response data:', error.response?.data);
-
       // Try to extract detailed error message from various possible locations
       let errorMessage = translations.savingGoals.notifications.updateError;
 
@@ -533,7 +578,6 @@ export const useSavingGoalMutations = () => {
       mutate(SWR_KEYS.SAVING_GOALS.PROGRESS);
       return { success: true };
     } catch (error: any) {
-      console.error('Delete saving goal error:', error);
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.title ||
@@ -562,11 +606,24 @@ export const useBudgetMutations = () => {
       mutate(SWR_KEYS.BUDGETS.PROGRESS);
       return { success: true, data: newBudget };
     } catch (error: any) {
+      let errorMessage = translations.budgets.notifications.createError;
+      if (error.response?.data) {
+        const responseData = error.response.data;
+        // Try different possible error message fields from Spring Boot
+        errorMessage =
+          responseData.message ||
+          responseData.error ||
+          responseData.detail ||
+          responseData.title ||
+          // Sometimes Spring Boot returns the exception message directly
+          (typeof responseData === 'string' ? responseData : null) ||
+          error.message ||
+          translations.budgets.notifications.createError;
+      }
+
       return {
         success: false,
-        error:
-          error.response?.data?.message ||
-          translations.budgets.notifications.createError,
+        error: errorMessage,
       };
     }
   };
@@ -577,11 +634,25 @@ export const useBudgetMutations = () => {
       mutate(SWR_KEYS.BUDGETS.PROGRESS);
       return { success: true, data: updatedBudget };
     } catch (error: any) {
+      let errorMessage = translations.budgets.notifications.updateError;
+
+      if (error.response?.data) {
+        const responseData = error.response.data;
+        // Try different possible error message fields from Spring Boot
+        errorMessage =
+          responseData.message ||
+          responseData.error ||
+          responseData.detail ||
+          responseData.title ||
+          // Sometimes Spring Boot returns the exception message directly
+          (typeof responseData === 'string' ? responseData : null) ||
+          error.message ||
+          translations.budgets.notifications.updateError;
+      }
+
       return {
         success: false,
-        error:
-          error.response?.data?.message ||
-          translations.budgets.notifications.updateError,
+        error: errorMessage,
       };
     }
   };
@@ -592,11 +663,14 @@ export const useBudgetMutations = () => {
       mutate(SWR_KEYS.BUDGETS.PROGRESS);
       return { success: true };
     } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.title ||
+        error.message ||
+        translations.budgets.notifications.deleteError;
       return {
         success: false,
-        error:
-          error.response?.data?.message ||
-          translations.budgets.notifications.deleteError,
+        error: errorMessage,
       };
     }
   };
