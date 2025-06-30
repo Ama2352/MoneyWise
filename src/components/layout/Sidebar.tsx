@@ -79,12 +79,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
     typeof monthlySummary?.totalIncome === 'number'
       ? monthlySummary.totalIncome
       : 0;
-  console.log('Total Income:', totalIncome);
   const totalExpenses =
     typeof monthlySummary?.totalExpenses === 'number'
       ? monthlySummary.totalExpenses
       : 0;
-  console.log('Total Expenses:', totalExpenses);
 
   // State for formatted values
   const [formattedAmounts, setFormattedAmounts] = useState({

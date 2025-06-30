@@ -290,7 +290,7 @@ export const BudgetCard: React.FC<BudgetCardProps> = ({
         {!progressData.isCompleted && (
           <div className="budget-card__remaining">
             <span className="budget-card__remaining-amount">
-              {formattedAmounts.remainingAmount} remaining
+              {formattedAmounts.remainingAmount} {translations.budgets?.remaining || translations.common.remaining}
             </span>
           </div>
         )}
@@ -311,7 +311,9 @@ export const BudgetCard: React.FC<BudgetCardProps> = ({
           <Calendar size={14} />
           {progressData.isOverdue ? (
             <span className="budget-card__overdue">
-              {Math.abs(progressData.daysRemaining)} days overdue
+              {translations.budgets.daysOverdue
+                ? translations.budgets.daysOverdue.replace('{n}', String(Math.abs(progressData.daysRemaining)))
+                : `${Math.abs(progressData.daysRemaining)} days overdue`}
             </span>
           ) : progressData.isCompleted ? (
             <span className="budget-card__completed">

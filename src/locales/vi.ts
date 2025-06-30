@@ -58,6 +58,8 @@ export const vi: TranslationKeys = {
       saturday: 'Thứ Bảy',
       sunday: 'Chủ Nhật',
     },
+    remaining: 'còn lại',
+    daysOverdue: '{n} ngày quá hạn',
   },
   validation: {
     required: 'Trường này là bắt buộc',
@@ -182,6 +184,16 @@ export const vi: TranslationKeys = {
       balance: 'Số dư',
       positiveWallets: 'Ví dương',
       negativeWallets: 'Ví âm',
+    },
+    savingsRate: 'Tỷ lệ tiết kiệm',
+    fromLastMonth: 'so với tháng trước',
+    sameAsLastMonth: 'giống tháng trước',
+    today: 'Hôm nay',
+    yesterday: 'Hôm qua',
+    transactions: {
+      groceryStore: 'Cửa hàng tạp hóa',
+      salaryDeposit: 'Lương',
+      coffeeShop: 'Quán cà phê',
     },
   },
   transactions: {
@@ -592,6 +604,8 @@ export const vi: TranslationKeys = {
       categoryRequired: 'Danh mục là bắt buộc',
       walletRequired: 'Ví là bắt buộc',
     },
+    remaining: 'còn lại',
+    daysOverdue: '{n} ngày quá hạn',
   },
   budgets: {
     title: 'Ngân Sách',
@@ -690,6 +704,8 @@ export const vi: TranslationKeys = {
       categoryRequired: 'Danh mục là bắt buộc',
       walletRequired: 'Ví là bắt buộc',
     },
+    remaining: 'còn lại',
+    daysOverdue: '{n} ngày quá hạn',
   },
 
   settings: {

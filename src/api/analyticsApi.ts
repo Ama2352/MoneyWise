@@ -13,21 +13,24 @@ import type {
   YearlySummaryDTO,
   DateRangeParams,
   MonthParams,
-  YearParams
+  YearParams,
 } from '../types/analytics';
 
 class AnalyticsApi {
-
   // Statistics endpoints
-  async getCategoryBreakdown(params: DateRangeParams): Promise<CategoryBreakdownDTO[]> {
+  async getCategoryBreakdown(
+    params: DateRangeParams
+  ): Promise<CategoryBreakdownDTO[]> {
     try {
-      const response = await httpClient.get<CategoryBreakdownDTO[]>('/Statistics/category-breakdown', {
-        params: {
-          startDate: params.startDate,
-          endDate: params.endDate
+      const response = await httpClient.get<CategoryBreakdownDTO[]>(
+        '/Statistics/category-breakdown',
+        {
+          params: {
+            startDate: params.startDate,
+            endDate: params.endDate,
+          },
         }
-      });
-      console.log('📊 Category Breakdown Response:', response.data);
+      );
       return response.data || [];
     } catch (error) {
       console.error('❌ Category Breakdown Error:', error);
@@ -35,15 +38,19 @@ class AnalyticsApi {
     }
   }
 
-  async getCashFlowSummary(params?: Partial<DateRangeParams>): Promise<CashFlowSummaryDTO> {
+  async getCashFlowSummary(
+    params?: Partial<DateRangeParams>
+  ): Promise<CashFlowSummaryDTO> {
     try {
-      const response = await httpClient.get<CashFlowSummaryDTO>('/Statistics/cash-flow', {
-        params: {
-          ...(params?.startDate && { startDate: params.startDate }),
-          ...(params?.endDate && { endDate: params.endDate })
+      const response = await httpClient.get<CashFlowSummaryDTO>(
+        '/Statistics/cash-flow',
+        {
+          params: {
+            ...(params?.startDate && { startDate: params.startDate }),
+            ...(params?.endDate && { endDate: params.endDate }),
+          },
         }
-      });
-      console.log('💰 Cash Flow Response:', response.data);
+      );
       return response.data || { totalIncome: 0, totalExpenses: 0 };
     } catch (error) {
       console.error('❌ Cash Flow Error:', error);
@@ -51,15 +58,19 @@ class AnalyticsApi {
     }
   }
 
-  async getWalletBreakdown(params: DateRangeParams): Promise<WalletBreakdownDTO[]> {
+  async getWalletBreakdown(
+    params: DateRangeParams
+  ): Promise<WalletBreakdownDTO[]> {
     try {
-      const response = await httpClient.get<WalletBreakdownDTO[]>('/Statistics/wallet-breakdown', {
-        params: {
-          startDate: params.startDate,
-          endDate: params.endDate
+      const response = await httpClient.get<WalletBreakdownDTO[]>(
+        '/Statistics/wallet-breakdown',
+        {
+          params: {
+            startDate: params.startDate,
+            endDate: params.endDate,
+          },
         }
-      });
-      console.log('🏦 Wallet Breakdown Response:', response.data);
+      );
       return response.data || [];
     } catch (error) {
       console.error('❌ Wallet Breakdown Error:', error);
@@ -70,11 +81,15 @@ class AnalyticsApi {
   // Calendar endpoints
   async getDailySummary(date: string): Promise<DailySummaryDTO> {
     try {
-      const response = await httpClient.get<DailySummaryDTO>('/Calendar/daily', {
-        params: { date }
-      });
-      console.log('📅 Daily Summary Response:', response.data);
-      return response.data || { dailyDetails: [], totalIncome: 0, totalExpenses: 0 };
+      const response = await httpClient.get<DailySummaryDTO>(
+        '/Calendar/daily',
+        {
+          params: { date },
+        }
+      );
+      return (
+        response.data || { dailyDetails: [], totalIncome: 0, totalExpenses: 0 }
+      );
     } catch (error) {
       console.error('❌ Daily Summary Error:', error);
       throw new Error('Failed to fetch daily summary');
@@ -83,11 +98,15 @@ class AnalyticsApi {
 
   async getWeeklySummary(startDate: string): Promise<WeeklySummaryDTO> {
     try {
-      const response = await httpClient.get<WeeklySummaryDTO>('/Calendar/weekly', {
-        params: { startDate }
-      });
-      console.log('📊 Weekly Summary Response:', response.data);
-      return response.data || { weeklyDetails: [], totalIncome: 0, totalExpenses: 0 };
+      const response = await httpClient.get<WeeklySummaryDTO>(
+        '/Calendar/weekly',
+        {
+          params: { startDate },
+        }
+      );
+      return (
+        response.data || { weeklyDetails: [], totalIncome: 0, totalExpenses: 0 }
+      );
     } catch (error) {
       console.error('❌ Weekly Summary Error:', error);
       throw new Error('Failed to fetch weekly summary');
@@ -96,14 +115,22 @@ class AnalyticsApi {
 
   async getMonthlySummary(params: MonthParams): Promise<MonthlySummaryDTO> {
     try {
-      const response = await httpClient.get<MonthlySummaryDTO>('/Calendar/monthly', {
-        params: {
-          year: params.year,
-          month: params.month
+      const response = await httpClient.get<MonthlySummaryDTO>(
+        '/Calendar/monthly',
+        {
+          params: {
+            year: params.year,
+            month: params.month,
+          },
         }
-      });
-      console.log('📊 Monthly Summary Response:', response.data);
-      return response.data || { monthlyDetails: [], totalIncome: 0, totalExpenses: 0 };
+      );
+      return (
+        response.data || {
+          monthlyDetails: [],
+          totalIncome: 0,
+          totalExpenses: 0,
+        }
+      );
     } catch (error) {
       console.error('❌ Monthly Summary Error:', error);
       throw new Error('Failed to fetch monthly summary');
@@ -112,11 +139,15 @@ class AnalyticsApi {
 
   async getYearlySummary(params: YearParams): Promise<YearlySummaryDTO> {
     try {
-      const response = await httpClient.get<YearlySummaryDTO>('/Calendar/yearly', {
-        params: { year: params.year }
-      });
-      console.log('📊 Yearly Summary Response:', response.data);
-      return response.data || { yearlyDetails: [], totalIncome: 0, totalExpenses: 0 };
+      const response = await httpClient.get<YearlySummaryDTO>(
+        '/Calendar/yearly',
+        {
+          params: { year: params.year },
+        }
+      );
+      return (
+        response.data || { yearlyDetails: [], totalIncome: 0, totalExpenses: 0 }
+      );
     } catch (error) {
       console.error('❌ Yearly Summary Error:', error);
       throw new Error('Failed to fetch yearly summary');
@@ -139,13 +170,13 @@ class AnalyticsApi {
     const now = new Date();
     return {
       year: now.getFullYear(),
-      month: now.getMonth() + 1 // JavaScript months are 0-indexed
+      month: now.getMonth() + 1, // JavaScript months are 0-indexed
     };
   }
 
   getCurrentYearParams(): YearParams {
     return {
-      year: new Date().getFullYear()
+      year: new Date().getFullYear(),
     };
   }
 
@@ -172,7 +203,7 @@ class AnalyticsApi {
 
     return {
       startDate: this.formatDateForApi(startDate),
-      endDate: this.formatDateForApi(endDate)
+      endDate: this.formatDateForApi(endDate),
     };
   }
 }

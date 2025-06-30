@@ -105,6 +105,8 @@ export interface TranslationKeys {
       saturday: string;
       sunday: string;
     };
+    remaining: string;
+    daysOverdue: string;
   };
 
   // Navigation
@@ -480,6 +482,9 @@ export interface TranslationKeys {
       categoryRequired: string;
       walletRequired: string;
     };
+
+    remaining: string;
+    daysOverdue: string;
   };
 
   // Wallets
@@ -648,6 +653,9 @@ export interface TranslationKeys {
       categoryRequired: string;
       walletRequired: string;
     };
+
+    remaining: string;
+    daysOverdue: string;
   };
 
   // Validation

@@ -58,6 +58,8 @@ export const en: TranslationKeys = {
       saturday: 'Saturday',
       sunday: 'Sunday',
     },
+    remaining: 'remaining',
+    daysOverdue: '{n} days overdue',
   },
   validation: {
     required: 'This field is required',
@@ -185,6 +187,16 @@ export const en: TranslationKeys = {
       balance: 'Balance',
       positiveWallets: 'Positive Wallets',
       negativeWallets: 'Negative Wallets',
+    },
+    savingsRate: 'Savings Rate',
+    fromLastMonth: 'from last month',
+    sameAsLastMonth: 'same as last month',
+    today: 'Today',
+    yesterday: 'Yesterday',
+    transactions: {
+      groceryStore: 'Grocery Store',
+      salaryDeposit: 'Salary Deposit',
+      coffeeShop: 'Coffee Shop',
     },
   },
   transactions: {
@@ -596,6 +608,8 @@ export const en: TranslationKeys = {
       categoryRequired: 'Category is required',
       walletRequired: 'Wallet is required',
     },
+    remaining: 'remaining',
+    daysOverdue: '{n} days overdue',
   },
   budgets: {
     title: 'Budgets',
@@ -648,6 +662,8 @@ export const en: TranslationKeys = {
     progressPercentage: '% Used',
     daysRemaining: 'days remaining',
     completed: 'Completed',
+    remaining: 'remaining',
+    daysOverdue: '{n} days overdue',
 
     // Confirmations
     deleteConfirmTitle: 'Delete Budget',

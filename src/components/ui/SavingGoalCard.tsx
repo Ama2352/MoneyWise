@@ -297,7 +297,7 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
         {!progressData.isCompleted && (
           <div className="saving-goal-card__remaining">
             <span className="saving-goal-card__remaining-amount">
-              {formattedAmounts.remainingAmount} remaining
+              {formattedAmounts.remainingAmount} {translations.savingGoals?.remaining || translations.common.remaining}
             </span>
           </div>
         )}
@@ -318,7 +318,9 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
           <Calendar size={14} />
           {progressData.isOverdue ? (
             <span className="saving-goal-card__overdue">
-              {Math.abs(progressData.daysRemaining)} days overdue
+              {translations.savingGoals.daysOverdue
+                ? translations.savingGoals.daysOverdue.replace('{n}', String(Math.abs(progressData.daysRemaining)))
+                : `${Math.abs(progressData.daysRemaining)} days overdue`}
             </span>
           ) : progressData.isCompleted ? (
             <span className="saving-goal-card__completed">
@@ -326,8 +328,7 @@ export const SavingGoalCard: React.FC<SavingGoalCardProps> = ({
             </span>
           ) : (
             <span>
-              {progressData.daysRemaining}{' '}
-              {translations.savingGoals.daysRemaining}
+              {progressData.daysRemaining} {translations.savingGoals.daysRemaining}
             </span>
           )}
         </div>
