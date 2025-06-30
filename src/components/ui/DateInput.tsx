@@ -4,7 +4,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar } from 'lucide-react';
-import { formatDateForInput, parseInputDateToISO, getDateInputPlaceholder, convertDateBetweenLanguages } from '../../utils/dateUtils';
+import {
+  formatDateForInput,
+  parseInputDateToISO,
+  getDateInputPlaceholder,
+  convertDateBetweenLanguages,
+} from '../../utils/dateUtils';
 import './DateInput.css';
 
 interface DateInputProps {
@@ -45,7 +50,11 @@ export const DateInput: React.FC<DateInputProps> = ({
   // Handle language switching - convert current value to new format
   useEffect(() => {
     if (previousLanguageRef.current !== language && value) {
-      const convertedValue = convertDateBetweenLanguages(value, previousLanguageRef.current, language);
+      const convertedValue = convertDateBetweenLanguages(
+        value,
+        previousLanguageRef.current,
+        language
+      );
       if (convertedValue !== value) {
         onChange(convertedValue);
       }
@@ -65,7 +74,7 @@ export const DateInput: React.FC<DateInputProps> = ({
   const handleDatePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isoDate = e.target.value; // YYYY-MM-DD format from date input
     setIsoValue(isoDate);
-    
+
     // Convert to display format and notify parent
     const displayValue = getDisplayValue(isoDate);
     onChange(displayValue);
@@ -75,7 +84,7 @@ export const DateInput: React.FC<DateInputProps> = ({
   const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const textValue = e.target.value;
     onChange(textValue);
-    
+
     // Try to parse and update ISO value for date picker
     try {
       const isoDate = parseInputDateToISO(textValue, language);
@@ -99,7 +108,9 @@ export const DateInput: React.FC<DateInputProps> = ({
   const effectivePlaceholder = placeholder || getDateInputPlaceholder(language);
 
   return (
-    <div className={`date-input-wrapper ${error ? 'date-input-wrapper--error' : ''}`}>
+    <div
+      className={`date-input-wrapper ${error ? 'date-input-wrapper--error' : ''}`}
+    >
       {/* Hidden date input for picker functionality */}
       <input
         ref={dateInputRef}
@@ -110,7 +121,7 @@ export const DateInput: React.FC<DateInputProps> = ({
         disabled={disabled}
         tabIndex={-1}
       />
-      
+
       {/* Visible text input with language-specific format */}
       <div className="date-input-container">
         <input

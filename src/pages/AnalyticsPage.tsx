@@ -3,16 +3,16 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Calendar, 
-  BarChart3, 
-  TrendingUp, 
+import {
+  Calendar,
+  BarChart3,
+  TrendingUp,
   Trophy,
   DollarSign,
   CreditCard,
   TrendingDown,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
 } from 'lucide-react';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { useLanguageContext } from '../contexts/LanguageContext';
@@ -21,6 +21,9 @@ import { AnalyticsPieChart, AnalyticsBarChart } from '../components/charts';
 import { CurrencyAmount, DateRangePicker, NetAmount } from '../components/ui';
 import Button from '../components/ui/Button';
 import './AnalyticsPage.css';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
+import 'dayjs/locale/vi';
 
 type ChartView = 'daily' | 'weekly' | 'monthly' | 'yearly';
 type PieChartType = 'income' | 'expense';
@@ -31,13 +34,14 @@ export const AnalyticsPage: React.FC = () => {
   // State
   const [selectedChart, setSelectedChart] = useState<ChartView>('monthly');
   const [pieChartType, setPieChartType] = useState<PieChartType>('expense');
-  const [pieChartSource, setPieChartSource] = useState<PieChartSource>('category');
+  const [pieChartSource, setPieChartSource] =
+    useState<PieChartSource>('category');
   const [dateRangeMode, setDateRangeMode] = useState<DateRangeMode>('preset');
   const [customDateRange, setCustomDateRange] = useState({
     startDate: '',
-    endDate: ''
+    endDate: '',
   });
-  
+
   // Hooks
   const { translations, language } = useLanguageContext();
   const { currency } = useCurrencyContext();
@@ -45,14 +49,14 @@ export const AnalyticsPage: React.FC = () => {
     // Data
     cashFlow,
     walletBreakdown,
-    
+
     // Loading
     loading,
-    
+
     // Error
     error,
     clearError,
-    
+
     // Actions
     fetchCategoryBreakdown,
     fetchWalletBreakdown,
@@ -61,40 +65,44 @@ export const AnalyticsPage: React.FC = () => {
     fetchWeeklySummary,
     fetchMonthlySummary,
     fetchYearlySummary,
-    
+
     // Chart helpers
     getCategoryPieChartData,
     getWalletPieChartData,
     getDailyBarChartData,
     getWeeklyBarChartData,
     getMonthlyBarChartData,
-    getYearlyBarChartData
+    getYearlyBarChartData,
   } = useAnalytics();
 
   // Load data based on selected chart
   const loadChartData = useCallback(async () => {
     try {
-      if (dateRangeMode === 'custom' && customDateRange.startDate && customDateRange.endDate) {
+      if (
+        dateRangeMode === 'custom' &&
+        customDateRange.startDate &&
+        customDateRange.endDate
+      ) {
         // Custom date range
         await Promise.all([
           fetchCategoryBreakdown({
             startDate: customDateRange.startDate,
-            endDate: customDateRange.endDate
+            endDate: customDateRange.endDate,
           }),
           fetchWalletBreakdown({
             startDate: customDateRange.startDate,
-            endDate: customDateRange.endDate
+            endDate: customDateRange.endDate,
           }),
           fetchCashFlow({
             startDate: customDateRange.startDate,
-            endDate: customDateRange.endDate
-          })
+            endDate: customDateRange.endDate,
+          }),
         ]);
       } else {
         // Preset periods - current data
         const now = new Date();
         const today = now.toISOString().split('T')[0];
-        
+
         switch (selectedChart) {
           case 'daily':
             await fetchDailySummary(today);
@@ -107,22 +115,22 @@ export const AnalyticsPage: React.FC = () => {
           case 'monthly':
             await fetchMonthlySummary({
               year: now.getFullYear(),
-              month: now.getMonth() + 1
+              month: now.getMonth() + 1,
             });
             break;
           case 'yearly':
             await fetchYearlySummary({
-              year: now.getFullYear()
+              year: now.getFullYear(),
             });
             break;
         }
-        
+
         // Always fetch category breakdown, wallet breakdown and cash flow for current period
         const dateRange = getDateRangeForPeriod(selectedChart);
         await Promise.all([
           fetchCategoryBreakdown(dateRange),
           fetchWalletBreakdown(dateRange),
-          fetchCashFlow(dateRange)
+          fetchCashFlow(dateRange),
         ]);
       }
     } catch (error) {
@@ -130,7 +138,18 @@ export const AnalyticsPage: React.FC = () => {
       // The error is already handled by individual fetch functions
       // This is just an additional safety net
     }
-  }, [selectedChart, dateRangeMode, customDateRange, fetchCategoryBreakdown, fetchWalletBreakdown, fetchCashFlow, fetchDailySummary, fetchWeeklySummary, fetchMonthlySummary, fetchYearlySummary]);
+  }, [
+    selectedChart,
+    dateRangeMode,
+    customDateRange,
+    fetchCategoryBreakdown,
+    fetchWalletBreakdown,
+    fetchCashFlow,
+    fetchDailySummary,
+    fetchWeeklySummary,
+    fetchMonthlySummary,
+    fetchYearlySummary,
+  ]);
 
   // Helper to get date range for periods
   const getDateRangeForPeriod = (period: ChartView) => {
@@ -160,7 +179,7 @@ export const AnalyticsPage: React.FC = () => {
 
     return {
       startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
+      endDate: endDate.toISOString().split('T')[0],
     };
   };
 
@@ -173,46 +192,90 @@ export const AnalyticsPage: React.FC = () => {
           console.error('Failed to load chart data in useEffect:', error);
         });
       }, 100);
-      
+
       return () => clearTimeout(timeoutId);
     } catch (error) {
       console.error('Error in useEffect for analytics:', error);
     }
   }, [loadChartData, language, currency]);
 
+  // Set dayjs locale based on language
+  useEffect(() => {
+    if (language === 'vi') {
+      dayjs.locale('vi');
+    } else {
+      dayjs.locale('en');
+    }
+  }, [language]);
+
   // Chart view options
   const chartOptions = [
-    { value: 'daily' as ChartView, label: translations.analytics?.daily || 'Daily', icon: Calendar },
-    { value: 'weekly' as ChartView, label: translations.analytics?.weekly || 'Weekly', icon: BarChart3 },
-    { value: 'monthly' as ChartView, label: translations.analytics?.monthly || 'Monthly', icon: TrendingUp },
-    { value: 'yearly' as ChartView, label: translations.analytics?.yearly || 'Yearly', icon: Trophy }
+    {
+      value: 'daily' as ChartView,
+      label: translations.analytics?.daily || 'Daily',
+      icon: Calendar,
+    },
+    {
+      value: 'weekly' as ChartView,
+      label: translations.analytics?.weekly || 'Weekly',
+      icon: BarChart3,
+    },
+    {
+      value: 'monthly' as ChartView,
+      label: translations.analytics?.monthly || 'Monthly',
+      icon: TrendingUp,
+    },
+    {
+      value: 'yearly' as ChartView,
+      label: translations.analytics?.yearly || 'Yearly',
+      icon: Trophy,
+    },
   ];
 
   // Pie chart type options
   const pieChartOptions = [
-    { value: 'expense' as PieChartType, label: translations.analytics?.expenses || 'Expenses', icon: CreditCard },
-    { value: 'income' as PieChartType, label: translations.analytics?.income || 'Income', icon: DollarSign }
+    {
+      value: 'expense' as PieChartType,
+      label: translations.analytics?.expenses || 'Expenses',
+      icon: CreditCard,
+    },
+    {
+      value: 'income' as PieChartType,
+      label: translations.analytics?.income || 'Income',
+      icon: DollarSign,
+    },
   ];
 
   // Pie chart source options
   const pieChartSourceOptions = [
-    { value: 'category' as PieChartSource, label: translations.analytics?.byCategory || 'By Category', icon: BarChart3 },
-    { value: 'wallet' as PieChartSource, label: 'By Wallet', icon: CreditCard }
+    {
+      value: 'category' as PieChartSource,
+      label: translations.analytics?.byCategory || 'By Category',
+      icon: BarChart3,
+    },
+    { value: 'wallet' as PieChartSource, label: 'By Wallet', icon: CreditCard },
   ];
 
   // Get chart data based on selected view
   const getChartData = React.useCallback(() => {
     try {
       let barData: any[] = [];
-      
+
       // If custom date range is selected, create summary bar chart data
-      if (dateRangeMode === 'custom' && customDateRange.startDate && customDateRange.endDate && cashFlow) {
-        barData = [{
-          name: `${customDateRange.startDate} to ${customDateRange.endDate}`,
-          income: cashFlow.totalIncome || 0,
-          expense: cashFlow.totalExpenses || 0,
-          net: (cashFlow.totalIncome || 0) - (cashFlow.totalExpenses || 0)
-        }];
+      if (
+        dateRangeMode === 'custom' &&
+        customDateRange.startDate &&
+        customDateRange.endDate &&
+        cashFlow
+      ) {
+        barData = [
+          {
+            name: `${customDateRange.startDate} to ${customDateRange.endDate}`,
+            income: cashFlow.totalIncome || 0,
+            expense: cashFlow.totalExpenses || 0,
+            net: (cashFlow.totalIncome || 0) - (cashFlow.totalExpenses || 0),
+          },
+        ];
       } else {
         // Preset periods - use time series data
         switch (selectedChart) {
@@ -232,42 +295,46 @@ export const AnalyticsPage: React.FC = () => {
       }
 
       // Get pie chart data based on type and source
-      const pieData = pieChartSource === 'wallet' 
-        ? getWalletPieChartData(pieChartType)
-        : getCategoryPieChartData(pieChartType);
+      const pieData =
+        pieChartSource === 'wallet'
+          ? getWalletPieChartData(pieChartType)
+          : getCategoryPieChartData(pieChartType);
 
-      const chartLabel = dateRangeMode === 'custom' && customDateRange.startDate && customDateRange.endDate
-        ? `Custom Range: ${customDateRange.startDate} - ${customDateRange.endDate}`
-        : chartOptions.find(c => c.value === selectedChart)?.label;
+      const chartLabel =
+        dateRangeMode === 'custom' &&
+        customDateRange.startDate &&
+        customDateRange.endDate
+          ? `Custom Range: ${customDateRange.startDate} - ${customDateRange.endDate}`
+          : chartOptions.find(c => c.value === selectedChart)?.label;
 
       return {
         pieData: Array.isArray(pieData) ? pieData : [],
         barData: Array.isArray(barData) ? barData : [],
-        title: `${translations.analytics?.title || 'Analytics'} - ${chartLabel}`
+        title: `${translations.analytics?.title || 'Analytics'} - ${chartLabel}`,
       };
     } catch (error) {
       console.error('Error getting chart data:', error);
       return {
         pieData: [],
         barData: [],
-        title: `${translations.analytics?.title || 'Analytics'} - ${chartOptions.find(c => c.value === selectedChart)?.label}`
+        title: `${translations.analytics?.title || 'Analytics'} - ${chartOptions.find(c => c.value === selectedChart)?.label}`,
       };
     }
   }, [
-    dateRangeMode, 
-    customDateRange, 
-    cashFlow, 
-    selectedChart, 
-    pieChartType, 
+    dateRangeMode,
+    customDateRange,
+    cashFlow,
+    selectedChart,
+    pieChartType,
     pieChartSource,
-    getDailyBarChartData, 
-    getWeeklyBarChartData, 
-    getMonthlyBarChartData, 
-    getYearlyBarChartData, 
+    getDailyBarChartData,
+    getWeeklyBarChartData,
+    getMonthlyBarChartData,
+    getYearlyBarChartData,
     getCategoryPieChartData,
-    getWalletPieChartData, 
-    translations.analytics?.title, 
-    chartOptions
+    getWalletPieChartData,
+    translations.analytics?.title,
+    chartOptions,
   ]);
 
   const chartData = getChartData();
@@ -281,7 +348,7 @@ export const AnalyticsPage: React.FC = () => {
     net: translations.analytics?.net || 'Net',
     loading: translations.analytics?.loading || 'Loading...',
     noData: translations.analytics?.noData || 'No data available',
-    categoriesCount: translations.analytics?.categoriesCount || 'categories'
+    categoriesCount: translations.analytics?.categoriesCount || 'categories',
   };
 
   // Error state
@@ -292,7 +359,9 @@ export const AnalyticsPage: React.FC = () => {
           <div className="analytics-page__error-icon">
             <AlertTriangle size={48} />
           </div>
-          <h2>{translations.analytics?.errorTitle || 'Failed to Load Analytics'}</h2>
+          <h2>
+            {translations.analytics?.errorTitle || 'Failed to Load Analytics'}
+          </h2>
           <p>{error}</p>
           <div className="analytics-page__error-actions">
             <Button onClick={clearError} variant="secondary">
@@ -316,18 +385,17 @@ export const AnalyticsPage: React.FC = () => {
             {translations.analytics?.title || 'Financial Analytics'}
           </h1>
           <p className="analytics-page__subtitle">
-            {translations.analytics?.subtitle || 'Visualize your financial data with interactive charts and insights'}
+            {translations.analytics?.subtitle ||
+              'Visualize your financial data with interactive charts and insights'}
           </p>
         </div>
-        
+
         <div className="analytics-page__actions">
-          <Button 
-            onClick={loadChartData}
-            disabled={isLoading}
-            size="sm"
-          >
+          <Button onClick={loadChartData} disabled={isLoading} size="sm">
             <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-            {isLoading ? translations.analytics?.refreshing || 'Refreshing...' : translations.analytics?.refresh || 'Refresh'}
+            {isLoading
+              ? translations.analytics?.refreshing || 'Refreshing...'
+              : translations.analytics?.refresh || 'Refresh'}
           </Button>
         </div>
       </div>
@@ -351,7 +419,10 @@ export const AnalyticsPage: React.FC = () => {
                   onClick={() => setSelectedChart(option.value)}
                   disabled={isLoading}
                 >
-                  <IconComponent className="analytics-page__control-icon" size={16} />
+                  <IconComponent
+                    className="analytics-page__control-icon"
+                    size={16}
+                  />
                   {option.label}
                 </button>
               );
@@ -376,7 +447,10 @@ export const AnalyticsPage: React.FC = () => {
                   onClick={() => setPieChartType(option.value)}
                   disabled={isLoading}
                 >
-                  <IconComponent className="analytics-page__control-icon" size={16} />
+                  <IconComponent
+                    className="analytics-page__control-icon"
+                    size={16}
+                  />
                   {option.label}
                 </button>
               );
@@ -401,7 +475,10 @@ export const AnalyticsPage: React.FC = () => {
                   onClick={() => setPieChartSource(option.value)}
                   disabled={isLoading}
                 >
-                  <IconComponent className="analytics-page__control-icon" size={16} />
+                  <IconComponent
+                    className="analytics-page__control-icon"
+                    size={16}
+                  />
                   {option.label}
                 </button>
               );
@@ -453,9 +530,10 @@ export const AnalyticsPage: React.FC = () => {
                 startDate: translations.analytics?.startDate || 'Start Date',
                 endDate: translations.analytics?.endDate || 'End Date',
                 apply: translations.analytics?.applyDateRange || 'Apply',
-                clear: translations.analytics?.dismiss || 'Clear'
+                clear: translations.analytics?.dismiss || 'Clear',
               }}
               className="analytics-page__date-range-picker"
+              locale={language === 'vi' ? 'vi' : 'en'}
             />
           </div>
         )}
@@ -468,7 +546,11 @@ export const AnalyticsPage: React.FC = () => {
           <AnalyticsPieChart
             data={pieData}
             title={`${pieChartType === 'income' ? translations.analytics?.income || 'Income' : translations.analytics?.expenses || 'Expenses'} ${pieChartSource === 'category' ? translations.analytics?.byCategory || 'by Category' : 'by Wallet'}`}
-            loading={pieChartSource === 'category' ? loading.categoryBreakdown : loading.walletBreakdown}
+            loading={
+              pieChartSource === 'category'
+                ? loading.categoryBreakdown
+                : loading.walletBreakdown
+            }
             height={500}
             translations={chartTranslations}
           />
@@ -484,7 +566,9 @@ export const AnalyticsPage: React.FC = () => {
             showNet={true}
             translations={chartTranslations}
             dateRangeMode={dateRangeMode}
-            customDateRange={dateRangeMode === 'custom' ? customDateRange : undefined}
+            customDateRange={
+              dateRangeMode === 'custom' ? customDateRange : undefined
+            }
             chartView={selectedChart}
           />
         </div>
@@ -510,26 +594,35 @@ export const AnalyticsPage: React.FC = () => {
               <CreditCard size={24} />
             </div>
             <div className="analytics-page__summary-content">
-              <h3>{translations.analytics?.totalExpenses || 'Total Expenses'}</h3>
+              <h3>
+                {translations.analytics?.totalExpenses || 'Total Expenses'}
+              </h3>
               <p className="analytics-page__summary-amount">
                 <CurrencyAmount amountInVnd={cashFlow.totalExpenses} />
               </p>
             </div>
           </div>
 
-          <div className={`analytics-page__summary-card analytics-page__summary-card--net ${
-            (cashFlow.totalIncome - cashFlow.totalExpenses) >= 0 ? 'positive' : 'negative'
-          }`}>
+          <div
+            className={`analytics-page__summary-card analytics-page__summary-card--net ${
+              cashFlow.totalIncome - cashFlow.totalExpenses >= 0
+                ? 'positive'
+                : 'negative'
+            }`}
+          >
             <div className="analytics-page__summary-icon">
-              {(cashFlow.totalIncome - cashFlow.totalExpenses) >= 0 ? 
-                <TrendingUp size={24} /> : 
+              {cashFlow.totalIncome - cashFlow.totalExpenses >= 0 ? (
+                <TrendingUp size={24} />
+              ) : (
                 <TrendingDown size={24} />
-              }
+              )}
             </div>
             <div className="analytics-page__summary-content">
               <h3>{translations.analytics?.netAmount || 'Net Amount'}</h3>
               <p className="analytics-page__summary-amount">
-                <NetAmount amountInVnd={cashFlow.totalIncome - cashFlow.totalExpenses} />
+                <NetAmount
+                  amountInVnd={cashFlow.totalIncome - cashFlow.totalExpenses}
+                />
               </p>
             </div>
           </div>

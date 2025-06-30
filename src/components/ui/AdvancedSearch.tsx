@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import dayjs from 'dayjs';
 import {
   Box,
   Card,
@@ -36,6 +37,8 @@ import { Dayjs } from 'dayjs';
 import type { SearchTransactionRequest, Category, Wallet } from '../../types';
 import { useLanguageContext, useCurrencyContext } from '../../contexts';
 import { useAmountInput } from '../../hooks';
+import 'dayjs/locale/en';
+import 'dayjs/locale/vi';
 
 interface AdvancedSearchProps {
   onSearch: (filters: SearchTransactionRequest) => void;
@@ -52,7 +55,7 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   wallets,
   isLoading = false,
 }) => {
-  const { translations } = useLanguageContext();
+  const { translations, language } = useLanguageContext();
   const { currency, convertFromDisplay } = useCurrencyContext();
   const [expanded, setExpanded] = useState(false);
   const [filters, setFilters] = useState<SearchTransactionRequest>({});
@@ -60,17 +63,23 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [startTime, setStartTime] = useState<Dayjs | null>(null);
   const [endTime, setEndTime] = useState<Dayjs | null>(null); // Use amount input hooks for currency-aware min/max amount handling
-  const minAmountInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
-    initialValue: 0,
-    onAmountChange: () => {}, // No specific action needed for search filters
-    onError: () => {}, // No error handling needed for search filters
-  });
+  const minAmountInput = useAmountInput(
+    currency.toUpperCase() as 'VND' | 'USD',
+    {
+      initialValue: 0,
+      onAmountChange: () => {}, // No specific action needed for search filters
+      onError: () => {}, // No error handling needed for search filters
+    }
+  );
 
-  const maxAmountInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
-    initialValue: 0,
-    onAmountChange: () => {}, // No specific action needed for search filters
-    onError: () => {}, // No error handling needed for search filters
-  });
+  const maxAmountInput = useAmountInput(
+    currency.toUpperCase() as 'VND' | 'USD',
+    {
+      initialValue: 0,
+      onAmountChange: () => {}, // No specific action needed for search filters
+      onError: () => {}, // No error handling needed for search filters
+    }
+  );
   const daysOfWeek = [
     'Monday',
     'Tuesday',
@@ -159,8 +168,19 @@ const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
     return count;
   };
 
+  React.useEffect(() => {
+    if (language === 'vi') {
+      dayjs.locale('vi');
+    } else {
+      dayjs.locale('en');
+    }
+  }, [language]);
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider
+      dateAdapter={AdapterDayjs}
+      adapterLocale={language === 'vi' ? 'vi' : 'en'}
+    >
       <Card sx={{ mb: 2 }}>
         <CardContent sx={{ pb: 1 }}>
           {/* Header with expand/collapse */}

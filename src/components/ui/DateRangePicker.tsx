@@ -24,6 +24,7 @@ interface DateRangePickerProps {
   };
   className?: string;
   hideEndDateField?: boolean; // New prop to hide end date field
+  locale?: string; // Add locale prop
 }
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({
@@ -33,7 +34,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   onClear,
   translations,
   className = '',
-  hideEndDateField = false
+  hideEndDateField = false,
+  locale = 'en', // Default to 'en'
 }) => {
   const [localStartDate, setLocalStartDate] = useState<Dayjs | null>(
     startDate ? dayjs(startDate) : null
@@ -46,7 +48,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const handleStartDateChange = (date: Dayjs | null) => {
     setLocalStartDate(date);
     const start = date ? date.format('YYYY-MM-DD') : '';
-    const end = hideEndDateField ? '' : (localEndDate ? localEndDate.format('YYYY-MM-DD') : '');
+    const end = hideEndDateField
+      ? ''
+      : localEndDate
+        ? localEndDate.format('YYYY-MM-DD')
+        : '';
     onDateChange(start, end);
   };
 
@@ -69,7 +75,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={locale}>
       <div className={`date-range-picker ${className}`}>
         <div className="date-range-picker__inputs">
           <div className="date-range-picker__field">
@@ -80,17 +86,17 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
             <DatePicker
               value={localStartDate}
               onChange={handleStartDateChange}
-              maxDate={hideEndDateField ? undefined : (localEndDate || undefined)}
+              maxDate={hideEndDateField ? undefined : localEndDate || undefined}
               slotProps={{
                 textField: {
                   size: 'small',
                   variant: 'outlined',
-                  fullWidth: true
-                }
+                  fullWidth: true,
+                },
               }}
             />
           </div>
-          
+
           {!hideEndDateField && (
             <div className="date-range-picker__field">
               <label className="date-range-picker__label">
@@ -102,13 +108,13 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                 onChange={handleEndDateChange}
                 minDate={localStartDate || undefined}
                 slotProps={{
-                textField: {
-                  size: 'small',
-                  variant: 'outlined',
-                  fullWidth: true
-                }
-              }}
-            />
+                  textField: {
+                    size: 'small',
+                    variant: 'outlined',
+                    fullWidth: true,
+                  },
+                }}
+              />
             </div>
           )}
         </div>

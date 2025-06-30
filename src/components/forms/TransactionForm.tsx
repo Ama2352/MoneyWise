@@ -31,6 +31,8 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
+import 'dayjs/locale/en';
+import 'dayjs/locale/vi';
 import { useCategories, useWallets } from '../../hooks/useFinanceData';
 import { useAmountInput, useCurrencyFormatter } from '../../hooks';
 import { useLanguageContext, useCurrencyContext } from '../../contexts';
@@ -47,7 +49,7 @@ interface TransactionFormProps {
 
 export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
   ({ onSubmit, onCancel, isLoading = false, initialData }) => {
-    const { translations } = useLanguageContext();
+    const { translations, language } = useLanguageContext();
     const { currency, convertFromDisplay, convertAndFormat } =
       useCurrencyContext();
     const { parseAmountFromDisplay } = useCurrencyFormatter();
@@ -73,22 +75,25 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Use the amount input hook for currency handling
-    const amountInput = useAmountInput(currency.toUpperCase() as 'VND' | 'USD', {
-      initialValue: 0,
-      onAmountChange: (_rawValue: number) => {
-        // Clear amount error when user starts typing
-        if (errors.amount) {
-          setErrors(prev => ({ ...prev, amount: '' }));
-        }
-      },
-      onError: (error: string | null) => {
-        if (error) {
-          setErrors(prev => ({ ...prev, amount: error }));
-        } else {
-          setErrors(prev => ({ ...prev, amount: '' }));
-        }
-      },
-    });
+    const amountInput = useAmountInput(
+      currency.toUpperCase() as 'VND' | 'USD',
+      {
+        initialValue: 0,
+        onAmountChange: (_rawValue: number) => {
+          // Clear amount error when user starts typing
+          if (errors.amount) {
+            setErrors(prev => ({ ...prev, amount: '' }));
+          }
+        },
+        onError: (error: string | null) => {
+          if (error) {
+            setErrors(prev => ({ ...prev, amount: error }));
+          } else {
+            setErrors(prev => ({ ...prev, amount: '' }));
+          }
+        },
+      }
+    );
 
     // Initialize amount when editing - use a ref to track initialization
     const initializationRef = useRef<number | null>(null);
@@ -118,6 +123,15 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
       parseAmountFromDisplay,
       amountInput.setValue,
     ]);
+
+    // Set dayjs locale dynamically
+    useEffect(() => {
+      if (language === 'vi') {
+        dayjs.locale('vi');
+      } else {
+        dayjs.locale('en');
+      }
+    }, [language]);
 
     const validateForm = (): boolean => {
       const newErrors: Record<string, string> = {};
@@ -191,7 +205,10 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
 
     // No need to prevent scroll since MUI Dialog handles this
     return (
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider
+        dateAdapter={AdapterDayjs}
+        adapterLocale={language === 'vi' ? 'vi' : 'en'}
+      >
         <Dialog
           open={true}
           onClose={onCancel}
