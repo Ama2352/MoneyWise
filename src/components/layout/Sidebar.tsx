@@ -33,12 +33,31 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
+// Use a custom event to trigger sidebar monthly summary refetch from anywhere
+export const refetchSidebarMonthlySummary = () => {
+  window.dispatchEvent(new CustomEvent('refetchSidebarMonthlySummary'));
+};
+
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   const location = useLocation();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const { translations } = useLanguageContext();
   const { convertAndFormat } = useCurrencyContext();
   const { monthlySummary, fetchMonthlySummary } = useAnalytics();
+
+  // Listen for the custom event and refetch monthly summary
+  React.useEffect(() => {
+    const handler = () => {
+      const now = new Date();
+      fetchMonthlySummary({
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+      });
+    };
+    window.addEventListener('refetchSidebarMonthlySummary', handler);
+    return () =>
+      window.removeEventListener('refetchSidebarMonthlySummary', handler);
+  }, [fetchMonthlySummary]);
 
   const isActiveRoute = (path: string) => {
     return (

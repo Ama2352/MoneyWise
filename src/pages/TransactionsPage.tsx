@@ -25,6 +25,7 @@ import type {
   SearchTransactionRequest,
 } from '../types';
 import './TransactionsPage.css';
+import { refetchSidebarMonthlySummary } from '../components/layout/Sidebar';
 
 // Memoized transaction list component to prevent unnecessary re-renders
 const TransactionList = memo<{
@@ -182,6 +183,7 @@ const TransactionsPage: React.FC = memo(() => {
     setSearchFilters({});
     setVisibleCount(ITEMS_PER_PAGE);
   }, [ITEMS_PER_PAGE]);
+
   const handleCreateTransaction = useCallback(
     async (data: CreateTransactionRequest) => {
       try {
@@ -189,6 +191,7 @@ const TransactionsPage: React.FC = memo(() => {
         if (result.success) {
           setShowForm(false);
           refreshTransactions(); // Refresh transactions to update statistics
+          refetchSidebarMonthlySummary(); // Trigger sidebar monthly summary refetch
           showSuccess(translations.transactions.notifications.createSuccess);
         } else {
           console.error('Transaction creation failed:', result.error);
@@ -201,7 +204,13 @@ const TransactionsPage: React.FC = memo(() => {
         showError(translations.transactions.notifications.createError);
       }
     },
-    [createTransaction, refreshTransactions, showSuccess, showError]
+    [
+      createTransaction,
+      refreshTransactions,
+      showSuccess,
+      showError,
+      refetchSidebarMonthlySummary,
+    ]
   );
 
   const handleUpdateTransaction = useCallback(
@@ -219,6 +228,7 @@ const TransactionsPage: React.FC = memo(() => {
           setEditingTransaction(null);
           setShowForm(false);
           refreshTransactions(); // Refresh transactions to update statistics
+          refetchSidebarMonthlySummary(); // Trigger sidebar monthly summary refetch
           showSuccess(translations.transactions.notifications.updateSuccess);
         } else {
           showError(
@@ -236,6 +246,7 @@ const TransactionsPage: React.FC = memo(() => {
       refreshTransactions,
       showSuccess,
       showError,
+      refetchSidebarMonthlySummary,
     ]
   );
 
@@ -246,6 +257,7 @@ const TransactionsPage: React.FC = memo(() => {
       const result = await deleteTransaction(deleteConfirm.transactionId);
       if (result.success) {
         refreshTransactions(); // Refresh transactions to update statistics
+        refetchSidebarMonthlySummary(); // Trigger sidebar monthly summary refetch
         showSuccess(translations.transactions.notifications.deleteSuccess);
       } else {
         showError(
@@ -264,6 +276,7 @@ const TransactionsPage: React.FC = memo(() => {
     refreshTransactions,
     showSuccess,
     showError,
+    refetchSidebarMonthlySummary,
   ]);
 
   // Memoize helper functions to prevent recreation on every render

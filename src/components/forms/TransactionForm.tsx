@@ -244,10 +244,11 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                     }
                     fullWidth
                     size="small"
+                    disabled={!!initialData || isLoading || isSubmitting}
                   >
                     <ToggleButton
                       value="income"
-                      disabled={isLoading || isSubmitting}
+                      disabled={!!initialData || isLoading || isSubmitting}
                       sx={{
                         '&.Mui-selected': {
                           backgroundColor: 'success.light',
@@ -263,7 +264,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = React.memo(
                     </ToggleButton>
                     <ToggleButton
                       value="expense"
-                      disabled={isLoading || isSubmitting}
+                      disabled={!!initialData || isLoading || isSubmitting}
                       sx={{
                         '&.Mui-selected': {
                           backgroundColor: 'error.light',

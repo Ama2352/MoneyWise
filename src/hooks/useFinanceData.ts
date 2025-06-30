@@ -139,7 +139,10 @@ export const useTransactions = () => {
     transactions,
     isLoading,
     error,
-    refresh: () => mutate(SWR_KEYS.TRANSACTIONS.ALL),
+    refresh: () => {
+      mutate(SWR_KEYS.TRANSACTIONS.ALL, undefined, { revalidate: true });
+      mutate(SWR_KEYS.WALLETS.ALL, undefined, { revalidate: true });
+    },
   };
 };
 

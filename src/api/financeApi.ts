@@ -205,7 +205,7 @@ export const budgetApi = {
 
   updateBudget: async (budget: UpdateBudgetRequest): Promise<Budget> => {
     const response = await httpClient.put<Budget>(
-      `${API_ENDPOINTS.BUDGETS.BASE}`,
+      `${API_ENDPOINTS.BUDGETS.BASE}/${budget.budgetId}`,
       budget // ← Direct object, becomes request body
     );
     return response.data;

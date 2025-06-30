@@ -1,4 +1,4 @@
-import { validateEmail, validateRequired, validatePassword } from '../utils';
+import { validateEmail, validateRequired } from '../utils';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -36,8 +36,14 @@ export class FormValidationService {
 
     if (!validateRequired(data.password)) {
       errors.password = this.translations.validation.passwordRequired;
-    } else if (data.password.length < 6) {
-      errors.password = this.translations.validation.passwordTooShort;
+    } else {
+      if (data.password.length < 6) {
+        errors.password = this.translations.validation.passwordTooShort;
+      } else if (!/[A-Z]/.test(data.password)) {
+        errors.password = this.translations.validation.passwordMissingUppercase;
+      } else if (!/[^A-Za-z0-9]/.test(data.password)) {
+        errors.password = this.translations.validation.passwordMissingSpecial;
+      }
     }
 
     return {
@@ -66,25 +72,12 @@ export class FormValidationService {
     if (!validateRequired(data.password)) {
       errors.password = this.translations.validation.passwordRequired;
     } else {
-      const passwordValidation = validatePassword(data.password);
-      if (!passwordValidation.isValid) {
-        // Map the first error to appropriate translation key
-        const firstError = passwordValidation.errors[0];
-        if (firstError.includes('6 characters')) {
-          errors.password = this.translations.validation.passwordTooShort;
-        } else if (firstError.includes('uppercase')) {
-          errors.password =
-            this.translations.validation.passwordMissingUppercase;
-        } else if (firstError.includes('lowercase')) {
-          errors.password =
-            this.translations.validation.passwordMissingLowercase;
-        } else if (firstError.includes('number')) {
-          errors.password = this.translations.validation.passwordMissingNumber;
-        } else if (firstError.includes('special')) {
-          errors.password = this.translations.validation.passwordMissingSpecial;
-        } else {
-          errors.password = firstError; // Fallback to original error
-        }
+      if (data.password.length < 6) {
+        errors.password = this.translations.validation.passwordTooShort;
+      } else if (!/[A-Z]/.test(data.password)) {
+        errors.password = this.translations.validation.passwordMissingUppercase;
+      } else if (!/[^A-Za-z0-9]/.test(data.password)) {
+        errors.password = this.translations.validation.passwordMissingSpecial;
       }
     }
 
