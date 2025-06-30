@@ -768,6 +768,8 @@ export const vi: TranslationKeys = {
     totalExpenses: 'Tổng Chi Phí',
     savings: 'Tiết Kiệm',
     new: 'Mới',
+  },
+
   wallets: {
     title: 'Ví',
     subtitle: 'Quản lý các tài khoản và theo dõi số dư trong tất cả ví của bạn',

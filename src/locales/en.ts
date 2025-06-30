@@ -770,6 +770,8 @@ export const en: TranslationKeys = {
     totalExpenses: 'Total Expenses',
     savings: 'Savings',
     new: 'New',
+  },
+  
   wallets: {
     title: 'Wallets',
     subtitle: 'Manage your accounts and track balances across all your wallets',
