@@ -106,7 +106,12 @@ export const useWallet = (walletId: string | null) => {
  * Hook to fetch all wallets using SWR
  */
 export const useWallets = () => {
-  const { data, error, isLoading, mutate: mutateFn } = useSWR<Wallet[]>(
+  const {
+    data,
+    error,
+    isLoading,
+    mutate: mutateFn,
+  } = useSWR<Wallet[]>(
     SWR_KEYS.WALLETS.ALL,
     async () => {
       const result = await walletApi.getAll();
@@ -133,14 +138,17 @@ export const useTransactions = () => {
     SWR_KEYS.TRANSACTIONS.ALL,
     async () => {
       const result = await transactionApi.getAll();
-
       return result;
     }
   );
   // Use useMemo to avoid reversing on every render and prevent mutation
   const transactions = useMemo(() => {
     if (!data) return [];
-    return [...data].reverse(); // Create a new array before reversing
+    return [...data].sort(
+      (a, b) =>
+        new Date(b.transactionDate).getTime() -
+        new Date(a.transactionDate).getTime()
+    );
   }, [data]);
 
   return {

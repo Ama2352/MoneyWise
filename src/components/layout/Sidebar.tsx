@@ -19,6 +19,7 @@ import {
 import './Sidebar.css';
 import { useAnalytics, useTranslations } from '../../hooks';
 import { useCurrencyContext, useLanguageContext } from '../../contexts';
+import { useTransactions } from '../../hooks/useFinanceData';
 
 interface NavigationItem {
   id: string;
@@ -44,6 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   const { translations } = useLanguageContext();
   const { convertAndFormat } = useCurrencyContext();
   const { monthlySummary, fetchMonthlySummary } = useAnalytics();
+  const { transactions } = useTransactions();
 
   // Listen for the custom event and refetch monthly summary
   React.useEffect(() => {
@@ -72,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
       year: now.getFullYear(),
       month: now.getMonth() + 1,
     });
-  }, [fetchMonthlySummary]);
+  }, [fetchMonthlySummary, transactions]);
 
   // Safely extract values
   const totalIncome =

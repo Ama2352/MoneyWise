@@ -78,7 +78,12 @@ const ModernDashboard: React.FC = () => {
     useSavingGoalProgress();
   const { createTransaction, updateTransaction, deleteTransaction } =
     useTransactionMutations();
-  const { categoryBreakdown, fetchCategoryBreakdown, loading } = useAnalytics();
+  const {
+    categoryBreakdown,
+    fetchCategoryBreakdown,
+    loading,
+    fetchMonthlySummary,
+  } = useAnalytics();
 
   // DRY helper to refresh all analytics data
   const refreshAnalytics = useCallback(() => {
