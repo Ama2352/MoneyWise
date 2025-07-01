@@ -123,6 +123,7 @@ export const en: TranslationKeys = {
     logout: 'Logout',
     logoutSuccess: 'You have been logged out successfully',
     sessionExpired: 'Your session has expired. Please log in again.',
+    sessionExpiredMessage: 'Your session has expired. Would you like to stay logged in or log out?',
     stayLoggedIn: 'Stay Logged In',
     chooseLanguageTitle: 'Choose Your Language',
     chooseLanguageExplanation: 'To help you get started, we will provide default categories and wallets based on your chosen language. You can always change your language later in settings.',

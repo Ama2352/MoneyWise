@@ -165,6 +165,7 @@ export interface TranslationKeys {
     logout: string;
     logoutSuccess: string;
     sessionExpired: string;
+    sessionExpiredMessage: string;
     stayLoggedIn: string;
     // Language selection after registration
     chooseLanguageTitle: string;

@@ -120,6 +120,7 @@ export const vi: TranslationKeys = {
     logout: 'Đăng xuất',
     logoutSuccess: 'Bạn đã đăng xuất thành công',
     sessionExpired: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+    sessionExpiredMessage: 'Phiên đăng nhập của bạn đã hết hạn. Bạn muốn duy trì đăng nhập hay đăng xuất?',
     stayLoggedIn: 'Duy trì đăng nhập',
     // Language selection after registration
     chooseLanguageTitle: 'Chọn Ngôn Ngữ Của Bạn',

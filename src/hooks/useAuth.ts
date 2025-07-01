@@ -87,7 +87,7 @@ export const useAuthentication = (): UseAuthenticationReturn => {
     // Listen for token expiry events from HTTP interceptor
     const handleTokenExpired = () => {
       setTokenExpired(true);
-      setIsAuthenticated(false);
+      // Do NOT set isAuthenticated to false yet!
     };
 
     window.addEventListener('token-expired', handleTokenExpired);

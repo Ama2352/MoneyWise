@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(
     () => auth,
-    [auth.userProfile, auth.isLoading, auth.isAuthenticated, auth.tokenExpired]
+    [auth.isLoading, auth.isAuthenticated, auth.tokenExpired]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
