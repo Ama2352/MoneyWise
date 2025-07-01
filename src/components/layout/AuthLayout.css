@@ -441,3 +441,113 @@
 .auth-submit-btn:hover::before {
   left: 100%;
 }
+
+.auth-input-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-700);
+  margin-bottom: 0.5rem;
+  display: block;
+  letter-spacing: 0.025em;
+}
+
+.auth-select-wrapper {
+  position: relative;
+  display: block;
+}
+
+.auth-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  font-size: 1rem;
+  padding: 1rem 3rem 1rem 1.25rem;
+  border: 2px solid var(--primary-200);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--gray-800);
+  transition: all 0.2s ease;
+  font-weight: 400;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.auth-select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(23, 126, 137, 0.1);
+  background: var(--primary-50);
+  transform: translateY(-1px);
+}
+
+.auth-select:hover {
+  border-color: var(--primary-300);
+}
+
+.auth-select.input-error {
+  border-color: var(--error-500);
+  background-color: var(--error-50);
+}
+
+.auth-select-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-400);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.auth-select:focus + .auth-select-icon {
+  color: var(--primary-500);
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.auth-select:hover + .auth-select-icon {
+  color: var(--primary-500);
+}
+
+.auth-input-help {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+  margin-top: 0.5rem;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+/* Option styling for better consistency */
+.auth-select option {
+  padding: 0.5rem;
+  background: var(--white);
+  color: var(--gray-800);
+  font-weight: 400;
+}
+
+/* Focus visible for accessibility */
+.auth-select:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .auth-input-label {
+    font-size: 0.8125rem;
+  }
+
+  .auth-select {
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  .auth-select-icon {
+    right: 0.75rem;
+  }
+
+  .auth-input-help {
+    font-size: 0.75rem;
+  }
+}

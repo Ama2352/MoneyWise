@@ -121,6 +121,10 @@ export const vi: TranslationKeys = {
     logoutSuccess: 'Bạn đã đăng xuất thành công',
     sessionExpired: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
     stayLoggedIn: 'Duy trì đăng nhập',
+    // Language selection after registration
+    chooseLanguageTitle: 'Chọn Ngôn Ngữ Của Bạn',
+    chooseLanguageExplanation: 'Để giúp bạn bắt đầu, ứng dụng sẽ cung cấp các danh mục và ví mẫu dựa trên ngôn ngữ bạn chọn. Bạn có thể thay đổi ngôn ngữ bất cứ lúc nào trong phần cài đặt.',
+    chooseLanguageConfirm: 'Tiếp tục',
   },
 
   app: {

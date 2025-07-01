@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../contexts';
 import { useToastContext } from '../contexts';
 import { useLanguageContext } from '../contexts';
-import { Button } from '../components/ui';
+import { Button, Modal } from '../components/ui';
 import { AuthLayout } from '../components/layout';
 import {
   AuthInput,
@@ -14,12 +14,14 @@ import { useForm } from '../hooks';
 import { createFormValidationService } from '../services';
 import type { RegisterFormData } from '../services';
 import { ROUTES } from '../constants';
+import { useGlobalModal } from '../contexts/GlobalModalContext';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { register, isLoading } = useAuthContext();
   const { showSuccess, showError } = useToastContext();
-  const { translations } = useLanguageContext();
+  const { translations, setLanguage } = useLanguageContext();
+  const { showLanguageModal } = useGlobalModal();
 
   const validationService = createFormValidationService(translations);
 
@@ -45,12 +47,11 @@ const RegisterPage = () => {
           confirmPassword: values.confirmPassword,
         });
         if (result.success) {
-          // Registration successful, show toast and then navigate
           showSuccess(translations.auth.registerSuccess);
-          // Add a small delay to ensure toast is displayed and state is updated
-          setTimeout(() => {
+          showLanguageModal(lang => {
+            setLanguage(lang);
             navigate(ROUTES.LOGIN, { replace: true });
-          }, 100);
+          });
         } else {
           showError(result.error || translations.auth.registerFailed);
         }

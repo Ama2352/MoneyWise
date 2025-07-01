@@ -166,6 +166,10 @@ export interface TranslationKeys {
     logoutSuccess: string;
     sessionExpired: string;
     stayLoggedIn: string;
+    // Language selection after registration
+    chooseLanguageTitle: string;
+    chooseLanguageExplanation: string;
+    chooseLanguageConfirm: string;
   };
 
   // App

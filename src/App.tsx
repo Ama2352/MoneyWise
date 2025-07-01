@@ -20,6 +20,8 @@ import { STORAGE_KEYS } from './constants';
 import { swrConfig } from './config/swr';
 import './App.css';
 import { AppRouter } from './router';
+import { GlobalModalProvider } from './contexts/GlobalModalContext';
+import { GlobalModals } from './components/GlobalModals';
 
 function AppContent() {
   const {
@@ -117,11 +119,14 @@ function App() {
         <CurrencyProvider>
           <ToastProvider>
             <AuthProvider>
-              <Router>
-                <SWRConfig value={swrConfig}>
-                  <AppContent />
-                </SWRConfig>
-              </Router>
+              <GlobalModalProvider>
+                <Router>
+                  <SWRConfig value={swrConfig}>
+                    <AppContent />
+                    <GlobalModals />
+                  </SWRConfig>
+                </Router>
+              </GlobalModalProvider>
             </AuthProvider>
           </ToastProvider>
         </CurrencyProvider>

@@ -124,6 +124,9 @@ export const en: TranslationKeys = {
     logoutSuccess: 'You have been logged out successfully',
     sessionExpired: 'Your session has expired. Please log in again.',
     stayLoggedIn: 'Stay Logged In',
+    chooseLanguageTitle: 'Choose Your Language',
+    chooseLanguageExplanation: 'To help you get started, we will provide default categories and wallets based on your chosen language. You can always change your language later in settings.',
+    chooseLanguageConfirm: 'Continue',
   },
 
   app: {
