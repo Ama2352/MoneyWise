@@ -732,6 +732,8 @@ export interface TranslationKeys {
     preset: string;
     custom: string;
     byCategory: string;
+    byWallet: string;
+    breakdownSource: string;
     failedToLoad: string;
     errorTitle: string;
     dismiss: string;

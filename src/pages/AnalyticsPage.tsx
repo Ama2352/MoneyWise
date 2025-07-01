@@ -253,7 +253,11 @@ export const AnalyticsPage: React.FC = () => {
       label: translations.analytics?.byCategory || 'By Category',
       icon: BarChart3,
     },
-    { value: 'wallet' as PieChartSource, label: 'By Wallet', icon: CreditCard },
+    {
+      value: 'wallet' as PieChartSource,
+      label: translations.analytics?.byWallet || 'By Wallet',
+      icon: CreditCard,
+    },
   ];
 
   // Get chart data based on selected view
@@ -461,7 +465,7 @@ export const AnalyticsPage: React.FC = () => {
         {/* Pie Chart Source Selection */}
         <div className="analytics-page__control-group">
           <label className="analytics-page__control-label">
-            Breakdown Source
+            {translations.analytics?.breakdownSource || 'Breakdown Source'}
           </label>
           <div className="analytics-page__button-group">
             {pieChartSourceOptions.map(option => {
@@ -545,7 +549,7 @@ export const AnalyticsPage: React.FC = () => {
         <div className="analytics-page__chart-container analytics-page__chart-container--pie">
           <AnalyticsPieChart
             data={pieData}
-            title={`${pieChartType === 'income' ? translations.analytics?.income || 'Income' : translations.analytics?.expenses || 'Expenses'} ${pieChartSource === 'category' ? translations.analytics?.byCategory || 'by Category' : 'by Wallet'}`}
+            title={`${pieChartType === 'income' ? translations.analytics?.income || 'Income' : translations.analytics?.expenses || 'Expenses'} ${pieChartSource === 'category' ? translations.analytics?.byCategory || 'by Category' : translations.analytics?.byWallet || 'by Wallet'}`}
             loading={
               pieChartSource === 'category'
                 ? loading.categoryBreakdown
